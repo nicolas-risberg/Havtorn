@@ -96,6 +96,7 @@
   <ItemGroup>
     <ClInclude Include="EngineTypes.h" />
     <ClInclude Include="MathLibrary.h" />
+    <ClInclude Include="Vector.h" />
     <ClInclude Include="WindowsInclude.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

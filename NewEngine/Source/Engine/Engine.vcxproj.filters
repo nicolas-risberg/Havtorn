@@ -27,5 +27,8 @@
     <ClInclude Include="MathLibrary.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
