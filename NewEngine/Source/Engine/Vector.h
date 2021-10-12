@@ -137,6 +137,7 @@ namespace NewEngine
 	template<typename T>
 	SVector3<T> SVector3<T>::operator/(T a) const
 	{
+		// TODO.NR: Print out error message about div with zero
 		if (a == 0)
 			return SVector3();
 
@@ -166,6 +167,7 @@ namespace NewEngine
 	template<typename T>
 	SVector3<T> SVector3<T>::operator/(const SVector3& other) const
 	{
+		// TODO.NR: Print out error message about div with zero
 		if (other.X == 0 || other.Y == 0 || other.Z == 0)
 			return SVector3();
 
@@ -196,6 +198,7 @@ namespace NewEngine
 	template<typename T>
 	SVector3<T> SVector3<T>::operator/=(T a) const
 	{
+		// TODO.NR: Print out error message about div with zero
 		if (a == 0)
 			return SVector3();
 
@@ -229,6 +232,7 @@ namespace NewEngine
 	template<typename T>
 	SVector3<T> SVector3<T>::operator/=(const SVector3& other) const
 	{
+		// TODO.NR: Print out error message about div with zero 
 		if (other.X == 0 || other.Y == 0 || other.Z == 0)
 			return SVector3();
 
