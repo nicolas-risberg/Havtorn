@@ -19,4 +19,6 @@ namespace NewEngine
 	// Used to declare types cache aligned in CACHE_LINE bytes
 #define CACHE_LINE  32
 #define CACHE_ALIGN __declspec(align(CACHE_LINE))
+
+	using SVector3f = SVector3<float>;
 }

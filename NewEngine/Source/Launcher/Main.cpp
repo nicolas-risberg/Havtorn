@@ -42,13 +42,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 #endif
 
 	SVector3<F32> haqvin;
-	haqvin = SVector3(2.0f, 3.0f, 5600.0f);
+	haqvin = SVector3(1.0f, 1.0f, 0.0f);
 
-	SVector3<F32> nico = { 1.0f, 1.0f, 0.0f };
+	SVector3<F32> nico = { -2.0f, 0.0f, 0.0f };
 
-	F32 dot = nico.Dot(haqvin);
+	SVector3f projection = nico.Project(haqvin);
 
-	dot = haqvin.X;
+	projection = haqvin.X;
 
 	system("pause");
 

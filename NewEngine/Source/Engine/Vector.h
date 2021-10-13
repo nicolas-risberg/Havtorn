@@ -1,5 +1,5 @@
 #pragma once
-#include <complex>
+#include "EngineMath.h"
 
 namespace NewEngine
 {
@@ -50,42 +50,30 @@ namespace NewEngine
 		inline T Dot(const SVector3& other) const;
 		inline SVector3 Cross(const SVector3& other) const;
 
-		T Length() const
-		{
-			return std::sqrt(X * X + Y * Y + Z * Z);
-		}
+		inline T Length() const;
+		inline T LengthSquared() const;
+		inline T Size() const;
+		inline T SizeSquared() const;
 
-		T LengthSquared() const
-		{
-			return (X * X + Y * Y + Z * Z);
-		}
+		inline T Length2D() const;
+		inline T LengthSquared2D() const;
+		inline T Size2D() const;
+		inline T SizeSquared2D() const;
 
-		void Normalize()
-		{
-			T length = this->Length();
+		void Normalize();
+		SVector3 Normalized() const;
 
-			*this /= length;
-		}
-
-		SVector3 Normalized() const
-		{
-			T length = this->Length();
-
-			return SVector3(*this) / length;
-		}
-
-		/*
+		/**
 		* Gets the projection of this vector on other.
 		*
 		* @param other Vector to project onto.
 		*/
-		SVector3 Project(const SVector3& other) const
-		{
-			const SVector3& direction = other.Normalized();
+		SVector3 Project(const SVector3& other) const;
 
-			T length = this->Dot(direction);
-			return direction * length;
-		}
+		inline T Distance(const SVector3& other) const;
+		inline T DistanceSquared(const SVector3& other) const;
+		inline T Distance2D(const SVector3& other) const;
+		inline T DistanceSquared2D(const SVector3& other) const;
 
 		SVector3 Mirror() const
 		{
@@ -267,6 +255,101 @@ namespace NewEngine
 			Z * other.X - X * other.Z,
 			X * other.Y - Y * other.X
 		);
+	}
+
+	template<typename T>
+	inline T SVector3<T>::Length() const
+	{
+		return UMath::Sqrt(X * X + Y * Y + Z * Z);
+	}
+
+	template<typename T>
+	inline T SVector3<T>::LengthSquared() const
+	{
+		return (X * X + Y * Y + Z * Z);
+	}
+
+	template<typename T>
+	inline T SVector3<T>::Size() const
+	{
+		return this->Length();
+	}
+
+	template<typename T>
+	inline T SVector3<T>::SizeSquared() const
+	{
+		return this->SizeSquared();
+	}
+
+	template<typename T>
+	inline T SVector3<T>::Length2D() const
+	{
+		return UMath::Sqrt(X * X + Y * Y);
+	}
+
+	template<typename T>
+	inline T SVector3<T>::LengthSquared2D() const
+	{
+		return (X * X + Y * Y);
+	}
+
+	template<typename T>
+	inline T SVector3<T>::Size2D() const
+	{
+		return this->Length2D();
+	}
+
+	template<typename T>
+	inline T SVector3<T>::SizeSquared2D() const
+	{
+		return this->LengthSquared2D();
+	}
+
+	template<typename T>
+	void SVector3<T>::Normalize()
+	{
+		T length = this->Length();
+		*this /= length;
+	}
+
+	template<typename T>
+	inline SVector3<T> SVector3<T>::Normalized() const
+	{
+		T length = this->Length();
+		return SVector3(*this) / length;
+	}
+
+	template<typename T>
+	inline SVector3<T> SVector3<T>::Project(const SVector3& other) const
+	{
+		const SVector3& direction = other.Normalized();
+
+		T length = this->Dot(direction);
+		return direction * length;
+	}
+
+	template<typename T>
+	inline T SVector3<T>::Distance(const SVector3& other) const
+	{
+		return UMath::Sqrt(DistanceSquared(this, other));
+	}
+
+	template<typename T>
+	inline T SVector3<T>::DistanceSquared(const SVector3& other) const
+	{
+		return UMath::Square(X - other.X) + UMath::Square(Y - other.Y) + UMath::Square(Z - other.Z);
+	}
+
+	template<typename T>
+	inline T SVector3<T>::Distance2D(const SVector3& other) const
+	{
+		return UMath::Sqrt(DistanceSquared2D(this, other));
+	}
+
+	template<typename T>
+	inline T SVector3<T>::DistanceSquared2D(const SVector3& other) const
+	{
+		return UMath::Square(X - other.X) + UMath::Square(Y - other.Y);
 	}
 
 	template<typename T> 

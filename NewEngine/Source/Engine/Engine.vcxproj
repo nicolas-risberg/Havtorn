@@ -94,10 +94,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EngineMath.h" />
     <ClInclude Include="EngineTypes.h" />
     <ClInclude Include="MathLibrary.h" />
+    <ClInclude Include="Quaternion.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="WindowsInclude.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Quaternion.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

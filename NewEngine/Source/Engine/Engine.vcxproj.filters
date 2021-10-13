@@ -30,5 +30,16 @@
     <ClInclude Include="Vector.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="EngineMath.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Quaternion.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Quaternion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
