@@ -1,5 +1,6 @@
 #include <WindowsInclude.h>
 #include <EngineTypes.h>
+#include <Log.h>
 #include <iostream>
 
 #pragma region Console
@@ -41,14 +42,22 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	OpenConsole();
 #endif
 
+	GLog::Init();
+
+	NE_LOG_TRACE("Trace");
+	NE_LOG_DEBUG("Debug");
+	NE_LOG_INFO("Info");
+	NE_LOG_WARNING("Warning");
+	NE_LOG_ERROR("Error");
+	NE_LOG_CRITICAL("Critical");
+
 	SVector3<F32> haqvin;
 	haqvin = SVector3(1.0f, 1.0f, 0.0f);
 
 	SVector3<F32> nico = { -2.0f, 0.0f, 0.0f };
 
 	SVector3f projection = nico.Project(haqvin);
-
-	projection = haqvin.X;
+	NE_LOG_WARNING(projection.ToString());
 
 	system("pause");
 

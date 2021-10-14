@@ -81,6 +81,8 @@ namespace NewEngine
 		}
 
 		SVector3 Reflect() { return this; }
+
+		std::string ToString();
 	};
 
 	template<typename T>
@@ -358,5 +360,13 @@ namespace NewEngine
 		SVector3 newVector = vector;
 		newVector *= a;
 		return newVector;
+	}
+
+	template<typename T>
+	std::string SVector3<T>::ToString()
+	{
+		char buffer[32];
+		sprintf_s(buffer, "{X: %.1f, Y: %.1f, Z: %.1f}", X, Y, Z);
+		return buffer;
 	}
 }
