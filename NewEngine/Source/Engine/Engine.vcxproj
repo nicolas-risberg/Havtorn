@@ -102,17 +102,16 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CoreTypes.h" />
     <ClInclude Include="EngineMath.h" />
     <ClInclude Include="EngineTypes.h" />
     <ClInclude Include="Log.h" />
-    <ClInclude Include="MathLibrary.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="WindowsInclude.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log.cpp" />
-    <ClCompile Include="Quaternion.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

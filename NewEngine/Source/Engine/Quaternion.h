@@ -1,8 +1,7 @@
 #pragma once
+#include "CoreTypes.h"
 #include "EngineMath.h"
 #include "Vector.h"
-
-using F32 = float;
 
 namespace NewEngine
 {
@@ -20,7 +19,7 @@ namespace NewEngine
 
 		inline SQuaternion();
 		inline SQuaternion(F32 x, F32 y, F32 z, F32 w);
-		SQuaternion(const SVector3<F32>& axis, F32 angleInRadians);
+		SQuaternion(const SVector& axis, F32 angleInDegrees);
 		SQuaternion(const SQuaternion& other) = default;
 		~SQuaternion() = default;
 	};
@@ -33,7 +32,7 @@ namespace NewEngine
 		: X(x), Y(y), Z(z), W(w)
 	{}
 
-	SQuaternion::SQuaternion(const SVector3<F32>& axis, F32 angleInDegrees)
+	SQuaternion::SQuaternion(const SVector& axis, F32 angleInDegrees)
 	{
 		F32 halfAngleInRadians = UMath::DegToRad(angleInDegrees) * 0.5f;
 		F32 sine = UMath::Sin(halfAngleInRadians);

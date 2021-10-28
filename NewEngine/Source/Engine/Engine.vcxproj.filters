@@ -24,9 +24,6 @@
     <ClInclude Include="EngineTypes.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="MathLibrary.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Vector.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -39,11 +36,11 @@
     <ClInclude Include="Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CoreTypes.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Quaternion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

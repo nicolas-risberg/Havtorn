@@ -51,13 +51,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	NE_LOG_ERROR("Error");
 	NE_LOG_CRITICAL("Critical");
 
-	SVector3<F32> haqvin;
-	haqvin = SVector3(1.0f, 1.0f, 0.0f);
+	SVector haqvin;
+	haqvin = SVector(1.0f, 1.0f, 0.0f);
 
-	SVector3<F32> nico = { -2.0f, 0.0f, 0.0f };
+	SVector nico = { -2.0f, 0.0f, 0.0f };
 
-	SVector3f projection = nico.Project(haqvin);
-	NE_LOG_WARNING(projection.ToString());
+	SVector projection = nico.Projection(haqvin);
+	NE_LOG_WARNING("Projection Vector: {}", projection.ToString());
 
 	system("pause");
 
