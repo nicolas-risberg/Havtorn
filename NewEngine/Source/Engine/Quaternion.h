@@ -2,6 +2,8 @@
 #include "CoreTypes.h"
 #include "EngineMath.h"
 #include "Vector.h"
+#include "Rotator.h"
+#include "Matrix.h"
 
 namespace NewEngine
 {
@@ -9,17 +11,13 @@ namespace NewEngine
 	{
 		F32 X, Y, Z, W;
 
-		static const SQuaternion Right;
-		static const SQuaternion Up;
-		static const SQuaternion Forward;
-					 
-		static const SQuaternion Left;
-		static const SQuaternion Down;
-		static const SQuaternion Backward;
+		static const SQuaternion Identity;
 
 		inline SQuaternion();
 		inline SQuaternion(F32 x, F32 y, F32 z, F32 w);
 		SQuaternion(const SVector& axis, F32 angleInDegrees);
+		explicit SQuaternion(const SMatrix& M);
+		explicit SQuaternion(const SRotator& R);
 		SQuaternion(const SQuaternion& other) = default;
 		~SQuaternion() = default;
 	};
@@ -41,4 +39,12 @@ namespace NewEngine
 		Z = axis.Z * sine;
 		W = UMath::Cos(halfAngleInRadians);
 	}
+
+	//inline SQuaternion::SQuaternion(const SMatrix& M)
+	//{
+	//}
+
+	//inline SQuaternion::SQuaternion(const SRotator& R)
+	//{
+	//}
 }

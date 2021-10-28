@@ -16,4 +16,6 @@ namespace NewEngine
 	using F32 = float;
 
 #define BIT(x) (1 << x)
+#define CACHE_LINE 32
+#define CACHE_ALIGN __declspec(align(CACHE_LINE))
 }

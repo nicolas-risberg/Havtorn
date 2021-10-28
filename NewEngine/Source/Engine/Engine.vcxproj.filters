@@ -39,6 +39,15 @@
     <ClInclude Include="CoreTypes.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rotator.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineMathSSE.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log.cpp">

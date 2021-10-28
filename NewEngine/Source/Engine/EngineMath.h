@@ -1,6 +1,7 @@
 #pragma once
 #include <complex>
 #include "CoreTypes.h"
+#include "EngineMathSSE.h"
 
 namespace NewEngine
 {

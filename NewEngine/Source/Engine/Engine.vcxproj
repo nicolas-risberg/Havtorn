@@ -104,9 +104,12 @@
   <ItemGroup>
     <ClInclude Include="CoreTypes.h" />
     <ClInclude Include="EngineMath.h" />
+    <ClInclude Include="EngineMathSSE.h" />
     <ClInclude Include="EngineTypes.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="Matrix.h" />
     <ClInclude Include="Quaternion.h" />
+    <ClInclude Include="Rotator.h" />
     <ClInclude Include="Vector.h" />
     <ClInclude Include="WindowsInclude.h" />
   </ItemGroup>
