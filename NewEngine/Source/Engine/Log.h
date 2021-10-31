@@ -1,19 +1,22 @@
 #pragma once
 
+#include "Core.h"
 #include <memory.h>
 #include <spdlog/spdlog.h>
 
 namespace NewEngine
 {
-	class GLog
+	class NEW_ENGINE_API GLog
 	{
 	public:
 		static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetLogger() { return Logger; }
+		static std::shared_ptr<spdlog::logger>& GetLogger() { return Logger; }
 
 	private:
+#pragma warning(disable:4251)
 		static std::shared_ptr<spdlog::logger> Logger;
+#pragma warning(default:4251)
 	};
 }
 

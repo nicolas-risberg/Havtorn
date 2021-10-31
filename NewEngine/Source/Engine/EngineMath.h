@@ -57,7 +57,7 @@ namespace NewEngine
 	const F32 UMath::Tau = 6.28318530718f;
 
 	const F32 UMath::PiReciprocal = 0.31830988618f;
-	const F32 UMath::TauReciprocal = 0.15915494309;
+	const F32 UMath::TauReciprocal = 0.15915494309f;
 
 	template<typename T>
 	inline T UMath::Sqrt(const T& x)

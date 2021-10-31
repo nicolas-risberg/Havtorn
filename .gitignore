@@ -30,6 +30,7 @@
 *.exe
 *.out
 *.app
+*.exp
 
 # Visual Studio Files
 *.vs/

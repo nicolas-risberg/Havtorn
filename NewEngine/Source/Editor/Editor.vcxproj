@@ -74,7 +74,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>Engine_$(Configuration).lib;spdlog_$(Configuration).lib</AdditionalDependencies>
+      <AdditionalDependencies>spdlog_$(Configuration).lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -94,7 +94,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>Engine_$(Configuration).lib;spdlog_$(Configuration).lib</AdditionalDependencies>
+      <AdditionalDependencies>spdlog_$(Configuration).lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
