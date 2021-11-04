@@ -1,0 +1,5 @@
+﻿  Application.cpp
+  Log.cpp
+  Generating Code...
+     Creating library ..\..\Bin\Debug_windows_x86_64\Engine\Engine_Debug.lib and object ..\..\Bin\Debug_windows_x86_64\Engine\Engine_Debug.exp
+  Engine.vcxproj -> F:\premakeTest\NewEngine\Bin\Debug_windows_x86_64\Engine\Engine_Debug.dll

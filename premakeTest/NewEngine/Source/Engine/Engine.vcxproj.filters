@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Core.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreTypes.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineMath.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineMathSSE.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineTypes.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EntryPoint.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="Matrix.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NewEngine.h" />
+    <ClInclude Include="Quaternion.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rotator.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsInclude.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Log.cpp" />
+  </ItemGroup>
+</Project>
