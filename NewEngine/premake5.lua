@@ -1,26 +1,39 @@
 workspace "NewEngine"
-	architecture "x64"
+	architecture "x86_64"
+	location "Source"
 
 	configurations
-	{
-		"Debug",
-		"Release"
-	}
+	{ "Debug", "Release" }
+	startproject "Launcher"
 
-outputdir = "%{cfg.buildcfg}-%{cgf.system}-%{cfg.architecture}"
+outputdir = "%{cfg.buildcfg}_%{cfg.system}_%{cfg.architecture}"
+engineProj = "Engine"
+engineSource = "Source/" .. engineProj .. "/"
 
 project "Engine"
 	location "Source/Engine"
 	kind "SharedLib"
 	language "C++"
+	cppdialect "C++20"
+	architecture "x86_64"
+
+	targetname "%{prj.name}_%{cfg.buildcfg}"
 
 	targetdir ("Bin/" .. outputdir .. "/%{prj.name}") 
 	objdir ("Temp/" .. outputdir .. "/%{prj.name}") 
 
-	files
+	warnings "Extra"
+	flags { "FatalWarnings", "ShadowedVariables" }
+
+	files 
 	{
 		"Source/%{prj.name}/**.h",
 		"Source/%{prj.name}/**.cpp",
+		
+		vpaths 
+		{
+			["*"] = "Source/"
+		}
 	}
 
 	includedirs
@@ -28,10 +41,13 @@ project "Engine"
 		"External/spdlog/include"
 	}
 
-	filter "system:windows"
-		cppdialect "C++20"
+	floatingpoint "Fast"
+	debugdir "Bin/"
+
+	filter "system:Windows"
 		staticruntime "On"
 		systemversion "latest"
+		vectorextensions "SSE4.1"
 
 		defines 
 		{
@@ -41,7 +57,8 @@ project "Engine"
 
 		postbuildcommands
 		{
-			("{COPY} %{cfg.buildtarget.relpath} ../Bin/" .. outputdir)
+			"{MKDIR} ../../Bin/",
+			"{COPY} %{cfg.buildtarget.relpath} ../../Bin/"
 		}
 
 	filter "configurations:Debug"
@@ -51,24 +68,37 @@ project "Engine"
 	filter "configurations:Release"
 		defines "NE_RELEASE"
 		optimize "On"
+		flags { "LinkTimeOptimization" }
 
 project "Launcher"
 	location "Source/Launcher"
 	kind "WindowedApp"
 	language "C++"
+	cppdialect "C++20"
+	architecture "x86_64"
+
+	targetname "%{prj.name}_%{cfg.buildcfg}"
 
 	targetdir ("Bin/" .. outputdir .. "/%{prj.name}") 
 	objdir ("Temp/" .. outputdir .. "/%{prj.name}") 
+
+	warnings "Extra"
+	flags { "FatalWarnings", "ShadowedVariables" }
 
 	files
 	{
 		"Source/%{prj.name}/**.h",
 		"Source/%{prj.name}/**.cpp",
+
+		vpaths 
+		{
+			["*"] = "Source/"
+		}
 	}
 
 	includedirs
 	{
-		"External/spdlog/include"
+		"External/spdlog/include",
 		"Source/Engine"
 	}
 
@@ -77,14 +107,23 @@ project "Launcher"
 		"Engine"
 	}
 
-	filter "system:windows"
-		cppdialect "C++20"
+	floatingpoint "Fast"
+	debugdir "Bin/"
+
+	filter "system:Windows"
 		staticruntime "On"
 		systemversion "latest"
+		vectorextensions "SSE4.1"
 
 		defines 
 		{
 			"NE_PLATFORM_WINDOWS"
+		}
+		
+		postbuildcommands
+		{
+			"{MKDIR} ../../Bin/",
+			"{COPY} %{cfg.buildtarget.relpath} ../../Bin/"
 		}
 
 	filter "configurations:Debug"
@@ -94,3 +133,4 @@ project "Launcher"
 	filter "configurations:Release"
 		defines "NE_RELEASE"
 		optimize "On"
+		flags { "LinkTimeOptimization" }

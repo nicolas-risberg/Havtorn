@@ -1,5 +1,5 @@
 workspace "NewEngine"
-	architecture "x64"
+	architecture "x86_64"
 	location "Source"
 
 	configurations
@@ -15,6 +15,7 @@ project "Engine"
 	kind "SharedLib"
 	language "C++"
 	cppdialect "C++20"
+	architecture "x86_64"
 
 	targetname "%{prj.name}_%{cfg.buildcfg}"
 
@@ -22,7 +23,7 @@ project "Engine"
 	objdir ("Temp/" .. outputdir .. "/%{prj.name}") 
 
 	warnings "Extra"
-	flags { "FatalWarnings" }
+	flags { "FatalWarnings", "ShadowedVariables" }
 
 	files 
 	{
@@ -31,20 +32,7 @@ project "Engine"
 		
 		vpaths 
 		{
-			["Core"] = 
-			{
-				engineSource .. "Core.h",
-				engineSource .. "CoreTypes.h",
-				engineSource .. "EngineMath.h",
-				engineSource .. "EngineMathSSE.h",
-				engineSource .. "EngineTypes.h",
-				engineSource .. "EntryPoint.h",
-				engineSource .. "Matrix.h",
-				engineSource .. "Quaternion.h",
-				engineSource .. "Rotator.h",
-				engineSource .. "Vector.h",
-				engineSource .. "WindowsInclude.h"
-			},
+			["*"] = "Source/"
 		}
 	}
 
@@ -53,9 +41,13 @@ project "Engine"
 		"External/spdlog/include"
 	}
 
+	floatingpoint "Fast"
+	debugdir "Bin/"
+
 	filter "system:Windows"
 		staticruntime "On"
 		systemversion "latest"
+		vectorextensions "SSE4.1"
 
 		defines 
 		{
@@ -76,12 +68,14 @@ project "Engine"
 	filter "configurations:Release"
 		defines "NE_RELEASE"
 		optimize "On"
+		flags { "LinkTimeOptimization" }
 
 project "Launcher"
 	location "Source/Launcher"
 	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++20"
+	architecture "x86_64"
 
 	targetname "%{prj.name}_%{cfg.buildcfg}"
 
@@ -89,12 +83,17 @@ project "Launcher"
 	objdir ("Temp/" .. outputdir .. "/%{prj.name}") 
 
 	warnings "Extra"
-	flags { "FatalWarnings" }
+	flags { "FatalWarnings", "ShadowedVariables" }
 
 	files
 	{
 		"Source/%{prj.name}/**.h",
 		"Source/%{prj.name}/**.cpp",
+
+		vpaths 
+		{
+			["*"] = "Source/"
+		}
 	}
 
 	includedirs
@@ -108,9 +107,13 @@ project "Launcher"
 		"Engine"
 	}
 
+	floatingpoint "Fast"
+	debugdir "Bin/"
+
 	filter "system:Windows"
 		staticruntime "On"
 		systemversion "latest"
+		vectorextensions "SSE4.1"
 
 		defines 
 		{
@@ -130,3 +133,4 @@ project "Launcher"
 	filter "configurations:Release"
 		defines "NE_RELEASE"
 		optimize "On"
+		flags { "LinkTimeOptimization" }

@@ -47,14 +47,14 @@ namespace NewEngine
 	* @param elementIndex Index from 0 to 3 of the element to replicate.
 	* @return VectorRegister(registerPointer[0], registerPointer[1], registerPointer[2], registerPointer[3])
 	*/
-	inline void VectorRegisterReplicate(const VectorRegister& vectorRegister, U8 elementIndex)
+	inline void VectorRegisterReplicate(const VectorRegister& /*vectorRegister*/, U8 /*elementIndex*/)
 	{
-		_mm_shuffle_ps(vectorRegister, vectorRegister, SHUFFLE_MASK(elementIndex, elementIndex, elementIndex, elementIndex));
+		//_mm_shuffle_ps(vectorRegister, vectorRegister, SHUFFLE_MASK(elementIndex, elementIndex, elementIndex, elementIndex));
 	}
 
-	inline void VectorRegisterAbs(const VectorRegister& vectorRegister)
+	inline void VectorRegisterAbs(const VectorRegister& /*vectorRegister*/)
 	{
-		_mm_and_ps(vectorRegister, VectorRegisterConstants::SignMask);
+		//_mm_and_ps(vectorRegister, VectorRegisterConstants::SignMask);
 	}
 
 	inline void VectorRegisterNegate(const VectorRegister& vectorRegister)

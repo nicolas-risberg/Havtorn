@@ -2,12 +2,12 @@
 
 // For use by NewEngine applications
 
-#include "WindowsInclude.h"
-#include "Core.h"
-#include "Application.h"
-#include "EngineTypes.h"
+#include "Core/WindowsInclude.h"
+#include "Core/Core.h"
+#include "Application/Application.h"
+#include "Core/EngineTypes.h"
 #include "Log.h"
 
 // ---- Entry Point ----
-#include "EntryPoint.h"
+#include "Application/EntryPoint.h"
 // ---------------------

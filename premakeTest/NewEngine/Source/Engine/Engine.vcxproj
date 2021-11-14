@@ -29,6 +29,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -64,6 +65,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -90,6 +92,7 @@ IF EXIST ..\..\Bin\Debug_windows_x86_64\Engine\Engine_Debug.dll\ (xcopy /Q /E /Y
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -105,23 +108,23 @@ IF EXIST ..\..\Bin\Release_windows_x86_64\Engine\Engine_Release.dll\ (xcopy /Q /
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="Core.h" />
-    <ClInclude Include="CoreTypes.h" />
-    <ClInclude Include="EngineMath.h" />
-    <ClInclude Include="EngineMathSSE.h" />
-    <ClInclude Include="EngineTypes.h" />
-    <ClInclude Include="EntryPoint.h" />
+    <ClInclude Include="Application\Application.h" />
+    <ClInclude Include="Application\EntryPoint.h" />
+    <ClInclude Include="Core\Core.h" />
+    <ClInclude Include="Core\CoreTypes.h" />
+    <ClInclude Include="Core\EngineMath.h" />
+    <ClInclude Include="Core\EngineMathSSE.h" />
+    <ClInclude Include="Core\EngineTypes.h" />
+    <ClInclude Include="Core\Matrix.h" />
+    <ClInclude Include="Core\Quaternion.h" />
+    <ClInclude Include="Core\Rotator.h" />
+    <ClInclude Include="Core\Vector.h" />
+    <ClInclude Include="Core\WindowsInclude.h" />
     <ClInclude Include="Log.h" />
-    <ClInclude Include="Matrix.h" />
     <ClInclude Include="NewEngine.h" />
-    <ClInclude Include="Quaternion.h" />
-    <ClInclude Include="Rotator.h" />
-    <ClInclude Include="Vector.h" />
-    <ClInclude Include="WindowsInclude.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Application\Application.cpp" />
     <ClCompile Include="Log.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
