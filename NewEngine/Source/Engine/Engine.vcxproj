@@ -125,6 +125,7 @@ IF EXIST ..\..\Bin\Release_windows_x86_64\Engine\Engine_Release.dll\ (xcopy /Q /
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Application.cpp" />
+    <ClCompile Include="Core\EngineMath.cpp" />
     <ClCompile Include="Log.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

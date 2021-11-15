@@ -62,5 +62,6 @@
     <ClCompile Include="Log.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Core\EngineMath.cpp" />
   </ItemGroup>
 </Project>
