@@ -112,20 +112,29 @@ IF EXIST ..\..\Bin\Release_windows_x86_64\Engine\Engine_Release.dll\ (xcopy /Q /
     <ClInclude Include="Application\EntryPoint.h" />
     <ClInclude Include="Core\Core.h" />
     <ClInclude Include="Core\CoreTypes.h" />
-    <ClInclude Include="Core\EngineMath.h" />
-    <ClInclude Include="Core\EngineMathSSE.h" />
     <ClInclude Include="Core\EngineTypes.h" />
-    <ClInclude Include="Core\Matrix.h" />
-    <ClInclude Include="Core\Quaternion.h" />
-    <ClInclude Include="Core\Rotator.h" />
-    <ClInclude Include="Core\Vector.h" />
+    <ClInclude Include="Core\MathTypes\AABB3D.h" />
+    <ClInclude Include="Core\MathTypes\EngineMath.h" />
+    <ClInclude Include="Core\MathTypes\EngineMathSSE.h" />
+    <ClInclude Include="Core\MathTypes\Intersection.h" />
+    <ClInclude Include="Core\MathTypes\Line.h" />
+    <ClInclude Include="Core\MathTypes\LineVolume.h" />
+    <ClInclude Include="Core\MathTypes\Matrix.h" />
+    <ClInclude Include="Core\MathTypes\Matrix3x3.h" />
+    <ClInclude Include="Core\MathTypes\Matrix4x4.h" />
+    <ClInclude Include="Core\MathTypes\Plane.h" />
+    <ClInclude Include="Core\MathTypes\PlaneVolume.h" />
+    <ClInclude Include="Core\MathTypes\Quaternion.h" />
+    <ClInclude Include="Core\MathTypes\Ray.h" />
+    <ClInclude Include="Core\MathTypes\Rotator.h" />
+    <ClInclude Include="Core\MathTypes\Sphere.h" />
+    <ClInclude Include="Core\MathTypes\Vector.h" />
     <ClInclude Include="Core\WindowsInclude.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="NewEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application\Application.cpp" />
-    <ClCompile Include="Core\EngineMath.cpp" />
     <ClCompile Include="Log.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

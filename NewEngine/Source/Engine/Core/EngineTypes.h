@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
 #include "CoreTypes.h"
-#include "Vector.h"
-#include "Quaternion.h"
+#include "MathTypes/Vector.h"
+#include "MathTypes/Quaternion.h"
 
 namespace NewEngine
 {

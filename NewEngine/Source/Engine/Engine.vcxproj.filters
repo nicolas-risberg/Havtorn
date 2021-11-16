@@ -10,6 +10,9 @@
     <Filter Include="Engine\Core">
       <UniqueIdentifier>{130D9B61-7FC2-1357-08B7-0D2E746B0A5B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Core\MathTypes">
+      <UniqueIdentifier>{6163F120-CDCF-AC1B-96C3-447902EFCE83}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Application.h">
@@ -24,26 +27,56 @@
     <ClInclude Include="Core\CoreTypes.h">
       <Filter>Engine\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\EngineMath.h">
-      <Filter>Engine\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\EngineMathSSE.h">
-      <Filter>Engine\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Core\EngineTypes.h">
       <Filter>Engine\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Matrix.h">
-      <Filter>Engine\Core</Filter>
+    <ClInclude Include="Core\MathTypes\AABB3D.h">
+      <Filter>Engine\Core\MathTypes</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Quaternion.h">
-      <Filter>Engine\Core</Filter>
+    <ClInclude Include="Core\MathTypes\EngineMath.h">
+      <Filter>Engine\Core\MathTypes</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Rotator.h">
-      <Filter>Engine\Core</Filter>
+    <ClInclude Include="Core\MathTypes\EngineMathSSE.h">
+      <Filter>Engine\Core\MathTypes</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Vector.h">
-      <Filter>Engine\Core</Filter>
+    <ClInclude Include="Core\MathTypes\Intersection.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Line.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\LineVolume.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Matrix.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Matrix3x3.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Matrix4x4.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Plane.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\PlaneVolume.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Quaternion.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Ray.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Rotator.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Sphere.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\MathTypes\Vector.h">
+      <Filter>Engine\Core\MathTypes</Filter>
     </ClInclude>
     <ClInclude Include="Core\WindowsInclude.h">
       <Filter>Engine\Core</Filter>
@@ -62,6 +95,5 @@
     <ClCompile Include="Log.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Core\EngineMath.cpp" />
   </ItemGroup>
 </Project>
