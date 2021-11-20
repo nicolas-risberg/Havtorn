@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/CoreTypes.h"
+#include "../CoreTypes.h"
 #include "EngineMath.h"
 
 namespace Havtorn
@@ -24,6 +24,7 @@ namespace Havtorn
 
 		inline SVector();
 		inline SVector(F32 a);
+		inline SVector(F32 x, F32 y);
 		inline SVector(F32 x, F32 y, F32 z);
 		SVector(const SVector& other) = default;
 		~SVector() = default;
@@ -67,7 +68,7 @@ namespace Havtorn
 		inline F32 SizeSquared2D() const;
 
 		void Normalize();
-		SVector Normalized() const;
+		SVector GetNormalized() const;
 		bool IsNormalized() const;
 
 		inline bool IsEqual(const SVector& other, F32 tolerance = VECTOR_COMPARISON_EPSILON) const;
@@ -97,6 +98,7 @@ namespace Havtorn
 
 	SVector::SVector() : X(0), Y(0), Z(0) {}
 	SVector::SVector(F32 a) : X(a), Y(a), Z(a) {}
+	SVector::SVector(F32 x, F32 y) : X(x), Y(y), Z(0) {}
 	SVector::SVector(F32 x, F32 y, F32 z) : X(x), Y(y), Z(z) {}
 	
 	inline SVector SVector::operator+(F32 a) const
@@ -283,7 +285,7 @@ namespace Havtorn
 		*this /= length;
 	}
 
-	inline SVector SVector::Normalized() const
+	inline SVector SVector::GetNormalized() const
 	{
 		F32 length = this->Length();
 		return SVector(*this) / length;
@@ -335,7 +337,7 @@ namespace Havtorn
 
 	inline SVector SVector::Projection(const SVector& other) const
 	{
-		const SVector& direction = other.Normalized();
+		const SVector& direction = other.GetNormalized();
 
 		F32 length = this->Dot(direction);
 		return direction * length;
@@ -415,7 +417,7 @@ namespace Havtorn
 		inline T SizeSquared() const;
 
 		void Normalize();
-		SVector2 Normalized() const;
+		SVector2 GetNormalized() const;
 		bool IsNormalized() const;
 
 		inline bool IsEqual(const SVector2& other, T tolerance = VECTOR_COMPARISON_EPSILON) const;
@@ -631,7 +633,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	inline SVector2<T> SVector2<T>::Normalized() const
+	inline SVector2<T> SVector2<T>::GetNormalized() const
 	{
 		T length = this->Length();
 		return SVector2(*this) / length;
@@ -671,7 +673,7 @@ namespace Havtorn
 	template<typename T>
 	inline SVector2<T> SVector2<T>::Projection(const SVector2& other) const
 	{
-		const SVector2& direction = other.Normalized();
+		const SVector2& direction = other.GetNormalized();
 
 		F32 length = this->Dot(direction);
 		return direction * length;
@@ -766,7 +768,7 @@ namespace Havtorn
 		inline F32 SizeSquared2D() const;
 
 		void Normalize();
-		SVector4 Normalized() const;
+		SVector4 GetNormalized() const;
 		bool IsNormalized() const;
 
 		inline bool IsEqual(const SVector4& other, F32 tolerance = VECTOR_COMPARISON_EPSILON) const;
@@ -987,7 +989,7 @@ namespace Havtorn
 		*this /= length;
 	}
 
-	inline SVector4 SVector4::Normalized() const
+	inline SVector4 SVector4::GetNormalized() const
 	{
 		F32 length = this->Length();
 		return SVector4(*this) / length;
@@ -1049,7 +1051,7 @@ namespace Havtorn
 
 	inline SVector4 SVector4::Projection(const SVector4& other) const
 	{
-		const SVector4& direction = other.Normalized();
+		const SVector4& direction = other.GetNormalized();
 
 		F32 length = this->Dot(direction);
 		return direction * length;

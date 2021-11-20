@@ -3,7 +3,8 @@
 
 namespace Havtorn 
 {
-	class AABB3D {
+	class AABB3D 
+	{
 	public:
 		// Default constructor: there is no AABB, both min and max points are the zero vector.
 		AABB3D();
@@ -13,7 +14,7 @@ namespace Havtorn
 		AABB3D(const SVector& min, const SVector& max);
 		// Init the AABB with the positions of the minimum and maximum corners, same as
 		// the constructor above.
-		void InitWithMinAndMax(const SVector& min, const SVector& max);
+		void Init(const SVector& min, const SVector& max);
 		// Returns whether a point is inside the AABB: it is inside when the point is on any
 		// of the AABB's sides or inside of the AABB.
 		bool IsInside(const SVector& position) const;
@@ -36,7 +37,7 @@ namespace Havtorn
 		Max = max;
 	}
 
-	void AABB3D::InitWithMinAndMax(const SVector& min, const SVector& max) 
+	void AABB3D::Init(const SVector& min, const SVector& max) 
 	{
 		Min = min;
 		Max = max;

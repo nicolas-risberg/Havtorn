@@ -4,42 +4,44 @@
 
 namespace Havtorn 
 {
-	template <class T>
-	class LineVolume {
+	class LineVolume 
+	{
 	public:
 		// Default constructor: empty LineVolume.
 		LineVolume();
 		// Constructor taking a list of Line that makes up the LineVolume.
-		LineVolume(const std::vector<Line<T>> &line_list);
+		LineVolume(const std::vector<Line>& lineList);
 		// Add a Line to the LineVolume.
-		void add_line(const Line<T> &line);
+		void AddLine(const Line& line);
 		// Returns whether a point is inside the LineVolume: it is inside when the point is
 		// on the line or on the side the normal is pointing away from for all the lines in
 		// the LineVolume.
-		bool is_inside(const Vector2<T> &position);
+		bool IsInside(const SVector& position);
 	private:
-		std::vector<Line<T>> _line_list;
+		std::vector<Line> LineList;
 	};
 
-	template <class T>
-	LineVolume<T>::LineVolume() {
-		_line_list = {};
+	LineVolume::LineVolume() 
+	{
+		LineList = {};
 	}
 
-	template <class T>
-	LineVolume<T>::LineVolume(const std::vector<Line<T>> &line_list) {
-		_line_list = line_list;
+	LineVolume::LineVolume(const std::vector<Line> &lineList) 
+	{
+		LineList = lineList;
 	}
 
-	template <class T>
-	void LineVolume<T>::add_line(const Line<T> &line) {
-		_line_list.emplace_back(line);
+	void LineVolume::AddLine(const Line& line) 
+	{
+		LineList.emplace_back(line);
 	}
 
-	template <class T>
-	bool LineVolume<T>::is_inside(const Vector2<T> &position) {
-		for (auto line : _line_list) {
-			if (!line.is_inside(position)) {
+	bool LineVolume::IsInside(const SVector& position) 
+	{	
+		for (auto& line : LineList) 
+		{
+			if (!line.IsInside(position)) 
+			{
 				return false;
 			}
 		}

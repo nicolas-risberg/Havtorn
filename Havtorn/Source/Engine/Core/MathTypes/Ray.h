@@ -3,50 +3,49 @@
 
 namespace Havtorn 
 {
-	template <class T>
-	class Ray {
+	class Ray 
+	{
 	public:
 		// Default constructor: there is no ray, the origin and direction are the
         // zero vector.
 		Ray();
 		// Copy constructor.
-		Ray(const Ray<T> &ray);
+		Ray(const Ray& ray);
 		// Constructor that takes two points that define the ray, the direction is
 		// aPoint - aOrigin and the origin is aOrigin.
-		Ray(const Vector3<T> &origin, const Vector3<T> &point);
+		Ray(const SVector& origin, const SVector& point);
 		// Init the ray with two points, the same as the constructor above.
-		void InitWith2Points(const Vector3<T> &origin, const Vector3<T> &point);
+		void Init(const SVector& origin, const SVector& point);
 		// Init the ray with an origin and a direction.
-		void InitWithOriginAndDirection(const Vector3<T> &origin, const Vector3<T> &direction);
+		void Init(const SVector& origin, const SVector& direction);
 
-		Vector3<T> _origin;
-		Vector3<T> _direction;
+		SVector Origin;
+		SVector Direction;
 	};
 
-	template <class T>
-	Ray<T>::Ray() : _origin(Vector3<T>()), _direction(Vector3<T>()) {}
+	Ray::Ray() : Origin(SVector()), Direction(SVector()) {}
 
-	template <class T>
-	Ray<T>::Ray(const Ray<T> &ray) {
-		_origin = ray._origin;
-		_direction = ray._direction;
+	Ray::Ray(const Ray& ray) 
+	{
+		Origin = ray.Origin;
+		Direction = ray.Direction;
 	}
 
-	template <class T>
-	Ray<T>::Ray(const Vector3<T> &origin, const Vector3<T> &point) {
-		_origin = origin;
-		_direction = point - origin;
+	Ray::Ray(const SVector& origin, const SVector& point) 
+	{
+		Origin = origin;
+		Direction = point - origin;
 	}
 
-	template <class T>
-	void Ray<T>::InitWith2Points(const Vector3<T> &origin, const Vector3<T> &point) {
-		_origin = origin;
-		_direction = point - origin;
+	void Ray::Init(const SVector& origin, const SVector& point) 
+	{
+		Origin = origin;
+		Direction = point - origin;
 	}
 
-	template <class T>
-	void Ray<T>::InitWithOriginAndDirection(const Vector3<T> &origin, const Vector3<T> &direction) {
-		_origin = origin;
-		_direction = direction;
+	void Ray::Init(const SVector& origin, const SVector& direction) 
+	{
+		Origin = origin;
+		Direction = direction;
 	}
 }

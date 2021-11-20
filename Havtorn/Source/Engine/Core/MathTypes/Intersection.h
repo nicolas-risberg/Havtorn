@@ -8,21 +8,21 @@
 namespace Havtorn 
 {
 	// If the ray is parallel to the plane, aOutIntersectionPoint remains unchanged. If
-// the ray is in the plane, true is returned, if not, false is returned. If the ray
-// isn't parallel to the plane, the intersection point is stored in
-// aOutIntersectionPoint and true returned.
+	// the ray is in the plane, true is returned, if not, false is returned. If the ray
+	// isn't parallel to the plane, the intersection point is stored in
+	// aOutIntersectionPoint and true returned.
 	template <class T>
 	bool IntersectionPlaneLine(const Plane<T> &plane, const Ray<T> &ray, Vector3<T> &out_intersection_point) {
-		T d = plane.get_point().Dot(plane.get_normal());
-		T dn = ray._direction.Dot(plane.get_normal());
+		T d = plane.GetPoint().Dot(plane.GetNormal());
+		T dn = ray.Direction.Dot(plane.GetNormal());
 		if (dn == 0) {
 			return false;
 		}
 
-		T t = (d - (ray._origin.Dot(plane.get_normal())) / dn);
+		T t = (d - (ray.Origin.Dot(plane.GetNormal())) / dn);
 
 		if (t > 0) {
-			out_intersection_point = ray._origin + t * ray._direction;
+			out_intersection_point = ray.Origin + t * ray.Direction;
 		}
 
 		return t > 0;
@@ -83,13 +83,13 @@ namespace Havtorn
 	// A ray intersecting the surface of the sphere is considered as intersecting it.
 	template <class T>
 	bool IntersectionSphereLine(const Sphere<T> &sphere, const Ray<T> &ray) {
-		Vector3<T> e = sphere._center - ray._origin;
-		T a = e.Dot(ray._direction);
-		T t = a - sqrt((sphere._radius * sphere._radius) - e.LengthSqr() + (a * a));
+		Vector3<T> e = sphere.Center - ray.Origin;
+		T a = e.Dot(ray.Direction);
+		T t = a - sqrt((sphere.Radius * sphere.Radius) - e.LengthSqr() + (a * a));
 		return t > 0;
 		{
-		//Vector3<T> ray_to_sphere = sphere._center - ray._origin;
-		//T projection = ray_to_sphere.Dot(ray._direction);
+		//Vector3<T> ray_to_sphere = sphere.Center - ray.Origin;
+		//T projection = ray_to_sphere.Dot(ray.Direction);
 		//
 		////if (projection < 0) {
 		////	return false;
@@ -97,7 +97,7 @@ namespace Havtorn
 
 		//T perpendicular_component_squared = ray_to_sphere.LengthSqr() - (projection * projection);
 		////
-		////if (perpendicular_component_squared > sphere._radius *sphere._radius) {
+		////if (perpendicular_component_squared > sphere.Radius *sphere.Radius) {
 		////	return false;
 		////}
 
@@ -105,7 +105,7 @@ namespace Havtorn
 		////	return false;
 		////}
 		////
-		//T intersection_point_squared = sphere._radius * sphere._radius - perpendicular_component_squared;
+		//T intersection_point_squared = sphere.Radius * sphere.Radius - perpendicular_component_squared;
 		//T t0 = sqrt(projection) - sqrt(intersection_point_squared);
 		//T t1 = sqrt(projection) + sqrt(intersection_point_squared);
 		//
