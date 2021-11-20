@@ -32,12 +32,12 @@ namespace Havtorn
 	// A ray in one of the AABB's sides is counted as intersecting it.
 	template <class T>
 	bool IntersectionAABBLine(const AABB3D<T> &AABB, const Ray<T> &ray) {
-		Plane<T> plane_x_max = Plane<T>(AABB._max, Vector3<T>(1, 0, 0));
-		Plane<T> plane_y_max = Plane<T>(AABB._max, Vector3<T>(0, 1, 0));
-		Plane<T> plane_z_max = Plane<T>(AABB._max, Vector3<T>(0, 0, 1));
-		Plane<T> plane_x_min = Plane<T>(AABB._min, Vector3<T>(1, 0, 0));
-		Plane<T> plane_y_min = Plane<T>(AABB._min, Vector3<T>(0, 1, 0));
-		Plane<T> plane_z_min = Plane<T>(AABB._min, Vector3<T>(0, 0, 1));
+		Plane<T> plane_x_max = Plane<T>(AABB.Max, Vector3<T>(1, 0, 0));
+		Plane<T> plane_y_max = Plane<T>(AABB.Max, Vector3<T>(0, 1, 0));
+		Plane<T> plane_z_max = Plane<T>(AABB.Max, Vector3<T>(0, 0, 1));
+		Plane<T> plane_x_min = Plane<T>(AABB.Min, Vector3<T>(1, 0, 0));
+		Plane<T> plane_y_min = Plane<T>(AABB.Min, Vector3<T>(0, 1, 0));
+		Plane<T> plane_z_min = Plane<T>(AABB.Min, Vector3<T>(0, 0, 1));
 
 		Vector3<T> intersection_plane_x_max; 
 		Vector3<T> intersection_plane_y_max;
