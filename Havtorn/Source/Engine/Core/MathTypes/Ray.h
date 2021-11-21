@@ -18,6 +18,8 @@ namespace Havtorn
 		void Init(const SVector& origin, const SVector& point);
 		// Init the ray with an origin and a direction.
 		void Init(const SVector& origin, const SVector& direction);
+		// For a given distance value from the origin, returns the corresponding point on the ray.
+		SVector GetPointOnRay(F32 distanceFromOrigin);
 
 		SVector Origin;
 		SVector Direction;
@@ -41,6 +43,11 @@ namespace Havtorn
 	{
 		Origin = origin;
 		Direction = point - origin;
+	}
+
+	inline SVector Ray::GetPointOnRay(F32 distanceFromOrigin)
+	{
+		return Origin + Direction * distanceFromOrigin;
 	}
 
 	void Ray::Init(const SVector& origin, const SVector& direction) 

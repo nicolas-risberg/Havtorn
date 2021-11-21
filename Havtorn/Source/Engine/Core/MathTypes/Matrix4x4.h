@@ -16,11 +16,11 @@ namespace Havtorn
 		T &operator()(const int row, const int column);
 		const T &operator()(const int row, const int column) const;
 		// Static functions for creating rotation matrices.
-		static Matrix4x4<T> create_rotation_around_x(T angle_in_radians);
-		static Matrix4x4<T> create_rotation_around_y(T angle_in_radians);
-		static Matrix4x4<T> create_rotation_around_z(T angle_in_radians);
+		static Matrix4x4<T> CreateRotationAroundX(T angle_in_radians);
+		static Matrix4x4<T> CreateRotationAroundY(T angle_in_radians);
+		static Matrix4x4<T> CreateRotationAroundZ(T angle_in_radians);
 		// Static function for creating a transpose of a matrix.
-		static Matrix4x4<T> transpose(const Matrix4x4<T> &matrix_to_transpose);
+		static Matrix4x4<T> Transpose(const Matrix4x4<T> &matrix_to_transpose);
 		Matrix4x4<T> operator+(const Matrix4x4<T> &matrix);
 		Matrix4x4<T> &operator+=(const Matrix4x4<T> &matrix);
 		Matrix4x4<T> operator-(const Matrix4x4<T> &matrix);
@@ -32,7 +32,7 @@ namespace Havtorn
 		bool &operator==(const Matrix4x4<T> &matrix) const;
 
 	private:
-		T _matrix[4][4];
+		T Matrix[4][4];
 	};
 
 	template <class T>
@@ -40,9 +40,9 @@ namespace Havtorn
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
 				if (row == column) {
-					_matrix[row][column] = 1;
+					Matrix[row][column] = 1;
 				} else {
-					_matrix[row][column] = 0;
+					Matrix[row][column] = 0;
 				}
 			}
 		}
@@ -52,7 +52,7 @@ namespace Havtorn
 	Matrix4x4<T>::Matrix4x4<T>(const Matrix4x4<T> &matrix) {
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				_matrix[row][column] = matrix(row + 1, column + 1);
+				Matrix[row][column] = matrix(row + 1, column + 1);
 			}
 		}
 	}
@@ -60,17 +60,17 @@ namespace Havtorn
 	template <class T>
 	T &Matrix4x4<T>::operator()(const int row, const int column) {
 		assert(row != 0 && column != 0);
-		return _matrix[row-1][column-1];
+		return Matrix[row-1][column-1];
 	}
 
 	template <class T>
 	const T &Matrix4x4<T>::operator()(const int row, const int column) const {
 		assert(row != 0 && column != 0);
-		return _matrix[row-1][column-1];
+		return Matrix[row-1][column-1];
 	}
 
 	template <class T>
-	Matrix4x4<T> Matrix4x4<T>::create_rotation_around_x(T angle_in_radians) {
+	Matrix4x4<T> Matrix4x4<T>::CreateRotationAroundX(T angle_in_radians) {
 		Matrix4x4<T> matrix = Matrix4x4<T>();
 		matrix(2, 2) = (T)cos(static_cast<double>(angle_in_radians));
 		matrix(2, 3) = (T)sin(static_cast<double>(angle_in_radians));
@@ -80,7 +80,7 @@ namespace Havtorn
 	}
 
 	template <class T>
-	Matrix4x4<T> Matrix4x4<T>::create_rotation_around_y(T angle_in_radians) {
+	Matrix4x4<T> Matrix4x4<T>::CreateRotationAroundY(T angle_in_radians) {
 		Matrix4x4<T> matrix = Matrix4x4<T>();
 		matrix(1, 1) = (T)cos(static_cast<double>(angle_in_radians));
 		matrix(1, 3) = -(T)sin(static_cast<double>(angle_in_radians));
@@ -90,7 +90,7 @@ namespace Havtorn
 	}
 
 	template <class T>
-	Matrix4x4<T> Matrix4x4<T>::create_rotation_around_z(T angle_in_radians) {
+	Matrix4x4<T> Matrix4x4<T>::CreateRotationAroundZ(T angle_in_radians) {
 		Matrix4x4<T> matrix = Matrix4x4<T>();
 		matrix(1, 1) = (T)cos(static_cast<double>(angle_in_radians));
 		matrix(1, 2) = (T)sin(static_cast<double>(angle_in_radians));
@@ -101,7 +101,7 @@ namespace Havtorn
 
 	// Static function for creating a transpose of a matrix.
 	template <class T>
-	Matrix4x4<T> Matrix4x4<T>::transpose(const Matrix4x4<T> &matrix_to_transpose) {
+	Matrix4x4<T> Matrix4x4<T>::Transpose(const Matrix4x4<T> &matrix_to_transpose) {
 		Matrix4x4<T> matrix = Matrix4x4<T>();
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
@@ -116,7 +116,7 @@ namespace Havtorn
 		Matrix4x4<T> matrix_result = Matrix4x4<T>();
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				matrix_result(row + 1, column + 1) = _matrix[row][column] + matrix(row + 1, column + 1);
+				matrix_result(row + 1, column + 1) = Matrix[row][column] + matrix(row + 1, column + 1);
 			}
 		}
 		return matrix_result;
@@ -126,7 +126,7 @@ namespace Havtorn
 	Matrix4x4<T> &Matrix4x4<T>::operator+=(const Matrix4x4<T> &matrix) {
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				_matrix[row][column] += matrix(row + 1, column + 1);
+				Matrix[row][column] += matrix(row + 1, column + 1);
 			}
 		}
 		return *this;
@@ -137,7 +137,7 @@ namespace Havtorn
 		Matrix4x4<T> matrix_result = Matrix4x4<T>();
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				matrix_result(row + 1, column + 1) = _matrix[row][column] - matrix(row + 1, column + 1);
+				matrix_result(row + 1, column + 1) = Matrix[row][column] - matrix(row + 1, column + 1);
 			}
 		}
 		return matrix_result;
@@ -146,7 +146,7 @@ namespace Havtorn
 	Matrix4x4<T> &Matrix4x4<T>::operator-=(const Matrix4x4<T> &matrix) {
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				_matrix[row][column] -= matrix(row + 1, column + 1);
+				Matrix[row][column] -= matrix(row + 1, column + 1);
 			}
 		}
 		return *this;
@@ -157,10 +157,10 @@ namespace Havtorn
 		Matrix4x4<T> matrix_result = Matrix4x4<T>();
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				matrix_result(row + 1, column + 1) = _matrix[row][0] * matrix(1, column + 1);
-				matrix_result(row + 1, column + 1) += _matrix[row][1] * matrix(2, column + 1);
-				matrix_result(row + 1, column + 1) += _matrix[row][2] * matrix(3, column + 1);
-				matrix_result(row + 1, column + 1) += _matrix[row][3] * matrix(4, column + 1);
+				matrix_result(row + 1, column + 1) = Matrix[row][0] * matrix(1, column + 1);
+				matrix_result(row + 1, column + 1) += Matrix[row][1] * matrix(2, column + 1);
+				matrix_result(row + 1, column + 1) += Matrix[row][2] * matrix(3, column + 1);
+				matrix_result(row + 1, column + 1) += Matrix[row][3] * matrix(4, column + 1);
 			}
 		}
 		return matrix_result;
@@ -171,10 +171,10 @@ namespace Havtorn
 		Matrix4x4<T> matrix_result = Matrix4x4<T>();
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				matrix_result(row + 1, column + 1) = _matrix[row][0] * matrix(1, column + 1);
-				matrix_result(row + 1, column + 1) += _matrix[row][1] * matrix(2, column + 1);
-				matrix_result(row + 1, column + 1) += _matrix[row][2] * matrix(3, column + 1);
-				matrix_result(row + 1, column + 1) += _matrix[row][3] * matrix(4, column + 1);
+				matrix_result(row + 1, column + 1) = Matrix[row][0] * matrix(1, column + 1);
+				matrix_result(row + 1, column + 1) += Matrix[row][1] * matrix(2, column + 1);
+				matrix_result(row + 1, column + 1) += Matrix[row][2] * matrix(3, column + 1);
+				matrix_result(row + 1, column + 1) += Matrix[row][3] * matrix(4, column + 1);
 			}
 		}
 		*this = matrix_result;
@@ -227,7 +227,7 @@ namespace Havtorn
 	Matrix4x4<T> &Matrix4x4<T>::operator=(const Matrix4x4<T> &matrix) {
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				_matrix[row][column] = matrix(row + 1, column + 1);
+				Matrix[row][column] = matrix(row + 1, column + 1);
 			}
 		}
 		return *this;
@@ -238,7 +238,7 @@ namespace Havtorn
 		bool equal = true;
 		for (unsigned int row = 0; row < 4; ++row) {
 			for (unsigned int column = 0; column < 4; ++column) {
-				if (_matrix[row][column] != matrix(row + 1, column + 1)) {
+				if (Matrix[row][column] != matrix(row + 1, column + 1)) {
 					equal = false;
 				}
 			}
