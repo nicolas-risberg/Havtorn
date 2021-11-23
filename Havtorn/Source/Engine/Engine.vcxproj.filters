@@ -33,6 +33,9 @@
     <ClInclude Include="Core\MathTypes\AABB3D.h">
       <Filter>Engine\Core\MathTypes</Filter>
     </ClInclude>
+    <ClInclude Include="Core\MathTypes\Curve.h">
+      <Filter>Engine\Core\MathTypes</Filter>
+    </ClInclude>
     <ClInclude Include="Core\MathTypes\EngineMath.h">
       <Filter>Engine\Core\MathTypes</Filter>
     </ClInclude>

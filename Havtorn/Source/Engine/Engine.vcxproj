@@ -114,6 +114,7 @@ IF EXIST ..\..\Bin\Release_windows_x86_64\Engine\Engine_Release.dll\ (xcopy /Q /
     <ClInclude Include="Core\CoreTypes.h" />
     <ClInclude Include="Core\EngineTypes.h" />
     <ClInclude Include="Core\MathTypes\AABB3D.h" />
+    <ClInclude Include="Core\MathTypes\Curve.h" />
     <ClInclude Include="Core\MathTypes\EngineMath.h" />
     <ClInclude Include="Core\MathTypes\EngineMathSSE.h" />
     <ClInclude Include="Core\MathTypes\Intersection.h" />
