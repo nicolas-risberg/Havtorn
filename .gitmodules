@@ -1,3 +1,6 @@
 [submodule "Havtorn/External/imgui"]
 	path = Havtorn/External/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "Havtorn/External/FastNoise2"]
+	path = Havtorn/External/FastNoise2
+	url = https://github.com/Auburn/FastNoise2.git
