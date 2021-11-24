@@ -43,6 +43,7 @@ project "Engine"
 	{
 		"Source/%{prj.name}",
 		"External/spdlog/include",
+		"External/FastNoise2/include",
 		"External"
 	}
 
