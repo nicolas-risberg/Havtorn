@@ -39,7 +39,8 @@ project "Engine"
 	includedirs
 	{
 		"Source/%{prj.name}",
-		"External/spdlog/include"
+		"External/spdlog/include",
+		"External"
 	}
 
 	floatingpoint "Fast"
