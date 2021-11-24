@@ -1,3 +1,5 @@
+#include <hvpch.h>
+
 #include <Havtorn.h>
 
 class CLauncherApplication : public Havtorn::CApplication

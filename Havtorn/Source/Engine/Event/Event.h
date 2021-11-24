@@ -3,9 +3,6 @@
 #include "Core/Core.h"
 #include "Core/CoreTypes.h"
 
-#include <string>
-#include <functional>
-
 namespace Havtorn
 {
 	enum class EEventType

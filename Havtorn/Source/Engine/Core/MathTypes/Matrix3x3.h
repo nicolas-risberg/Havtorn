@@ -1,5 +1,5 @@
 #pragma once
-#include <cassert>
+
 #include "EngineMath.h"
 #include "Vector.h"
 #include "Matrix4x4.h"

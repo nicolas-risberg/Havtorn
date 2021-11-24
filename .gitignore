@@ -37,6 +37,7 @@
 */Temp/
 *.pdb
 *.idb
+*.vcxproj
 
 # Tests
 *premakeTest/

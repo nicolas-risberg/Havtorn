@@ -1,6 +1,6 @@
 #pragma once
+
 #include <math.h>
-#include <cassert>
 #include "Vector.h"
 
 namespace Havtorn 

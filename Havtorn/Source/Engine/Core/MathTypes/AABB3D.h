@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Vector.h"
 
 namespace Havtorn 

@@ -3,8 +3,6 @@
 #include "Event.h"
 #include "Core/EngineTypes.h"
 
-#include <sstream>
-
 namespace Havtorn
 {
 	class HAVTORN_API CMouseMovedEvent : public CEvent

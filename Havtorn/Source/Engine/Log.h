@@ -2,7 +2,6 @@
 
 #include "Core/Core.h"
 
-#include <memory.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 

@@ -25,6 +25,9 @@ project "Engine"
 	warnings "Extra"
 	flags { "FatalWarnings", "ShadowedVariables" }
 
+	pchheader "hvpch.h"
+	pchsource "Source/Engine/hvpch.cpp"
+
 	files 
 	{
 		"Source/%{prj.name}/**.h",

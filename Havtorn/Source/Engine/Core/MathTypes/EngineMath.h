@@ -1,4 +1,5 @@
 #pragma once
+
 #include <complex>
 #include "Core/CoreTypes.h"
 #include "EngineMathSSE.h"

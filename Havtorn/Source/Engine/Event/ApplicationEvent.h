@@ -2,8 +2,6 @@
 
 #include "Event.h"
 
-#include <sstream>
-
 namespace Havtorn
 {
 	class HAVTORN_API CWindowResizeEvent : public CEvent
