@@ -1,4 +1,6 @@
 #include "Application.h"
+#include "Event\ApplicationEvent.h"
+#include "Log.h"
 
 namespace Havtorn
 {
@@ -12,5 +14,7 @@ namespace Havtorn
 	
 	void CApplication::Run()
 	{
+		CWindowResizeEvent e(1280, 720);
+		HV_LOG_TRACE(e);
 	}
 }

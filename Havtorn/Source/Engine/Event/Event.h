@@ -87,6 +87,7 @@ namespace Havtorn
 		CEvent& Event;
 	};
 
+	// Allows Logger to print events using HV_LOG_TRACE(e)
 	inline std::ostream& operator<<(std::ostream& os, const CEvent& e)
 	{
 		return os << e.ToString();
