@@ -38,6 +38,7 @@
 *.pdb
 *.idb
 *.vcxproj
+*.vcxproj.filters
 
 # Tests
 *premakeTest/
