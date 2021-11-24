@@ -1,5 +1,5 @@
 #pragma once
-#include "../Havtorn.h"
+#include "Havtorn.h"
 #include <iostream>
 
 #ifdef HV_PLATFORM_WINDOWS

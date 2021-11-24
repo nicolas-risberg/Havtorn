@@ -13,6 +13,9 @@
     <Filter Include="Engine\Core\MathTypes">
       <UniqueIdentifier>{6163F120-CDCF-AC1B-96C3-447902EFCE83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Event">
+      <UniqueIdentifier>{6C812495-58E4-B339-016A-ECEFEDAB7FBC}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Application.h">
@@ -83,6 +86,18 @@
     </ClInclude>
     <ClInclude Include="Core\WindowsInclude.h">
       <Filter>Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\ApplicationEvent.h">
+      <Filter>Engine\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\Event.h">
+      <Filter>Engine\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\KeyEvent.h">
+      <Filter>Engine\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Event\MouseEvent.h">
+      <Filter>Engine\Event</Filter>
     </ClInclude>
     <ClInclude Include="Havtorn.h">
       <Filter>Engine</Filter>

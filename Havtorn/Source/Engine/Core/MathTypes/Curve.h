@@ -41,8 +41,7 @@ namespace Havtorn
 		}
 
 		explicit SQuadraticBezier(const SVector& p0, const SVector& p1, const SVector& p2)
-			: P0(p0), P1(p1), P2(p2) 
-		{}
+			: P0(p0), P1(p1), P2(p2) {}
 
 		SVector P0, P1, P2;
 	};
@@ -82,8 +81,7 @@ namespace Havtorn
 		}
 
 		explicit SCubicBezier(const SVector& p0, const SVector& p1, const SVector& p2, const SVector& p3)
-			: P0(p0), P1(p1), P2(p2), P3(p3)
-		{}
+			: P0(p0), P1(p1), P2(p2), P3(p3) {}
 
 		SVector P0, P1, P2, P3;
 	};
@@ -125,8 +123,7 @@ namespace Havtorn
 		}
 
 		explicit SCatmullRom(const SVector& p0, const SVector& p1, const SVector& p2, const SVector& p3)
-			: P0(p0), P1(p1), P2(p2), P3(p3)
-		{}
+			: P0(p0), P1(p1), P2(p2), P3(p3) {}
 
 		SVector P0, P1, P2, P3;
 	};

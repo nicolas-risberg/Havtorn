@@ -1,6 +1,6 @@
 #pragma once
 #include <complex>
-#include "../CoreTypes.h"
+#include "Core/CoreTypes.h"
 #include "EngineMathSSE.h"
 
 namespace Havtorn

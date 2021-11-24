@@ -1,6 +1,6 @@
 #pragma once
 #include <xmmintrin.h>
-#include "CoreTypes.h"
+#include "Core/CoreTypes.h"
 
 namespace Havtorn
 {

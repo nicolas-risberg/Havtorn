@@ -61,7 +61,7 @@
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <PreprocessorDefinitions>HV_PLATFORM_WINDOWS;HV_BUILD_DLL;HV_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\External\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\External\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -85,7 +85,7 @@ IF EXIST ..\..\Bin\Debug_windows_x86_64\Engine\Engine_Debug.dll\ (xcopy /Q /E /Y
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
       <PreprocessorDefinitions>HV_PLATFORM_WINDOWS;HV_BUILD_DLL;HV_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\External\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\External\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -131,6 +131,10 @@ IF EXIST ..\..\Bin\Release_windows_x86_64\Engine\Engine_Release.dll\ (xcopy /Q /
     <ClInclude Include="Core\MathTypes\Sphere.h" />
     <ClInclude Include="Core\MathTypes\Vector.h" />
     <ClInclude Include="Core\WindowsInclude.h" />
+    <ClInclude Include="Event\ApplicationEvent.h" />
+    <ClInclude Include="Event\Event.h" />
+    <ClInclude Include="Event\KeyEvent.h" />
+    <ClInclude Include="Event\MouseEvent.h" />
     <ClInclude Include="Havtorn.h" />
     <ClInclude Include="Log.h" />
   </ItemGroup>

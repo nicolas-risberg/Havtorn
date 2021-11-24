@@ -38,6 +38,7 @@ project "Engine"
 
 	includedirs
 	{
+		"Source/%{prj.name}",
 		"External/spdlog/include"
 	}
 
@@ -98,6 +99,7 @@ project "Launcher"
 
 	includedirs
 	{
+		"Source/%{prj.name}",
 		"External/spdlog/include",
 		"Source/Engine"
 	}
