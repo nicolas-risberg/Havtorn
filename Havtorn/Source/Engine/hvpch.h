@@ -17,5 +17,8 @@
 #include <deque>
 
 #ifdef HV_PLATFORM_WINDOWS
-#include "Core\WindowsInclude.h"
+#include "Core/WindowsInclude.h"
 #endif
+
+#include "Core/EngineTypes.h"
+#include "Log.h"

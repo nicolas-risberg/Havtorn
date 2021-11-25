@@ -70,6 +70,11 @@ project "Engine"
 		defines "HV_DEBUG"
 		symbols "On"
 
+		defines 
+		{
+			"HV_ENABLE_ASSERTS"
+		}
+
 	filter "configurations:Release"
 		defines "HV_RELEASE"
 		optimize "On"
@@ -135,6 +140,11 @@ project "Launcher"
 	filter "configurations:Debug"
 		defines "HV_DEBUG"
 		symbols "On"
+
+		defines 
+		{
+			"HV_ENABLE_ASSERTS"
+		}
 
 	filter "configurations:Release"
 		defines "HV_RELEASE"

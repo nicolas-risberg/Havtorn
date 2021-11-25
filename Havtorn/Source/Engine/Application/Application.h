@@ -2,6 +2,7 @@
 
 #include "Core/Core.h"
 #include "Event/Event.h"
+#include "Window.h"
 
 namespace Havtorn
 {
@@ -10,8 +11,18 @@ namespace Havtorn
 	public:
 		CApplication();
 		virtual ~CApplication();
+		
+		CApplication(const CApplication& other) = delete;
+		CApplication(const CApplication&& other) = delete;
+		CApplication& operator=(const CApplication& other) = delete;
+		CApplication& operator=(const CApplication&& other) = delete;
 
 		void Run();
+		
+	private:
+		Ptr<IWindow> Window;
+
+		bool IsRunning = true;
 	};
 
 	// To be defined in Client

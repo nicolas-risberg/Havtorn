@@ -16,6 +16,13 @@ namespace Havtorn
 
 	using F32 = float;
 
+	using CString = std::string;
+
+	template<typename T>
+	using Ptr = std::unique_ptr<T>;
+	template<typename T>
+	using Ref = std::shared_ptr<T>;
+
 #define BIT(x) (1 << x)
 #define CACHE_LINE 32
 #define CACHE_ALIGN __declspec(align(CACHE_LINE))

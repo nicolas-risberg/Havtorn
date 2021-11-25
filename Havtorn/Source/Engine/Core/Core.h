@@ -9,3 +9,9 @@
 #else
 	#error Havtorn currently only supports 64 bit Windows
 #endif
+
+#ifdef HV_ENABLE_ASSERTS
+	#define HV_ASSERT(x, ...) { if(!(x)) { HV_LOG_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#else
+	#define HV_ASSERT(x, ...)
+#endif
