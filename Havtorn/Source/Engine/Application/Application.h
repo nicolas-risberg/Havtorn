@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Core/Core.h"
-#include "Event/Event.h"
+
 #include "Window.h"
+#include "Event/Event.h"
+#include "Event/ApplicationEvent.h"
+#include "LayerStack.h"
 
 namespace Havtorn
 {
@@ -18,11 +21,19 @@ namespace Havtorn
 		CApplication& operator=(const CApplication&& other) = delete;
 
 		void Run();
+
+		void OnEvent(CEvent& e);
+
+		void PushLayer(CLayer* layer);
+		void PushOverlay(CLayer* overlay);
 		
 	private:
-		Ptr<IWindow> Window;
+		bool OnWindowClose(CWindowCloseEvent& e);
 
+	private:
+		Ptr<IWindow> Window;
 		bool IsRunning = true;
+		CLayerStack LayerStack;
 	};
 
 	// To be defined in Client

@@ -69,6 +69,9 @@ project "Engine"
 
 	filter "configurations:Debug"
 		defines "HV_DEBUG"
+		buildoptions "/MDd"
+		staticruntime "off"
+		runtime "Debug"
 		symbols "On"
 
 		defines 
@@ -78,6 +81,9 @@ project "Engine"
 
 	filter "configurations:Release"
 		defines "HV_RELEASE"
+		buildoptions "/MD"
+		staticruntime "off"
+		runtime "Release"
 		optimize "On"
 		flags { "LinkTimeOptimization" }
 
@@ -140,6 +146,9 @@ project "Launcher"
 
 	filter "configurations:Debug"
 		defines "HV_DEBUG"
+		buildoptions "/MDd"
+		staticruntime "off"
+		runtime "Debug"
 		symbols "On"
 
 		defines 
@@ -149,5 +158,8 @@ project "Launcher"
 
 	filter "configurations:Release"
 		defines "HV_RELEASE"
+		buildoptions "/MD"
+		staticruntime "off"
+		runtime "Release"
 		optimize "On"
 		flags { "LinkTimeOptimization" }
