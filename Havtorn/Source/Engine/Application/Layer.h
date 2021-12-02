@@ -16,10 +16,10 @@ namespace Havtorn
 		virtual void OnUpdate() {}
 		virtual void OnEvent(CEvent& /*event*/) {}
 
-		inline const std::string& GetName() const { return DebugName; }
+		inline std::string GetName() const { return DebugName; }
 
 	private:
-		std::string DebugName;
+		const char* DebugName;
 	};
 }
 

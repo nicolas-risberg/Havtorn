@@ -4,7 +4,7 @@
 namespace Havtorn
 {
 	CLayer::CLayer(const std::string& name)
-		: DebugName(name)
+		: DebugName(name.c_str())
 	{
 	}
 
