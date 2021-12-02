@@ -1,5 +1,9 @@
 #include "hvpch.h"
+
 #include "WindowsWindow.h"
+#include "Event/ApplicationEvent.h"
+#include "Event/KeyEvent.h"
+#include "Event/MouseEvent.h"
 
 namespace Havtorn
 {
@@ -44,6 +48,8 @@ namespace Havtorn
 
 		HV_LOG_INFO("Creating window {0} ({1}, {2})", properties.Title, properties.Width, properties.Height);
 
+		CWindowResizeEvent event(properties.Width, properties.Height);
+		Data.EventCallback(event);
 	}
 
 	void CWindowsWindow::Shutdown()

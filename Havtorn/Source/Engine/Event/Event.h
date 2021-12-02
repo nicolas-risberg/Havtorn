@@ -56,8 +56,8 @@ namespace Havtorn
 			return GetCategoryFlags() & (U16)category;
 		}
 
-	protected:
 		bool IsHandled = false;
+	//protected:
 	};
 
 	class CEventDispatcher
@@ -84,9 +84,9 @@ namespace Havtorn
 		CEvent& Event;
 	};
 
-	// Allows Logger to print events using HV_LOG_TRACE(e)
-	inline std::ostream& operator<<(std::ostream& os, const CEvent& e)
-	{
-		return os << e.ToString();
-	}
+	//// Allows Logger to print events using HV_LOG_TRACE(e)
+	//inline std::ostream& operator<<(std::ostream& os, const CEvent& e)
+	//{
+	//	return os << e.ToString();
+	//}
 }

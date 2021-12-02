@@ -1,14 +1,17 @@
 #include "hvpch.h"
 
 #include "Application.h"
-#include "Event/ApplicationEvent.h"
 #include "Log.h"
 
 namespace Havtorn
 {
+
+#define BIND_EVENT_FUNCTION(x) std::bind(&CApplication::x, this, std::placeholders::_1)
+
 	CApplication::CApplication()
 	{
 		Window = Ptr<IWindow>(IWindow::Create());
+		Window->SetEventCallback(BIND_EVENT_FUNCTION(OnEvent));
 	}
 
 	CApplication::~CApplication()
@@ -29,7 +32,7 @@ namespace Havtorn
 			}
 		}
 		CWindowResizeEvent e(1280, 720);
-		HV_LOG_TRACE(e);
+		//HV_LOG_TRACE("{0}", e);
 	}
 
 	void CApplication::OnEvent(CEvent& e)
@@ -37,7 +40,7 @@ namespace Havtorn
 		CEventDispatcher dispatcher(e);
 		dispatcher.Dispatch<CWindowCloseEvent>(BIND_EVENT_FUNCTION(OnWindowClose));
 
-		HV_LOG_TRACE("{0}", e);
+		//HV_LOG_TRACE("{0}", e);
 
 		for (auto it = LayerStack.end(); it != LayerStack.begin(); )
 		{
@@ -57,8 +60,9 @@ namespace Havtorn
 		LayerStack.PushOverlay(overlay);
 	}
 
-	bool CApplication::OnWindowClose(CWindowCloseEvent& e)
+	bool CApplication::OnWindowClose(CWindowCloseEvent& /*e*/)
 	{
-		return false;
-	}
+		IsRunning = false;
+		return true;
+	} 
 }

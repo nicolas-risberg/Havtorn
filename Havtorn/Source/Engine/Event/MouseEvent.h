@@ -35,7 +35,7 @@ namespace Havtorn
 	{
 	public:
 		CMouseScrolledEvent(F32 xOffset, F32 yOffset)
-			: XOffset(xOffset), YOffset(xOffset) {}
+			: XOffset(xOffset), YOffset(yOffset) {}
 
 		inline F32 GetX() const { return XOffset; }
 		inline F32 GetY() const { return YOffset; }
