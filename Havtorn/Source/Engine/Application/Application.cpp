@@ -10,7 +10,7 @@ namespace Havtorn
 
 	CApplication::CApplication()
 	{
-		Window = Ptr<IWindow>(IWindow::Create());
+		Window = IWindow::Create();
 		Window->SetEventCallback(BIND_EVENT_FUNCTION(OnEvent));
 	}
 

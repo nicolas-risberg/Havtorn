@@ -4,11 +4,13 @@
 //#include "Input.h"
 //#include "JsonReader.h"
 #ifdef _DEBUG
-    #include <imgui/imgui_impl_win32.h>
+    //#include <imgui/imgui_impl_win32.h>
+    #include <imgui\imgui_impl_win32.h>
 #endif
 //#include "PostMaster.h"
 
 #ifdef _DEBUG
+//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif // DEBUG
 

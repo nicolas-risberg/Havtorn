@@ -3,6 +3,8 @@
 #include "Core/Core.h"
 #include "Layer.h"
 
+#pragma warning(disable : 4251)
+
 namespace Havtorn
 {
 	class HAVTORN_API CLayerStack
