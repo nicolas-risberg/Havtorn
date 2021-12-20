@@ -27,6 +27,7 @@ project "Engine"
 
 	pchheader "hvpch.h"
 	pchsource "Source/Engine/hvpch.cpp"
+	forceincludes { "hvpch.h" }
 
 	files 
 	{
@@ -44,8 +45,11 @@ project "Engine"
 		"Source/%{prj.name}",
 		"External/spdlog/include",
 		"External/FastNoise2/include",
-		"External"
+		"External/rapidjson",
+		"External/imgui"
 	}
+
+	libdirs {  }
 
 	floatingpoint "Fast"
 	debugdir "Bin/"

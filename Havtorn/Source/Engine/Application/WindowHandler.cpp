@@ -5,7 +5,7 @@
 //#include "JsonReader.h"
 #ifdef _DEBUG
     //#include <imgui/imgui_impl_win32.h>
-    #include <imgui\imgui_impl_win32.h>
+    #include "ImGui/Core/imgui_impl_win32.h"
 #endif
 //#include "PostMaster.h"
 
@@ -47,16 +47,16 @@ namespace Havtorn
 
         case WM_SETFOCUS:
 #ifdef _DEBUG
-            if (false/*windowHandler->myGameIsInMenu*/)
+            //if (false/*windowHandler->myGameIsInMenu*/)
                 windowHandler->ShowAndUnlockCursor();
-            else
-                windowHandler->HideAndLockCursor();
+            //else
+                //windowHandler->HideAndLockCursor();
             //windowHandler->myWindowIsInEditingMode ? windowHandler->LockCursor(false) : windowHandler->LockCursor(true);
 #else
-            if (windowHandler->myGameIsInMenu)
+            //if (windowHandler->myGameIsInMenu)
                 windowHandler->ShowAndUnlockCursor();
-            else
-                windowHandler->HideAndLockCursor();
+            //else
+                //windowHandler->HideAndLockCursor();
 #endif
             break;
 

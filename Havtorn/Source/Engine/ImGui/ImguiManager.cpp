@@ -1,7 +1,7 @@
 #include "hvpch.h"
 #include "ImguiManager.h"
 #ifdef _DEBUG
-#include <imgui/imgui.h>
+#include "ImGui/Core/imgui.h"
 #endif // _DEBUG
 #include <psapi.h>
 #ifdef _DEBUG
@@ -17,119 +17,126 @@
 
 //#pragma comment(lib, "psapi.lib")
 
-#ifdef _DEBUG
-static ImFont* ImGui_LoadFont(ImFontAtlas& atlas, const char* name, float size, const ImVec2& /*displayOffset*/ = ImVec2(0, 0))
+namespace Havtorn
 {
-	char* windir = nullptr;
-	if (_dupenv_s(&windir, nullptr, "WINDIR") || windir == nullptr)
-		return nullptr;
-
-	static const ImWchar ranges[] =
+#ifdef _DEBUG
+	static ImFont* ImGui_LoadFont(ImFontAtlas& atlas, const char* name, float size, const ImVec2 & /*displayOffset*/ = ImVec2(0, 0))
 	{
-		0x0020, 0x00FF, // Basic Latin + Latin Supplement
-		0x0104, 0x017C, // Polish characters and more
-		0,
-	};
+		char* windir = nullptr;
+		if (_dupenv_s(&windir, nullptr, "WINDIR") || windir == nullptr)
+			return nullptr;
 
-	ImFontConfig config;
-	config.OversampleH = 4;
-	config.OversampleV = 4;
-	config.PixelSnapH = false;
+		static const ImWchar ranges[] =
+		{
+			0x0020, 0x00FF, // Basic Latin + Latin Supplement
+			0x0104, 0x017C, // Polish characters and more
+			0,
+		};
 
-	auto path = std::string(windir) + "\\Fonts\\" + name;
-	auto font = atlas.AddFontFromFileTTF(path.c_str(), size, &config, ranges);
-	//if (font)
-	//font->DisplayOffset = displayOffset;
+		ImFontConfig config;
+		config.OversampleH = 4;
+		config.OversampleV = 4;
+		config.PixelSnapH = false;
 
-	free(windir);
+		auto path = std::string(windir) + "\\Fonts\\" + name;
+		auto font = atlas.AddFontFromFileTTF(path.c_str(), size, &config, ranges);
+		//if (font)
+		//font->DisplayOffset = displayOffset;
 
-	return font;
-}
-ImFontAtlas myFontAtlas;
+		free(windir);
+
+		return font;
+	}
+	ImFontAtlas myFontAtlas;
 #endif // DEBUG
 
-CImguiManager::CImguiManager() : myIsEnabled(false)
-{
+	CImguiManager::CImguiManager() : myIsEnabled(false)
+	{
+	}
+
+	CImguiManager::~CImguiManager()
+	{
 #ifdef _DEBUG
-	ImGui::DebugCheckVersionAndDataLayout("1.80 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
-	ImGui::CreateContext();
-	ImGui::StyleColorsDark();
-	ImGui_LoadFont(myFontAtlas, "segoeui.ttf", 22.0f);
-	myFontAtlas.Build();
+		ImGui::DestroyContext();
+#endif
+	}
 
-	ImGui::CreateContext(&myFontAtlas);
+	bool CImguiManager::Init()
+	{
+#ifdef _DEBUG
+		ImGui::DebugCheckVersionAndDataLayout("1.86 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
+		ImGui::CreateContext();
+		ImGui::StyleColorsDark();
+		ImGui_LoadFont(myFontAtlas, "segoeui.ttf", 22.0f);
+		myFontAtlas.Build();
 
-	//myWindows.emplace_back(std::make_unique <ImGui::CLoadScene>("Load Scene", true));
-	//myWindows.emplace_back(std::make_unique <ImGui::CCameraSetting>("Camera Settings"));
-	//myWindows.emplace_back(std::make_unique <ImGui::CVFXEditorWindow>("VFX Editor"));
-	//myWindows.emplace_back(std::make_unique <ImGui::CPlayerControlWindow>("Player"));
-	//myWindows.emplace_back(std::make_unique <ImGui::CGravityGloveEditor>("GravityGlove"));
-	//myWindows.emplace_back(std::make_unique <ImGui::CEnvironmentLightWindow>("Environment Light"));
-	//myWindows.emplace_back(std::make_unique <ImGui::CPostProcessingWindow>("Post Processing"));
-	//myWindows.emplace_back(std::make_unique <ImGui::CHierarchy>("Scene Hierarchy"));
-	//myWindows.emplace_back(std::make_unique <ImGui::CDebugPrintoutWindow>("CMD"));
+		ImGui::CreateContext(&myFontAtlas);
+
+		//myWindows.emplace_back(std::make_unique <ImGui::CLoadScene>("Load Scene", true));
+		//myWindows.emplace_back(std::make_unique <ImGui::CCameraSetting>("Camera Settings"));
+		//myWindows.emplace_back(std::make_unique <ImGui::CVFXEditorWindow>("VFX Editor"));
+		//myWindows.emplace_back(std::make_unique <ImGui::CPlayerControlWindow>("Player"));
+		//myWindows.emplace_back(std::make_unique <ImGui::CGravityGloveEditor>("GravityGlove"));
+		//myWindows.emplace_back(std::make_unique <ImGui::CEnvironmentLightWindow>("Environment Light"));
+		//myWindows.emplace_back(std::make_unique <ImGui::CPostProcessingWindow>("Post Processing"));
+		//myWindows.emplace_back(std::make_unique <ImGui::CHierarchy>("Scene Hierarchy"));
+		//myWindows.emplace_back(std::make_unique <ImGui::CDebugPrintoutWindow>("CMD"));
 
 
-	//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorHideAndLock, this);
-	//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorShowAndUnlock, this);
+		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorHideAndLock, this);
+		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorShowAndUnlock, this);
 #endif // _DEBUG
-}
-
-CImguiManager::~CImguiManager()
-{
-#ifdef _DEBUG
-	ImGui::DestroyContext();
-#endif
-}
-
-void CImguiManager::Update()
-{
-#ifdef _DEBUG
-	if (myIsEnabled)
-	{
-		ImGui::BeginMainMenuBar();
-
-		for (const auto& window : myWindows)
-			window->OnMainMenuGUI();
-							
-		ImGui::EndMainMenuBar();
+		return true;
 	}
 
-	for (const auto& window : myWindows) {
-		if (window->Enable() && !window->MainMenuBarChild()) {
-			window->OnInspectorGUI();
+	void CImguiManager::Update()
+	{
+#ifdef _DEBUG
+		if (myIsEnabled)
+		{
+			ImGui::BeginMainMenuBar();
+
+			for (const auto& window : myWindows)
+				window->OnMainMenuGUI();
+
+			ImGui::EndMainMenuBar();
 		}
-	}
-	
-	DebugWindow();
+
+		for (const auto& window : myWindows) {
+			if (window->Enable() && !window->MainMenuBarChild()) {
+				window->OnInspectorGUI();
+			}
+		}
+
+		DebugWindow();
 #endif
-}
-
-void CImguiManager::DebugWindow()
-{
-#ifdef _DEBUG
-	if (ImGui::Begin("Debug info", nullptr))
-	{
-		ImGui::Text("Framerate: %.0f", ImGui::GetIO().Framerate);
-		ImGui::Text(GetSystemMemory().c_str());
-		ImGui::Text(GetDrawCalls().c_str());
 	}
-	ImGui::End();
+
+	void CImguiManager::DebugWindow()
+	{
+#ifdef _DEBUG
+		if (ImGui::Begin("Debug info", nullptr))
+		{
+			ImGui::Text("Framerate: %.0f", ImGui::GetIO().Framerate);
+			ImGui::Text(GetSystemMemory().c_str());
+			ImGui::Text(GetDrawCalls().c_str());
+		}
+		ImGui::End();
 #endif // DEBUG
-}
+	}
 
 #ifdef _DEBUG
-//void CImguiManager::Receive(const SMessage& aMessage)
-//{
-//	if (aMessage.myMessageType == EMessageType::CursorHideAndLock)
-//	{
-//		myIsEnabled = false;
-//	}
-//	else if (aMessage.myMessageType == EMessageType::CursorShowAndUnlock)
-//	{
-//		myIsEnabled = true;
-//	}
-//}
+	//void CImguiManager::Receive(const SMessage& aMessage)
+	//{
+	//	if (aMessage.myMessageType == EMessageType::CursorHideAndLock)
+	//	{
+	//		myIsEnabled = false;
+	//	}
+	//	else if (aMessage.myMessageType == EMessageType::CursorShowAndUnlock)
+	//	{
+	//		myIsEnabled = true;
+	//	}
+	//}
 #endif // _DEBUG
 
 //void CImguiManager::LevelSelect()
@@ -171,61 +178,62 @@ void CImguiManager::DebugWindow()
 //	ImGui::End();
 //}
 
-const std::string CImguiManager::GetSystemMemory()
-{
+	const std::string CImguiManager::GetSystemMemory()
+	{
 #ifdef _DEBUG
 
 
-	// From TGA2D
-	PROCESS_MEMORY_COUNTERS memCounter;
-	BOOL result = GetProcessMemoryInfo(GetCurrentProcess(),
-		&memCounter,
-		sizeof(memCounter));
+		// From TGA2D
+		PROCESS_MEMORY_COUNTERS memCounter;
+		BOOL result = GetProcessMemoryInfo(GetCurrentProcess(),
+			&memCounter,
+			sizeof(memCounter));
 
-	if (!result)
-	{
+		if (!result)
+		{
+			return "";
+		}
+
+		SIZE_T memUsed = (memCounter.WorkingSetSize) / 1024;
+		SIZE_T memUsedMb = (memCounter.WorkingSetSize) / 1024 / 1024;
+
+		std::string mem = "System Memory: ";
+		mem.append(std::to_string(memUsed));
+		mem.append("Kb (");
+		mem.append(std::to_string(memUsedMb));
+		mem.append("Mb)");
+
+		return mem;
+#else
 		return "";
+#endif
+		// _DEBUG
+
 	}
 
-	SIZE_T memUsed = (memCounter.WorkingSetSize) / 1024;
-	SIZE_T memUsedMb = (memCounter.WorkingSetSize) / 1024 / 1024;
-
-	std::string mem = "System Memory: ";
-	mem.append(std::to_string(memUsed));
-	mem.append("Kb (");
-	mem.append(std::to_string(memUsedMb));
-	mem.append("Mb)");
-
-	return mem;
-#else
-	return "";
-#endif
-	// _DEBUG
-
-}
-
-const std::string CImguiManager::GetDrawCalls()
-{
+	const std::string CImguiManager::GetDrawCalls()
+	{
 #ifdef _DEBUG
 
 
-	std::string drawCalls = "Draw Calls: ";
-	//drawCalls.append(std::to_string(CRenderManager::myNumberOfDrawCallsThisFrame));
-	return drawCalls;
+		std::string drawCalls = "Draw Calls: ";
+		//drawCalls.append(std::to_string(CRenderManager::myNumberOfDrawCallsThisFrame));
+		return drawCalls;
 #else
-	return "";
+		return "";
 #endif // _DEBUG
-}
+	}
 
-//void CImguiManager::LevelsToSelectFrom(std::vector<std::string> someLevelsToSelectFrom)
-//{
-//	for (unsigned int i = 0; i < someLevelsToSelectFrom.size(); ++i) {
-//		const auto& doc = CJsonReader::Get()->LoadDocument(ASSETPATH("Assets/Generated/" + someLevelsToSelectFrom[i]));
-//		if (!doc.HasParseError()) {
-//			if (doc.HasMember("instancedGameobjects") && 
-//				doc.HasMember("modelGameObjects")) {
-//				myLevelsToSelectFrom.push_back(someLevelsToSelectFrom[i]);
-//			}
-//		}
-//	}	
-//}
+	//void CImguiManager::LevelsToSelectFrom(std::vector<std::string> someLevelsToSelectFrom)
+	//{
+	//	for (unsigned int i = 0; i < someLevelsToSelectFrom.size(); ++i) {
+	//		const auto& doc = CJsonReader::Get()->LoadDocument(ASSETPATH("Assets/Generated/" + someLevelsToSelectFrom[i]));
+	//		if (!doc.HasParseError()) {
+	//			if (doc.HasMember("instancedGameobjects") && 
+	//				doc.HasMember("modelGameObjects")) {
+	//				myLevelsToSelectFrom.push_back(someLevelsToSelectFrom[i]);
+	//			}
+	//		}
+	//	}	
+	//}
+}

@@ -1,6 +1,6 @@
 #include "hvpch.h"
 #include "ImGuiWindow.h"
-#include <imgui/imgui.h>
+#include "ImGui/Core/imgui.h"
 
 ImGui::CWindow::CWindow(const char* aWindowName, const bool aIsMainMenuBarChild)
 	: myName(aWindowName)

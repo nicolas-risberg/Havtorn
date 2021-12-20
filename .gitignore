@@ -42,3 +42,8 @@
 
 # Tests
 *premakeTest/
+
+# Other/Intermediate
+*.ilk
+*.iobj
+*.ipdb

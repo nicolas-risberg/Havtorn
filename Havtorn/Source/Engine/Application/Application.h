@@ -31,6 +31,7 @@ namespace Havtorn
 		bool OnWindowClose(CWindowCloseEvent& e);
 
 	private:
+		class CEngine* Engine;
 		IWindow* Window;
 		bool IsRunning = true;
 		CLayerStack LayerStack;

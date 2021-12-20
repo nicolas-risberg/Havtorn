@@ -21,4 +21,5 @@
 #endif
 
 #include "Core/EngineTypes.h"
+#include "Core/EngineException.h"
 #include "Log.h"

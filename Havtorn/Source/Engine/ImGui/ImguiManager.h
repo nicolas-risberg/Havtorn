@@ -10,29 +10,35 @@ namespace ImGui {
 	class CWindow;
 }
 
-class CImguiManager 
-#ifdef _DEBUG
-	//: public IObserver
-#endif
+namespace Havtorn
 {
-public:
-	CImguiManager();
-	~CImguiManager();
-	void Update();
-	void DebugWindow();
 
-public://Inherited
+	class CImguiManager
+#ifdef _DEBUG
+		//: public IObserver
+#endif
+	{
+	public:
+		CImguiManager();
+		~CImguiManager();
+
+		bool Init();
+		void Update();
+		void DebugWindow();
+
+	public://Inherited
 #ifdef _DEBUG
 	//void Receive(const SMessage& aMessage) override;
 #endif
-private:
+	private:
 
 #ifdef _DEBUG
-	std::vector<std::unique_ptr<ImGui::CWindow>> myWindows;
+		std::vector<std::unique_ptr<ImGui::CWindow>> myWindows;
 #endif
 
-	const std::string GetSystemMemory();
-	const std::string GetDrawCalls();
+		const std::string GetSystemMemory();
+		const std::string GetDrawCalls();
 
-	bool myIsEnabled;
-};
+		bool myIsEnabled;
+	};
+}

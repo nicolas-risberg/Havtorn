@@ -52,20 +52,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	application->Run();
 	delete application;
 
-	HV_LOG_TRACE("Trace");
-	HV_LOG_DEBUG("Debug");
-	HV_LOG_INFO("Info");
-	HV_LOG_WARNING("Warning");
-	HV_LOG_ERROR("Error");
-	HV_LOG_CRITICAL("Critical");
-
-	SVector haqvin;
-	haqvin = SVector(1.0f, 1.0f, 0.0f);
-
-	SVector nico = { -2.0f, 0.0f, 0.0f };
-
-	SVector projection = nico.Projection(haqvin);
-	HV_LOG_WARNING("Projection Vector: {}", projection.ToString());
+	HV_LOG_WARNING("Engine shutdown!");
 
 	system("pause");
 

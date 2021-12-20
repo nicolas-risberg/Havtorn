@@ -26,9 +26,10 @@ namespace Havtorn
 	private:
 		struct SWindowData
 		{
-			std::string Title;
-			U16 Width, Height;
-			bool IsVSyncEnabled;
+			std::string Title = "Editor";
+			U16 Width = 1280;
+			U16 Height = 720;
+			bool IsVSyncEnabled = false;
 
 			EventCallbackFunction EventCallback;
 		};
