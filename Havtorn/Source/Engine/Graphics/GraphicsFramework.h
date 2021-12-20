@@ -3,11 +3,6 @@
 #include <array>
 #include <wrl.h>
 
-namespace Havtorn
-{
-	class CWindowHandler;
-}
-
 struct IDXGISwapChain;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -18,26 +13,31 @@ struct ID3D11Texture2D;
 template<typename T>
 using WinComPtr = Microsoft::WRL::ComPtr<T>;
 
-class CDirectXFramework
+namespace Havtorn
 {
-public:
-	CDirectXFramework();
-	~CDirectXFramework();
+	class CWindowHandler;
 
-	void EndFrame();
+	class CDirectXFramework
+	{
+	public:
+		CDirectXFramework();
+		~CDirectXFramework();
 
-	bool Init(Havtorn::CWindowHandler* aWindowHandler);
+		void EndFrame();
 
-	void ToggleFullscreenState(bool aSetFullscreen);
+		bool Init(CWindowHandler* aWindowHandler);
 
-	bool ResizeBackBufferTexture();
+		void ToggleFullscreenState(bool aSetFullscreen);
 
-	ID3D11Device* GetDevice() const;
-	ID3D11DeviceContext* GetContext() const;
-	ID3D11Texture2D* GetBackbufferTexture() const;
+		bool ResizeBackBufferTexture();
 
-private:
-	WinComPtr<IDXGISwapChain> SwapChain;
-	WinComPtr<ID3D11Device> Device;
-	WinComPtr<ID3D11DeviceContext> Context;
-};
+		ID3D11Device* GetDevice() const;
+		ID3D11DeviceContext* GetContext() const;
+		ID3D11Texture2D* GetBackbufferTexture() const;
+
+	private:
+		WinComPtr<IDXGISwapChain> SwapChain;
+		WinComPtr<ID3D11Device> Device;
+		WinComPtr<ID3D11DeviceContext> Context;
+	};
+}

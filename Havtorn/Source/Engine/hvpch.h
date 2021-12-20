@@ -16,6 +16,8 @@
 #include <unordered_set>
 #include <deque>
 
+#include <d3d11.h>
+
 #ifdef HV_PLATFORM_WINDOWS
 #include "Core/WindowsInclude.h"
 #endif

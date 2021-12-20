@@ -163,13 +163,9 @@ namespace Havtorn
 
 	bool CEngine::Init(CWindowHandler::SWindowData& someWindowData)
 	{
-		ImguiManager->Init();
 		ENGINE_ERROR_BOOL_MESSAGE(myWindowHandler->Init(someWindowData), "Window Handler could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(myFramework->Init(myWindowHandler), "Framework could not be initialized.");
-#ifdef _DEBUG
-		//ImGui_ImplWin32_Init(myWindowHandler->GetWindowHandle());
-		ImGui_ImplDX11_Init(myFramework->GetDevice(), myFramework->GetContext());
-#endif
+		ImguiManager->Init(myFramework->GetDevice(), myFramework->GetContext(), myWindowHandler->GetWindowHandle());
 		myWindowHandler->SetInternalResolution();
 		//ENGINE_ERROR_BOOL_MESSAGE(myModelFactory->Init(myFramework), "Model Factory could not be initiliazed.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myCameraFactory->Init(myWindowHandler), "Camera Factory could not be initialized.");
@@ -199,7 +195,7 @@ namespace Havtorn
 		std::string fpsString = std::to_string((1.0f / CTimer::Dt()));
 		size_t decimalIndex = fpsString.find_first_of('.');
 		fpsString = fpsString.substr(0, decimalIndex);
-		myWindowHandler->SetWindowTitle("Havtorn | FPS: " + fpsString);
+		myWindowHandler->SetWindowTitle("Havtorn Editor | FPS: " + fpsString);
 
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
@@ -235,6 +231,7 @@ namespace Havtorn
 		//ENGINE_BOOL_POPUP(mySceneMap[myActiveState], "The Scene you want to render is nullptr");
 		//myRenderManager->Render(*mySceneMap[myActiveState]);
 		//CMainSingleton::ImguiManager().Update();
+		ImguiManager->Update();
 	}
 
 	void CEngine::EndFrame()

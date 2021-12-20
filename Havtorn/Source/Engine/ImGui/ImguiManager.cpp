@@ -1,8 +1,12 @@
 #include "hvpch.h"
 #include "ImguiManager.h"
+
 #ifdef _DEBUG
 #include "ImGui/Core/imgui.h"
+#include "ImGui/Core/imgui_impl_win32.h"
+#include "ImGui/Core/imgui_impl_dx11.h"
 #endif // _DEBUG
+
 #include <psapi.h>
 #ifdef _DEBUG
 //#include "Engine.h"
@@ -50,18 +54,24 @@ namespace Havtorn
 	ImFontAtlas myFontAtlas;
 #endif // DEBUG
 
-	CImguiManager::CImguiManager() : myIsEnabled(false)
+	CImguiManager::CImguiManager() : myIsEnabled(true)
 	{
 	}
 
 	CImguiManager::~CImguiManager()
 	{
 #ifdef _DEBUG
+        ImGui_ImplWin32_Shutdown();
+		ImGui_ImplDX11_Shutdown();
 		ImGui::DestroyContext();
 #endif
 	}
 
-	bool CImguiManager::Init()
+#ifdef _DEBUG
+	bool CImguiManager::Init(ID3D11Device* device, ID3D11DeviceContext* context, HWND windowHandle)
+#else
+	bool CImguiManager::Init(ID3D11Device*, ID3D11DeviceContext*, HWND)
+#endif //_DEBUG
 	{
 #ifdef _DEBUG
 		ImGui::DebugCheckVersionAndDataLayout("1.86 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
@@ -85,6 +95,9 @@ namespace Havtorn
 
 		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorHideAndLock, this);
 		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorShowAndUnlock, this);
+
+		ImGui_ImplWin32_Init(windowHandle);
+		ImGui_ImplDX11_Init(device, context);
 #endif // _DEBUG
 		return true;
 	}
@@ -115,6 +128,8 @@ namespace Havtorn
 	void CImguiManager::DebugWindow()
 	{
 #ifdef _DEBUG
+		ImGui::ShowDemoWindow();
+
 		if (ImGui::Begin("Debug info", nullptr))
 		{
 			ImGui::Text("Framerate: %.0f", ImGui::GetIO().Framerate);

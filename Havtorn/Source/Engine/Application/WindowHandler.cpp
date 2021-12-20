@@ -78,9 +78,9 @@ namespace Havtorn
 
     CWindowHandler::~CWindowHandler()
     {
-#ifdef _DEBUG
-        ImGui_ImplWin32_Shutdown();
-#endif // _DEBUG
+//#ifdef _DEBUG
+//        ImGui_ImplWin32_Shutdown();
+//#endif // _DEBUG
 
         LockCursor(false);
         myCursorIsLocked = false;
@@ -177,9 +177,9 @@ namespace Havtorn
 
         //::SetCursor(customCursor);
 
-#ifdef _DEBUG
-        ImGui_ImplWin32_Init(myWindowHandle);
-#endif // _DEBUG
+//#ifdef _DEBUG
+        //ImGui_ImplWin32_Init(myWindowHandle);
+//#endif // _DEBUG
 
         //LockCursor(true);
 

@@ -5,127 +5,130 @@
 #pragma comment(lib, "runtimeobject.lib")
 #pragma comment(lib, "d3d11.lib")
 
-CDirectXFramework::CDirectXFramework()
+namespace Havtorn
 {
-	SwapChain = nullptr;
-	Device = nullptr;
-	Context = nullptr;
-}
-
-CDirectXFramework::~CDirectXFramework()
-{
-	BOOL isFullscreen;
-	SwapChain->GetFullscreenState(&isFullscreen, nullptr);
-
-	// if isFullscreen
-	if (isFullscreen <= 0)
+	CDirectXFramework::CDirectXFramework()
 	{
-		SwapChain->SetFullscreenState(FALSE, NULL);
+		SwapChain = nullptr;
+		Device = nullptr;
+		Context = nullptr;
 	}
-}
 
-void CDirectXFramework::EndFrame()
-{
-	SwapChain->Present(0, 0);
-}
-
-bool CDirectXFramework::Init(Havtorn::CWindowHandler* aWindowHandler)
-{
-	if (!aWindowHandler)
+	CDirectXFramework::~CDirectXFramework()
 	{
-		return false;
+		BOOL isFullscreen;
+		SwapChain->GetFullscreenState(&isFullscreen, nullptr);
+
+		// if isFullscreen
+		if (isFullscreen <= 0)
+		{
+			SwapChain->SetFullscreenState(FALSE, NULL);
+		}
 	}
+
+	void CDirectXFramework::EndFrame()
+	{
+		SwapChain->Present(0, 0);
+	}
+
+	bool CDirectXFramework::Init(Havtorn::CWindowHandler* aWindowHandler)
+	{
+		if (!aWindowHandler)
+		{
+			return false;
+		}
 
 #if _DEBUG
-	DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
-	swapchainDesc.BufferCount = 1;
-	swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapchainDesc.OutputWindow = aWindowHandler->GetWindowHandle();
-	swapchainDesc.SampleDesc.Count = 1;
-	swapchainDesc.Windowed = true;
-	ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
-		nullptr,
-		D3D_DRIVER_TYPE_HARDWARE,
-		nullptr,
-		0, //D3D11_CREATE_DEVICE_DEBUG ,
-		nullptr,
-		0,
-		D3D11_SDK_VERSION,
-		&swapchainDesc,
-		&SwapChain,
-		&Device,
-		nullptr,
-		&Context), "Failed to created Device and Swap Chain.");
+		DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
+		swapchainDesc.BufferCount = 1;
+		swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapchainDesc.OutputWindow = aWindowHandler->GetWindowHandle();
+		swapchainDesc.SampleDesc.Count = 1;
+		swapchainDesc.Windowed = true;
+		ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
+			nullptr,
+			D3D_DRIVER_TYPE_HARDWARE,
+			nullptr,
+			0, //D3D11_CREATE_DEVICE_DEBUG ,
+			nullptr,
+			0,
+			D3D11_SDK_VERSION,
+			&swapchainDesc,
+			&SwapChain,
+			&Device,
+			nullptr,
+			&Context), "Failed to created Device and Swap Chain.");
 #else
-	DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
-	swapchainDesc.BufferCount = 1;
-	swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapchainDesc.OutputWindow = aWindowHandler->GetWindowHandle();
-	swapchainDesc.SampleDesc.Count = 1;
-	swapchainDesc.Windowed = true;
-	ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
-		nullptr,
-		D3D_DRIVER_TYPE_HARDWARE,
-		nullptr,
-		0,
-		nullptr,
-		0,
-		D3D11_SDK_VERSION,
-		&swapchainDesc,
-		&SwapChain,
-		&Device,
-		nullptr,
-		&Context), "Failed to created Device and Swap Chain.");
+		DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
+		swapchainDesc.BufferCount = 1;
+		swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapchainDesc.OutputWindow = aWindowHandler->GetWindowHandle();
+		swapchainDesc.SampleDesc.Count = 1;
+		swapchainDesc.Windowed = true;
+		ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
+			nullptr,
+			D3D_DRIVER_TYPE_HARDWARE,
+			nullptr,
+			0,
+			nullptr,
+			0,
+			D3D11_SDK_VERSION,
+			&swapchainDesc,
+			&SwapChain,
+			&Device,
+			nullptr,
+			&Context), "Failed to created Device and Swap Chain.");
 #endif
 
-	return true;
-}
+		return true;
+	}
 
-void CDirectXFramework::ToggleFullscreenState(bool aSetFullscreen)
-{
-	SwapChain->SetFullscreenState(aSetFullscreen, NULL);
-}
+	void CDirectXFramework::ToggleFullscreenState(bool aSetFullscreen)
+	{
+		SwapChain->SetFullscreenState(aSetFullscreen, NULL);
+	}
 
-bool CDirectXFramework::ResizeBackBufferTexture()
-{
-	//HRESULT result;
-	//ID3D11Texture2D* backbufferTexture;
-	//result = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture);
-	//if (FAILED(result))
-	//{
-	//	return false;
-	//}
-	//return true;
+	bool CDirectXFramework::ResizeBackBufferTexture()
+	{
+		//HRESULT result;
+		//ID3D11Texture2D* backbufferTexture;
+		//result = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture);
+		//if (FAILED(result))
+		//{
+		//	return false;
+		//}
+		//return true;
 
-	//ENGINE_HR_BOOL_MESSAGE(mySwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Could not resize buffers!");
+		//ENGINE_HR_BOOL_MESSAGE(mySwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Could not resize buffers!");
 
-	//ID3D11Texture2D* pBuffer = nullptr;
-	//ENGINE_HR_BOOL_MESSAGE(mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer), "Could not resize buffers!");
+		//ID3D11Texture2D* pBuffer = nullptr;
+		//ENGINE_HR_BOOL_MESSAGE(mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer), "Could not resize buffers!");
 
-	//if (!pBuffer)
-	//	return false;
+		//if (!pBuffer)
+		//	return false;
 
-	//ENGINE_HR_BOOL_MESSAGE(myDevice->CreateRenderTargetView(pBuffer, NULL, &myBackBuffer), "Could not resize buffers!");
+		//ENGINE_HR_BOOL_MESSAGE(myDevice->CreateRenderTargetView(pBuffer, NULL, &myBackBuffer), "Could not resize buffers!");
 
-	//pBuffer->Release();
-	return true;
-}
+		//pBuffer->Release();
+		return true;
+	}
 
-ID3D11Device* CDirectXFramework::GetDevice() const
-{
-	return Device.Get();
-}
+	ID3D11Device* CDirectXFramework::GetDevice() const
+	{
+		return Device.Get();
+	}
 
-ID3D11DeviceContext* CDirectXFramework::GetContext() const
-{
-	return Context.Get();
-}
+	ID3D11DeviceContext* CDirectXFramework::GetContext() const
+	{
+		return Context.Get();
+	}
 
-ID3D11Texture2D* CDirectXFramework::GetBackbufferTexture() const
-{
-	ID3D11Texture2D* backbufferTexture;
-	ENGINE_HR_MESSAGE(SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture), "Failed to Get Buffer");
-	return backbufferTexture;
+	ID3D11Texture2D* CDirectXFramework::GetBackbufferTexture() const
+	{
+		ID3D11Texture2D* backbufferTexture;
+		ENGINE_HR_MESSAGE(SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture), "Failed to Get Buffer");
+		return backbufferTexture;
+	}
 }
