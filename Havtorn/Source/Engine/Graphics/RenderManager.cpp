@@ -45,9 +45,9 @@ namespace Havtorn
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myDeferredRenderer.Init(aFramework, &CMainSingleton::MaterialHandler()), "Failed to Init Deferred Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myFullscreenRenderer.Init(aFramework), "Failed to Init Fullscreen Renderer.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myFullscreenTextureFactory.Init(aFramework), "Failed to Init Fullscreen Texture Factory.");
+		ENGINE_ERROR_BOOL_MESSAGE(myFullscreenTextureFactory.Init(aFramework), "Failed to Init Fullscreen Texture Factory.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myParticleRenderer.Init(aFramework), "Failed to Init Particle Renderer.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myRenderStateManager.Init(aFramework), "Failed to Init Render State Manager.");
+		ENGINE_ERROR_BOOL_MESSAGE(myRenderStateManager.Init(aFramework), "Failed to Init Render State Manager.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myVFXRenderer.Init(aFramework), "Failed to Init VFX Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(mySpriteRenderer.Init(aFramework), "Failed to Init Sprite Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myTextRenderer.Init(aFramework), "Failed to Init Text Renderer.");
@@ -57,7 +57,7 @@ namespace Havtorn
 		ID3D11Texture2D* backbufferTexture = aFramework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
-		//myBackbuffer = myFullscreenTextureFactory.CreateTexture(backbufferTexture);
+		myBackbuffer = myFullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(aWindowHandler);
 
 		return true;
@@ -65,12 +65,12 @@ namespace Havtorn
 
 	bool CRenderManager::ReInit(CDirectXFramework* aFramework, CWindowHandler* aWindowHandler)
 	{
-		//ENGINE_ERROR_BOOL_MESSAGE(myRenderStateManager.Init(aFramework), "Failed to Init Render State Manager.");
+		ENGINE_ERROR_BOOL_MESSAGE(myRenderStateManager.Init(aFramework), "Failed to Init Render State Manager.");
 
 		ID3D11Texture2D* backbufferTexture = aFramework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
-		//myBackbuffer = myFullscreenTextureFactory.CreateTexture(backbufferTexture);
+		myBackbuffer = myFullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(aWindowHandler);
 
 		return true;
@@ -124,8 +124,8 @@ namespace Havtorn
 //		}
 //#endif
 //
-//		myRenderStateManager.SetAllDefault();
-//		myBackbuffer.ClearTexture(myClearColor);
+		myRenderStateManager.SetAllDefault();
+		myBackbuffer.ClearTexture(myClearColor);
 //		myIntermediateTexture.ClearTexture(myClearColor);
 //		myIntermediateDepth.ClearDepth();
 //		myEnvironmentShadowDepth.ClearDepth();
@@ -488,6 +488,14 @@ namespace Havtorn
 //		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
 //		myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
 //		myTextRenderer.Render(textsToRender);
+	}
+
+	void CRenderManager::Render()
+	{
+		CRenderManager::myNumberOfDrawCallsThisFrame = 0;
+		myRenderStateManager.SetAllDefault();
+		myBackbuffer.ClearTexture(myClearColor);
+		myBackbuffer.SetAsActiveTarget();
 	}
 
 	void CRenderManager::Release()

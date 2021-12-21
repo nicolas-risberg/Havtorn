@@ -4,11 +4,11 @@
 //#include "DeferredRenderer.h"
 //#include "LightRenderer.h"
 //#include "FullscreenRenderer.h"
-//#include "FullscreenTexture.h"
-//#include "FullscreenTextureFactory.h"
+#include "FullscreenTexture.h"
+#include "FullscreenTextureFactory.h"
 //#include "ParticleRenderer.h"
 //#include "VFXRenderer.h"
-//#include "RenderStateManager.h"
+#include "RenderStateManager.h"
 //#include "SpriteRenderer.h"
 //#include "TextRenderer.h"
 //#include "ShadowRenderer.h"
@@ -28,6 +28,7 @@ namespace Havtorn
 		bool Init(CDirectXFramework* aFramework, CWindowHandler* aWindowHandler);
 		bool ReInit(CDirectXFramework* aFramework, CWindowHandler* aWindowHandler);
 		void Render(CScene& aScene);
+		void Render();
 
 		void Release();
 
@@ -50,7 +51,7 @@ namespace Havtorn
 		void ToggleRenderPass(bool aShouldToggleForwards = true);
 
 	private:
-		//CRenderStateManager myRenderStateManager;
+		CRenderStateManager myRenderStateManager;
 		//CForwardRenderer myForwardRenderer;
 		//CDeferredRenderer myDeferredRenderer;
 		//CLightRenderer myLightRenderer;
@@ -62,8 +63,8 @@ namespace Havtorn
 		//CShadowRenderer myShadowRenderer;
 		//CDecalRenderer myDecalRenderer;
 
-		//CFullscreenTextureFactory myFullscreenTextureFactory;
-		//CFullscreenTexture myBackbuffer;
+		CFullscreenTextureFactory myFullscreenTextureFactory;
+		CFullscreenTexture myBackbuffer;
 		//CFullscreenTexture myIntermediateTexture;
 		//CFullscreenTexture myIntermediateDepth;
 		//CFullscreenTexture myEnvironmentShadowDepth;

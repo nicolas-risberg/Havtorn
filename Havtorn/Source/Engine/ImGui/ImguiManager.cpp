@@ -12,7 +12,7 @@
 //#include "Engine.h"
 //#include "Scene.h"
 //#include "SceneManager.h"
-//#include "RenderManager.h"
+#include "Graphics/RenderManager.h"
 //#include "JsonReader.h"
 #include "ImGuiWindows.h"
 //#include "PostMaster.h"
@@ -91,7 +91,6 @@ namespace Havtorn
 		//myWindows.emplace_back(std::make_unique <ImGui::CPostProcessingWindow>("Post Processing"));
 		//myWindows.emplace_back(std::make_unique <ImGui::CHierarchy>("Scene Hierarchy"));
 		//myWindows.emplace_back(std::make_unique <ImGui::CDebugPrintoutWindow>("CMD"));
-
 
 		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorHideAndLock, this);
 		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorShowAndUnlock, this);
@@ -196,9 +195,6 @@ namespace Havtorn
 	const std::string CImguiManager::GetSystemMemory()
 	{
 #ifdef _DEBUG
-
-
-		// From TGA2D
 		PROCESS_MEMORY_COUNTERS memCounter;
 		BOOL result = GetProcessMemoryInfo(GetCurrentProcess(),
 			&memCounter,
@@ -229,10 +225,8 @@ namespace Havtorn
 	const std::string CImguiManager::GetDrawCalls()
 	{
 #ifdef _DEBUG
-
-
 		std::string drawCalls = "Draw Calls: ";
-		//drawCalls.append(std::to_string(CRenderManager::myNumberOfDrawCallsThisFrame));
+		drawCalls.append(std::to_string(CRenderManager::myNumberOfDrawCallsThisFrame));
 		return drawCalls;
 #else
 		return "";

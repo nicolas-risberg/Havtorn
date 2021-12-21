@@ -34,7 +34,7 @@
 //#include "SpriteFactory.h"
 //#include "DecalFactory.h"
 //
-//#include "RenderManager.h"
+#include "Graphics/RenderManager.h"
 //
 //#include "ImguiManager.h"
 //
@@ -78,7 +78,7 @@ namespace Havtorn
 		//myDecalFactory = new CDecalFactory();
 		//myInputMapper = new CInputMapper();
 		//myDebug = new CDebug();
-		//myRenderManager = nullptr;
+		myRenderManager = nullptr;
 		//myMainSingleton = new CMainSingleton();
 		//// Audio Manager must be constructed after main singleton, since it subscribes to postmaster messages
 		//myAudioManager = new CAudioManager();
@@ -111,8 +111,8 @@ namespace Havtorn
 		//myCameraFactory = nullptr;
 		//delete myLightFactory;
 		//myLightFactory = nullptr;
-		//delete myRenderManager;
-		//myRenderManager = nullptr;
+		delete myRenderManager;
+		myRenderManager = nullptr;
 
 		//delete myParticleFactory;
 		//myParticleFactory = nullptr;
@@ -170,8 +170,8 @@ namespace Havtorn
 		//ENGINE_ERROR_BOOL_MESSAGE(myModelFactory->Init(myFramework), "Model Factory could not be initiliazed.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myCameraFactory->Init(myWindowHandler), "Camera Factory could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(CMainSingleton::MaterialHandler().Init(myFramework), "Material Handler could not be initialized.");
-		//myRenderManager = new CRenderManager();
-		//ENGINE_ERROR_BOOL_MESSAGE(myRenderManager->Init(myFramework, myWindowHandler), "RenderManager could not be initialized.");
+		myRenderManager = new CRenderManager();
+		ENGINE_ERROR_BOOL_MESSAGE(myRenderManager->Init(myFramework, myWindowHandler), "RenderManager could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightFactory->Init(*this), "Light Factory could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myParticleFactory->Init(myFramework), "Particle Factory could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myVFXFactory->Init(myFramework), "VFX Factory could not be initialized.");
@@ -230,6 +230,7 @@ namespace Havtorn
 
 		//ENGINE_BOOL_POPUP(mySceneMap[myActiveState], "The Scene you want to render is nullptr");
 		//myRenderManager->Render(*mySceneMap[myActiveState]);
+		myRenderManager->Render();
 		//CMainSingleton::ImguiManager().Update();
 		ImguiManager->Update();
 	}
