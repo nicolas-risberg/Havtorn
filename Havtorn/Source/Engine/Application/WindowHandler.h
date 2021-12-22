@@ -41,13 +41,13 @@ namespace Havtorn
 		void SetResolution(SVector2<F32> aResolution);
 
 	private:
-		CWindowHandler::SWindowData myWindowData;
-		HWND myWindowHandle;
-		SVector2<F32>* myResolution;
-		F32 myResolutionScale;
-		U16 myMaxResX = 1920;
-		U16 myMaxResY = 1080;
-		bool myCursorIsLocked;
-		bool myWindowIsInEditingMode;
+		CWindowHandler::SWindowData WindowData;
+		HWND WindowHandle;
+		SVector2<F32>* Resolution;
+		F32 ResolutionScale;
+		U16 MaxResX = 1920;
+		U16 MaxResY = 1080;
+		bool CursorIsLocked;
+		bool WindowIsInEditingMode;
 	};
 }

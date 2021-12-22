@@ -1,5 +1,5 @@
 #include "hvpch.h"
-#include "ImGuiWindow.h"
+#include "ImguiWindow.h"
 #include "ImGui/Core/imgui.h"
 
 ImGui::CWindow::CWindow(const char* aWindowName, const bool aIsMainMenuBarChild)
@@ -11,7 +11,7 @@ ImGui::CWindow::CWindow(const char* aWindowName, const bool aIsMainMenuBarChild)
 
 bool ImGui::CWindow::OnMainMenuGUI()
 {
-	if (ImGui::Button(Name()))
+	if (::ImGui::Button(Name()))
 	{
 		if (!Enable())
 			OnEnable();

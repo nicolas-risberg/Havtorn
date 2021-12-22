@@ -4,13 +4,11 @@
 //#include "Input.h"
 //#include "JsonReader.h"
 #ifdef _DEBUG
-    //#include <imgui/imgui_impl_win32.h>
     #include "ImGui/Core/imgui_impl_win32.h"
 #endif
 //#include "PostMaster.h"
 
 #ifdef _DEBUG
-//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif // DEBUG
 
@@ -42,16 +40,16 @@ namespace Havtorn
             break;
 
         case WM_KILLFOCUS:
-            windowHandler->LockCursor(false); // If we use this here the myWindowIsInEditingMode bool will be preserved
+            windowHandler->LockCursor(false); // If we use this here the WindowIsInEditingMode bool will be preserved
             break;
 
         case WM_SETFOCUS:
 #ifdef _DEBUG
-            //if (false/*windowHandler->myGameIsInMenu*/)
+            //if (false/*windowHandler->GameIsInMenu*/)
                 windowHandler->ShowAndUnlockCursor();
             //else
                 //windowHandler->HideAndLockCursor();
-            //windowHandler->myWindowIsInEditingMode ? windowHandler->LockCursor(false) : windowHandler->LockCursor(true);
+            //windowHandler->WindowIsInEditingMode ? windowHandler->LockCursor(false) : windowHandler->LockCursor(true);
 #else
             //if (windowHandler->myGameIsInMenu)
                 windowHandler->ShowAndUnlockCursor();
@@ -69,11 +67,13 @@ namespace Havtorn
     }
 
     CWindowHandler::CWindowHandler()
+        : WindowData()
+        , WindowHandle(0)
+        , Resolution(nullptr)
+        , ResolutionScale(1.0f)
+        , CursorIsLocked(false)
+        , WindowIsInEditingMode(false)
     {
-        myWindowHandle = 0;
-        myResolutionScale = 1.0f;
-        myCursorIsLocked = false;
-        myWindowIsInEditingMode = false;
     }
 
     CWindowHandler::~CWindowHandler()
@@ -83,31 +83,31 @@ namespace Havtorn
 //#endif // _DEBUG
 
         LockCursor(false);
-        myCursorIsLocked = false;
-        myWindowIsInEditingMode = false;
-        myWindowHandle = 0;
-        delete myResolution;
-        myResolution = nullptr;
+        CursorIsLocked = false;
+        WindowIsInEditingMode = false;
+        WindowHandle = 0;
+        delete Resolution;
+        Resolution = nullptr;
         UnregisterClass(L"HavtornWindowClass", GetModuleHandle(nullptr));
     }
 
     bool CWindowHandler::Init(CWindowHandler::SWindowData someWindowData)
     {
-        myWindowData = someWindowData;
+        WindowData = someWindowData;
 
         //rapidjson::Document document = CJsonReader::Get()->LoadDocument("Json/Settings/WindowSettings.json");
 
         //if (document.HasMember("Window Width"))
-        //    myWindowData.myWidth = document["Window Width"].GetInt();
+        //    WindowData.myWidth = document["Window Width"].GetInt();
 
         //if (document.HasMember("Window Height"))
-        //    myWindowData.myHeight = document["Window Height"].GetInt();
+        //    WindowData.myHeight = document["Window Height"].GetInt();
 
         //if (document.HasMember("Window Starting Pos X"))
-        //    myWindowData.myX = document["Window Starting Pos X"].GetInt();
+        //    WindowData.myX = document["Window Starting Pos X"].GetInt();
 
         //if (document.HasMember("Window Starting Pos Y"))
-        //    myWindowData.myY = document["Window Starting Pos Y"].GetInt();
+        //    WindowData.myY = document["Window Starting Pos Y"].GetInt();
 
         //HCURSOR customCursor = NULL;
         //if (document.HasMember("Cursor Path"))
@@ -147,56 +147,56 @@ namespace Havtorn
         //    borderless = document["Borderless Window"].GetBool();
         //}
 
-        //myMaxResX = GetSystemMetrics(SM_CXSCREEN);
-        //myMaxResY = GetSystemMetrics(SM_CYSCREEN);
+        //MaxResX = GetSystemMetrics(SM_CXSCREEN);
+        //MaxResY = GetSystemMetrics(SM_CYSCREEN);
 
         if (false/*borderless*/)
         {
 #ifdef _DEBUG
             // Start in borderless
-            myWindowHandle = CreateWindowA("HavtornWindowClass", gameName.c_str(),
+            WindowHandle = CreateWindowA("HavtornWindowClass", gameName.c_str(),
                 WS_POPUP | WS_VISIBLE,
-                0, 0, myWindowData.myWidth, myWindowData.myHeight,
+                0, 0, WindowData.myWidth, WindowData.myHeight,
                 NULL, NULL, GetModuleHandle(nullptr), this);
 #else
             // Start in borderless
-            myWindowHandle = CreateWindowA("HavtornWindowClass", gameName.c_str(),
+            WindowHandle = CreateWindowA("HavtornWindowClass", gameName.c_str(),
                 WS_POPUP | WS_VISIBLE,
-                0, 0, myMaxResX, myMaxResY,
+                0, 0, MaxResX, MaxResY,
                 NULL, NULL, GetModuleHandle(nullptr), this);
 #endif
         }
         else
         {
             // Start in bordered window
-            myWindowHandle = CreateWindowA("HavtornWindowClass", gameName.c_str(),
+            WindowHandle = CreateWindowA("HavtornWindowClass", gameName.c_str(),
                 WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE,
-                myWindowData.myX, myWindowData.myY, myWindowData.myWidth, myWindowData.myHeight,
+                WindowData.myX, WindowData.myY, WindowData.myWidth, WindowData.myHeight,
                 nullptr, nullptr, nullptr, this);
         }
 
         //::SetCursor(customCursor);
 
 //#ifdef _DEBUG
-        //ImGui_ImplWin32_Init(myWindowHandle);
+        //ImGui_ImplWin32_Init(WindowHandle);
 //#endif // _DEBUG
 
         //LockCursor(true);
 
-        myResolution = new SVector2<F32>();
+        Resolution = new SVector2<F32>();
         return true;
     }
 
     const HWND CWindowHandler::GetWindowHandle() const
     {
-        return myWindowHandle;
+        return WindowHandle;
     }
 
     SVector2<F32> CWindowHandler::GetCenterPosition()
     {
         SVector2<F32> center = {};
         RECT rect = { 0 };
-        if (GetWindowRect(myWindowHandle, &rect))
+        if (GetWindowRect(WindowHandle, &rect))
         {
             center.X = (rect.right - rect.left) * 0.5f;
             center.Y = (rect.bottom - rect.top) * 0.5f;
@@ -206,14 +206,14 @@ namespace Havtorn
 
     SVector2<F32> CWindowHandler::GetResolution()
     {
-        return *myResolution;
+        return *Resolution;
     }
 
     void CWindowHandler::SetResolution(SVector2<F32> aResolution)
     {
-        if ((INT)aResolution.X <= myMaxResX && (INT)aResolution.Y <= myMaxResY)
+        if ((I16)aResolution.X <= MaxResX && (I16)aResolution.Y <= MaxResY)
         {
-            ::SetWindowPos(myWindowHandle, 0, 0, 0, (UINT)aResolution.X, (UINT)aResolution.Y, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+            ::SetWindowPos(WindowHandle, 0, 0, 0, (U16)aResolution.X, (U16)aResolution.Y, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 
             SetInternalResolution();
         }
@@ -221,46 +221,46 @@ namespace Havtorn
 
     const bool CWindowHandler::CursorLocked() const
     {
-        return myCursorIsLocked;
+        return CursorIsLocked;
     }
 
     void CWindowHandler::LockCursor(bool aShouldLock)
     {
-        myCursorIsLocked = aShouldLock;
+        CursorIsLocked = aShouldLock;
         if (aShouldLock)
         {
             while (::ShowCursor(FALSE) >= 0);
 
             SVector2<F32> center = GetCenterPosition();
-            SetCursorPos(static_cast<int>(center.X), static_cast<int>(center.Y));
+            SetCursorPos(static_cast<I16>(center.X), static_cast<I16>(center.Y));
         }
         else {
             while (::ShowCursor(TRUE) < 0);
         }
-        aShouldLock ? SetCapture(myWindowHandle) : SetCapture(nullptr);
+        aShouldLock ? static_cast<bool>(SetCapture(WindowHandle)) : static_cast<bool>(ReleaseCapture());
     }
 
     void CWindowHandler::HidLockCursor(bool aShouldLock)
     {
-        myCursorIsLocked = aShouldLock;
+        CursorIsLocked = aShouldLock;
         if (aShouldLock)
         {
             SVector2<F32> center = GetCenterPosition();
-            SetCursorPos(static_cast<int>(center.X), static_cast<int>(center.Y));
+            SetCursorPos(static_cast<I16>(center.X), static_cast<I16>(center.Y));
         }
-        aShouldLock ? SetCapture(myWindowHandle) : SetCapture(nullptr);
+        aShouldLock ? static_cast<bool>(SetCapture(WindowHandle)) : static_cast<bool>(ReleaseCapture());
     }
 
     void CWindowHandler::HideAndLockCursor(const bool& anIsInEditorMode)
     {
-        std::cout << __FUNCTION__ << std::endl;
         while (::ShowCursor(FALSE) >= 0);
-        SetCapture(myWindowHandle);
-        myCursorIsLocked = true;
-        myWindowIsInEditingMode = anIsInEditorMode;
+        SetCapture(WindowHandle);
+
+        CursorIsLocked = true;
+        WindowIsInEditingMode = anIsInEditorMode;
 
         SVector2<F32> center = GetCenterPosition();
-        SetCursorPos(static_cast<int>(center.X), static_cast<int>(center.Y));
+        SetCursorPos(static_cast<I16>(center.X), static_cast<I16>(center.Y));
 
         //CMainSingleton::PostMaster().Send({ EMessageType::CursorHideAndLock, nullptr });
     }
@@ -268,32 +268,35 @@ namespace Havtorn
     void CWindowHandler::ShowAndUnlockCursor(const bool& anIsInEditorMode)
     {
         while (::ShowCursor(TRUE) < 0);
-        SetCapture(nullptr);
-        myCursorIsLocked = false;
-        myWindowIsInEditingMode = anIsInEditorMode;
+        ReleaseCapture();
+
+        CursorIsLocked = false;
+        WindowIsInEditingMode = anIsInEditorMode;
+
         //CMainSingleton::PostMaster().Send({ EMessageType::CursorShowAndUnlock, nullptr });
     }
 
     void CWindowHandler::SetInternalResolution()
     {
         LPRECT rect = new RECT{ 0, 0, 0, 0 };
-        if (GetClientRect(myWindowHandle, rect) != 0) {
-            myResolution->X = static_cast<float>(rect->right);
-            myResolution->Y = static_cast<float>(rect->bottom);
+        if (GetClientRect(WindowHandle, rect) != 0) 
+        {
+            Resolution->X = static_cast<F32>(rect->right);
+            Resolution->Y = static_cast<F32>(rect->bottom);
         }
-        ClipCursor(rect);
+        //ClipCursor(rect);
         delete rect;
 
-        myResolutionScale = myResolution->Y / 1080.0f;
+        ResolutionScale = Resolution->Y / 1080.0f;
     }
 
     void CWindowHandler::SetWindowTitle(std::string aString)
     {
-        SetWindowTextA(myWindowHandle, aString.c_str());
+        SetWindowTextA(WindowHandle, aString.c_str());
     }
 
     const float CWindowHandler::GetResolutionScale() const
     {
-        return myResolutionScale;
+        return ResolutionScale;
     }
 }

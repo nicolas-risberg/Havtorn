@@ -13,6 +13,14 @@ namespace ImGui {
 
 namespace Havtorn
 {
+	enum class EEditorColorTheme
+	{
+		DefaultDark,
+		HavtornDark,
+		HavtornRed,
+		HavtornGreen,
+		Count
+	};
 
 	class CImguiManager
 		//: public IObserver
@@ -29,6 +37,9 @@ namespace Havtorn
 
 	public://Inherited
 	//void Receive(const SMessage& aMessage) override;
+	private:
+		void SetEditorStyle(EEditorColorTheme colorTheme = EEditorColorTheme::DefaultDark);
+
 	private:
 		std::vector<Ptr<ImGui::CWindow>> myWindows;
 

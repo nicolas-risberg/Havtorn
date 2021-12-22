@@ -1,6 +1,7 @@
 #pragma once
 
-namespace ImGui {
+namespace ImGui
+{
 	class CWindow
 	{
 	public:
@@ -9,7 +10,7 @@ namespace ImGui {
 	public:
 		virtual void OnEnable() = 0;
 		virtual void OnInspectorGUI() = 0;
-		virtual void OnDisable() = 0;	
+		virtual void OnDisable() = 0;
 		virtual bool OnMainMenuGUI();
 
 	public:
