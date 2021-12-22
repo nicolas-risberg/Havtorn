@@ -2,12 +2,6 @@
 #include <wincodec.h>
 #include <document.h>
 
-#ifdef _DEBUG
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_win32.h>
-#endif
-
 //#include <ScreenGrab.h>
 //#include <DialogueSystem.h>
 //#include <PopupTextService.h>
@@ -15,7 +9,9 @@
 #include "Engine.h"
 #include "Application/WindowHandler.h"
 #include "Graphics/GraphicsFramework.h"
+#ifdef _DEBUG
 #include "ImGui/ImguiManager.h"
+#endif
 //#include "WindowHandler.h"
 //#include "DirectXFramework.h"
 //#include "ForwardRenderer.h"
@@ -56,47 +52,43 @@
 
 namespace Havtorn
 {
-	CEngine* CEngine::ourInstance = nullptr;
+	CEngine* CEngine::Instance = nullptr;
 
-	CEngine::CEngine() : myRenderSceneActive(true)
+	CEngine::CEngine() : RenderSceneActive(true)
 	{
-		ourInstance = this;
+		Instance = this;
 
-		myTimer = new CTimer();
-		myWindowHandler = new CWindowHandler();
-		myFramework = new CDirectXFramework();
+		Timer = new CTimer();
+		WindowHandler = new CWindowHandler();
+		Framework = new CDirectXFramework();
+#ifdef _DEBUG
 		ImguiManager = new CImguiManager();
-		//myForwardRenderer = new CForwardRenderer();
-		//myModelFactory = new CModelFactory();
-		//myCameraFactory = new CCameraFactory();
-		//myLightFactory = new CLightFactory();
-		//myParticleFactory = new CParticleEmitterFactory();
-		//myVFXFactory = new CVFXMeshFactory();
-		//myLineFactory = new CLineFactory();
-		//mySpriteFactory = new CSpriteFactory();
-		//myTextFactory = new CTextFactory();
-		//myDecalFactory = new CDecalFactory();
-		//myInputMapper = new CInputMapper();
-		//myDebug = new CDebug();
-		myRenderManager = nullptr;
-		//myMainSingleton = new CMainSingleton();
+#endif
+		//ForwardRenderer = new CForwardRenderer();
+		//ModelFactory = new CModelFactory();
+		//CameraFactory = new CCameraFactory();
+		//LightFactory = new CLightFactory();
+		//ParticleFactory = new CParticleEmitterFactory();
+		//VFXFactory = new CVFXMeshFactory();
+		//LineFactory = new CLineFactory();
+		//SpriteFactory = new CSpriteFactory();
+		//TextFactory = new CTextFactory();
+		//DecalFactory = new CDecalFactory();
+		//InputMapper = new CInputMapper();
+		//Debug = new CDebug();
+		RenderManager = new CRenderManager();
+		//MainSingleton = new CMainSingleton();
 		//// Audio Manager must be constructed after main singleton, since it subscribes to postmaster messages
-		//myAudioManager = new CAudioManager();
+		//AudioManager = new CAudioManager();
 		////myActiveScene = 0; //muc bad
 		//myActiveState = CStateStack::EState::BootUp;
-		//myPhysxWrapper = new CPhysXWrapper();
-		//mySceneFactory = new CSceneFactory();
+		//PhysxWrapper = new CPhysXWrapper();
+		//SceneFactory = new CSceneFactory();
 		//myDialogueSystem = new CDialogueSystem();
 	}
 
 	CEngine::~CEngine()
 	{
-#ifdef _DEBUG
-		ImGui_ImplDX11_Shutdown();
-#endif
-
-
-
 		//auto it = mySceneMap.begin();
 		//while (it != mySceneMap.end())
 		//{
@@ -105,85 +97,82 @@ namespace Havtorn
 		//	++it;
 		//}
 
-		//delete myModelFactory;
-		//myModelFactory = nullptr;
-		//delete myCameraFactory;
-		//myCameraFactory = nullptr;
-		//delete myLightFactory;
-		//myLightFactory = nullptr;
-		delete myRenderManager;
-		myRenderManager = nullptr;
+		//delete ModelFactory;
+		//ModelFactory = nullptr;
+		//delete CameraFactory;
+		//CameraFactory = nullptr;
+		//delete LightFactory;
+		//LightFactory = nullptr;
+		SAFE_DELETE(RenderManager);
 
-		//delete myParticleFactory;
-		//myParticleFactory = nullptr;
-		//delete myVFXFactory;
-		//myVFXFactory = nullptr;
-		//delete myLineFactory;
-		//myLineFactory = nullptr;
-		//delete mySpriteFactory;
-		//mySpriteFactory = nullptr;
-		//delete myTextFactory;
-		//myTextFactory = nullptr;
-		//delete myDecalFactory;
-		//myDecalFactory = nullptr;
-		//delete myInputMapper;
-		//myInputMapper = nullptr;
+		//delete ParticleFactory;
+		//ParticleFactory = nullptr;
+		//delete VFXFactory;
+		//VFXFactory = nullptr;
+		//delete LineFactory;
+		//LineFactory = nullptr;
+		//delete SpriteFactory;
+		//SpriteFactory = nullptr;
+		//delete TextFactory;
+		//TextFactory = nullptr;
+		//delete DecalFactory;
+		//DecalFactory = nullptr;
+		//delete InputMapper;
+		//InputMapper = nullptr;
 
-		//delete myDebug;
-		//myDebug = nullptr;
+		//delete Debug;
+		//Debug = nullptr;
 
 		//// Audio Manager must be destroyed before main singleton, since it unsubscribes from postmaster messages
-		//delete myAudioManager;
-		//myAudioManager = nullptr;
+		//delete AudioManager;
+		//AudioManager = nullptr;
 
 		////delete myDialogueSystem;
 		////myDialogueSystem = nullptr;
 
-		//delete myMainSingleton;
-		//myMainSingleton = nullptr;
+		//delete MainSingleton;
+		//MainSingleton = nullptr;
 
-		//delete myPhysxWrapper;
-		//myPhysxWrapper = nullptr;
+		//delete PhysxWrapper;
+		//PhysxWrapper = nullptr;
 
-		//delete mySceneFactory;
-		//mySceneFactory = nullptr;
+		//delete SceneFactory;
+		//SceneFactory = nullptr;
 
-		delete ImguiManager;
-		ImguiManager = nullptr;
+#ifdef _DEBUG
+		SAFE_DELETE(ImguiManager);
+#endif
+		SAFE_DELETE(WindowHandler);
+		SAFE_DELETE(Framework);
+		SAFE_DELETE(Timer);
 
-		delete myWindowHandler;
-		myWindowHandler = nullptr;
-		delete myFramework;
-		myFramework = nullptr;
-		delete myTimer;
-		myTimer = nullptr;
-
-		ourInstance = nullptr;
+		Instance = nullptr;
 	}
 
-	bool CEngine::Init(CWindowHandler::SWindowData& someWindowData)
+	bool CEngine::Init(CWindowHandler::SWindowData& windowData)
 	{
-		ENGINE_ERROR_BOOL_MESSAGE(myWindowHandler->Init(someWindowData), "Window Handler could not be initialized.");
-		ENGINE_ERROR_BOOL_MESSAGE(myFramework->Init(myWindowHandler), "Framework could not be initialized.");
-		ImguiManager->Init(myFramework->GetDevice(), myFramework->GetContext(), myWindowHandler->GetWindowHandle());
-		myWindowHandler->SetInternalResolution();
-		//ENGINE_ERROR_BOOL_MESSAGE(myModelFactory->Init(myFramework), "Model Factory could not be initiliazed.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myCameraFactory->Init(myWindowHandler), "Camera Factory could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(CMainSingleton::MaterialHandler().Init(myFramework), "Material Handler could not be initialized.");
-		myRenderManager = new CRenderManager();
-		ENGINE_ERROR_BOOL_MESSAGE(myRenderManager->Init(myFramework, myWindowHandler), "RenderManager could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myLightFactory->Init(*this), "Light Factory could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myParticleFactory->Init(myFramework), "Particle Factory could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myVFXFactory->Init(myFramework), "VFX Factory could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myLineFactory->Init(myFramework), "Line Factory could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(mySpriteFactory->Init(myFramework), "Sprite Factory could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myTextFactory->Init(myFramework), "Text Factory could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myDecalFactory->Init(myFramework), "Decal Factory could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myInputMapper->Init(), "InputMapper could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(WindowHandler->Init(windowData), "Window Handler could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(Framework->Init(WindowHandler), "Framework could not be initialized.");
+#ifdef _DEBUG
+		ENGINE_ERROR_BOOL_MESSAGE(ImguiManager->Init(Framework->GetDevice(), Framework->GetContext(), WindowHandler->GetWindowHandle()), "ImguiManager could not be initialized.");
+#endif
+		WindowHandler->SetInternalResolution();
+		//ENGINE_ERROR_BOOL_MESSAGE(ModelFactory->Init(Framework), "Model Factory could not be initiliazed.");
+		//ENGINE_ERROR_BOOL_MESSAGE(CameraFactory->Init(WindowHandler), "Camera Factory could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(CMainSingleton::MaterialHandler().Init(Framework), "Material Handler could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(RenderManager->Init(Framework, WindowHandler), "RenderManager could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(LightFactory->Init(*this), "Light Factory could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(ParticleFactory->Init(Framework), "Particle Factory could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(VFXFactory->Init(Framework), "VFX Factory could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(LineFactory->Init(Framework), "Line Factory could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(SpriteFactory->Init(Framework), "Sprite Factory could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(TextFactory->Init(Framework), "Text Factory could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(DecalFactory->Init(Framework), "Decal Factory could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(InputMapper->Init(), "InputMapper could not be initialized.");
 
 		//ENGINE_ERROR_BOOL_MESSAGE(CMainSingleton::PopupTextService().Init(), "Popup Text Service could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(CMainSingleton::DialogueSystem().Init(), "Dialogue System could not be initialized.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myPhysxWrapper->Init(), "PhysX could not be initialized.");
+		//ENGINE_ERROR_BOOL_MESSAGE(PhysxWrapper->Init(), "PhysX could not be initialized.");
 		InitWindowsImaging();
 
 		return true;
@@ -195,11 +184,9 @@ namespace Havtorn
 		std::string fpsString = std::to_string((1.0f / CTimer::Dt()));
 		size_t decimalIndex = fpsString.find_first_of('.');
 		fpsString = fpsString.substr(0, decimalIndex);
-		myWindowHandler->SetWindowTitle("Havtorn Editor | FPS: " + fpsString);
+		WindowHandler->SetWindowTitle("Havtorn Editor | FPS: " + fpsString);
 
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
+		ImguiManager->BeginFrame();
 #endif
 
 		return CTimer::Mark();
@@ -211,43 +198,42 @@ namespace Havtorn
 		//{
 		//	if (CTimer::FixedTimeStep() == true)
 		//	{
-		//		myPhysxWrapper->Simulate(); //<-- Anropas i samma intervall som Fixed "är"
+		//		PhysxWrapper->Simulate(); //<-- Anropas i samma intervall som Fixed "är"
 		//		mySceneMap[myActiveState]->FixedUpdate();
 		//	}
 		//	mySceneMap[myActiveState]->Update();
 		//}
 
-		//myAudioManager->Update();
+		//AudioManager->Update();
 		//CMainSingleton::DialogueSystem().Update();
-		//myDebug->Update();
+		//Debug->Update();
 		//CSceneFactory::Get()->Update(); //Used for loading Scenes on a seperate Thread!
 	}
 
 	void CEngine::RenderFrame()
 	{
-		if (!myRenderSceneActive)
+		if (!RenderSceneActive)
 			return;
 
 		//ENGINE_BOOL_POPUP(mySceneMap[myActiveState], "The Scene you want to render is nullptr");
-		//myRenderManager->Render(*mySceneMap[myActiveState]);
-		myRenderManager->Render();
-		//CMainSingleton::ImguiManager().Update();
+		//RenderManager->Render(*mySceneMap[myActiveState]);
+		RenderManager->Render();
+#ifdef _DEBUG
 		ImguiManager->Update();
+#endif
 	}
 
 	void CEngine::EndFrame()
 	{
 #ifdef _DEBUG
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-#endif // _DEBUG
-
-		myFramework->EndFrame();
+		ImguiManager->EndFrame();
+#endif
+		Framework->EndFrame();
 	}
 
 	CWindowHandler* CEngine::GetWindowHandler()
 	{
-		return myWindowHandler;
+		return WindowHandler;
 	}
 
 	void CEngine::InitWindowsImaging()
@@ -267,13 +253,13 @@ namespace Havtorn
 #include <DbgHelp.h>
 #include <strsafe.h>
 
-	void CEngine::CrashWithScreenShot(std::wstring& /*aSubPath*/)
+	void CEngine::CrashWithScreenShot(std::wstring& /*subPath*/)
 	{
 		//DL_Debug::CDebug::GetInstance()->CopyToCrashFolder(aSubPath);
 
 		//aSubPath += L"\\screenshot.bmp";
 		//HRESULT hr = CoInitialize(nullptr);
-		//hr = SaveWICTextureToFile(myFramework->GetContext(), myFramework->GetBackbufferTexture(),
+		//hr = SaveWICTextureToFile(Framework->GetContext(), Framework->GetBackbufferTexture(),
 		//	GUID_ContainerFormatBmp, aSubPath.c_str(),
 		//	&GUID_WICPixelFormat16bppBGR565);
 
@@ -283,18 +269,18 @@ namespace Havtorn
 		//CoUninitialize();
 	}
 
-	void CEngine::SetResolution(SVector2<F32> aResolution)
+	void CEngine::SetResolution(SVector2<F32> resolution)
 	{
-		myWindowHandler->SetResolution(aResolution);
-		//myRenderManager->Release();
-		//myRenderManager->ReInit(myFramework, myWindowHandler);
+		WindowHandler->SetResolution(resolution);
+		//RenderManager->Release();
+		//RenderManager->ReInit(Framework, WindowHandler);
 		//mySceneMap[CStateStack::EState::InGame]->ReInitCanvas(ASSETPATH("Assets/Graphics/UI/JSON/UI_MainMenu.json"));
 		//mySceneMap[CStateStack::EState::PauseMenu]->ReInitCanvas(ASSETPATH("Assets/Graphics/UI/JSON/UI_PauseMenu.json"));
 	}
 
 	CEngine* CEngine::GetInstance()
 	{
-		return ourInstance;
+		return Instance;
 	}
 
 	//const CStateStack::EState CEngine::AddScene(const CStateStack::EState aState, CScene* aScene)
@@ -355,7 +341,7 @@ namespace Havtorn
 
 	//CAudioChannel* CEngine::RequestAudioSource(const PostMaster::SAudioSourceInitData& aData)
 	//{
-	//	return myAudioManager->AddSource(aData);
+	//	return AudioManager->AddSource(aData);
 	//}
 
 	//const bool CEngine::IsInGameScene() const
@@ -382,16 +368,16 @@ namespace Havtorn
 
 	void CEngine::ClearModelFactory()
 	{
-		//myModelFactory->ClearFactory();
+		//ModelFactory->ClearFactory();
 	}
 
-	void CEngine::ShowCursor(const bool& anIsInEditorMode)
+	void CEngine::ShowCursor(const bool& isInEditorMode)
 	{
-		myWindowHandler->ShowAndUnlockCursor(anIsInEditorMode);
+		WindowHandler->ShowAndUnlockCursor(isInEditorMode);
 	}
-	void CEngine::HideCursor(const bool& anIsInEditorMode)
+	void CEngine::HideCursor(const bool& isInEditorMode)
 	{
-		myWindowHandler->HideAndLockCursor(anIsInEditorMode);
+		WindowHandler->HideAndLockCursor(isInEditorMode);
 	}
 
 	//void CEngine::CheckIfMenuState(const CStateStack::EState& aState)
@@ -417,32 +403,32 @@ namespace Havtorn
 
 	//	default:break;
 	//	}
-	//	myWindowHandler->GameIsInMenu(isInMenu);
+	//	WindowHandler->GameIsInMenu(isInMenu);
 	//}
 
 	//void CEngine::SetBrokenScreen(bool aShouldSetBrokenScreen)
 	//{
-	//	myRenderManager->SetBrokenScreen(aShouldSetBrokenScreen);
+	//	RenderManager->SetBrokenScreen(aShouldSetBrokenScreen);
 	//}
 
 	//const CFullscreenRenderer::SPostProcessingBufferData& CEngine::GetPostProcessingBufferData() const
 	//{
-	//	return myRenderManager->GetPostProcessingBufferData();
+	//	return RenderManager->GetPostProcessingBufferData();
 	//}
 
 	//void CEngine::SetPostProcessingBufferData(const CFullscreenRenderer::SPostProcessingBufferData& someBufferData)
 	//{
-	//	myRenderManager->SetPostProcessingBufferData(someBufferData);
+	//	RenderManager->SetPostProcessingBufferData(someBufferData);
 	//}
 
 	//void CEngine::SetAudioListener(CGameObject* aGameObject)
 	//{
-	//	myAudioManager->SetListener(aGameObject);
+	//	AudioManager->SetListener(aGameObject);
 	//}
 
 	//void CEngine::SetIsMenu(bool aMenuIsOpen)
 	//{
-	//	myWindowHandler->GameIsInMenu(aMenuIsOpen);
+	//	WindowHandler->GameIsInMenu(aMenuIsOpen);
 	//}
 
 }

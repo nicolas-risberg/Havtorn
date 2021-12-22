@@ -10,30 +10,30 @@ namespace Havtorn
 	public:
 		enum class EGBufferTextures
 		{
-			ALBEDO,
-			NORMAL,
-			VERTEXNORMAL,
-			MATERIAL,
-			COUNT
+			Albedo,
+			Normal,
+			VertexNormal,
+			Material,
+			Count
 		};
 
 	public:
 		CGBuffer();
 		~CGBuffer();
 
-		void ClearTextures(SVector4 aClearColor = (0.0f, 0.0f, 0.0f, 0.0f));
+		void ClearTextures(SVector4 clearColor = (0.0f, 0.0f, 0.0f, 0.0f));
 		void ReleaseRenderTargets();
-		void SetAsActiveTarget(class CFullscreenTexture* aDepth = nullptr);
-		void SetAsResourceOnSlot(EGBufferTextures aResource, UINT aSlot);
-		void SetAllAsResources();
+		void SetAsActiveTarget(class CFullscreenTexture* depth = nullptr);
+		void SetAsResourceOnSlot(EGBufferTextures resource, U16 slot);
+		void SetAllAsResources(U16 startSlot);
 
 		void ReleaseResources();
 
 	private:
-		ID3D11DeviceContext* myContext;
-		std::array<ID3D11Texture2D*, static_cast<size_t>(EGBufferTextures::COUNT)> myTextures;
-		std::array<ID3D11RenderTargetView*, static_cast<size_t>(EGBufferTextures::COUNT)> myRenderTargets;
-		std::array<ID3D11ShaderResourceView*, static_cast<size_t>(EGBufferTextures::COUNT)> myShaderResources;
-		D3D11_VIEWPORT* myViewport;
+		ID3D11DeviceContext* Context;
+		std::array<ID3D11Texture2D*, static_cast<U64>(EGBufferTextures::Count)> Textures;
+		std::array<ID3D11RenderTargetView*, static_cast<U64>(EGBufferTextures::Count)> RenderTargets;
+		std::array<ID3D11ShaderResourceView*, static_cast<U64>(EGBufferTextures::Count)> ShaderResources;
+		D3D11_VIEWPORT* Viewport;
 	};
 }

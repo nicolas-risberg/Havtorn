@@ -7,9 +7,6 @@
 #include "Application/LayerStack.h"
 //#include "FullscreenRenderer.h"
 
-#define IRONWROUGHT CEngine::GetInstance()
-#define IRONWROUGHT_ACTIVE_SCENE CEngine::GetInstance()->GetActiveScene()
-
 namespace Havtorn
 {
 	class CWindowHandler;
@@ -37,7 +34,8 @@ namespace Havtorn
 	class CSceneFactory;
 	class CGameObject;
 
-	namespace PostMaster {
+	namespace PostMaster 
+	{
 		struct SAudioSourceInitData;
 	}
 
@@ -56,16 +54,16 @@ namespace Havtorn
 	public:
 		CEngine();
 		~CEngine();
-		bool Init(CWindowHandler::SWindowData& someWindowData);
+		bool Init(CWindowHandler::SWindowData& windowData);
 		float BeginFrame();
 		void Update();
 		void RenderFrame();
 		void EndFrame();
 		CWindowHandler* GetWindowHandler();
 		void InitWindowsImaging();
-		void CrashWithScreenShot(std::wstring& aSubPath);
+		void CrashWithScreenShot(std::wstring& subPath);
 
-		void SetResolution(SVector2<F32> aResolution);
+		void SetResolution(SVector2<F32> resolution);
 
 		static CEngine* GetInstance();
 
@@ -74,7 +72,7 @@ namespace Havtorn
 		//CScene& GetActiveScene();
 		//inline const bool IsActiveScene(const CStateStack::EState& aState);
 		//void UpdateScene(const CStateStack::EState& aState);
-		//CPhysXWrapper& GetPhysx() { return *myPhysxWrapper; }
+		//CPhysXWrapper& GetPhysx() { return *PhysxWrapper; }
 		//CAudioChannel* RequestAudioSource(const PostMaster::SAudioSourceInitData& aData);
 
 		const bool IsInGameScene() const;
@@ -85,20 +83,20 @@ namespace Havtorn
 
 		//unsigned int ScenesSize();
 
-		void SetRenderScene(const bool aRenderSceneActive) { myRenderSceneActive = aRenderSceneActive; }
+		void SetRenderScene(const bool renderSceneActive) { RenderSceneActive = renderSceneActive; }
 		//void RemoveScene(CStateStack::EState aState);
 		void ClearModelFactory();
 
-		void ShowCursor(const bool& anIsInEditorMode = true);
-		void HideCursor(const bool& anIsInEditorMode = false);
+		void ShowCursor(const bool& isInEditorMode = true);
+		void HideCursor(const bool& isInEditorMode = false);
 
 		//void SetBrokenScreen(bool aShouldSetBrokenScreen);
 		//const CFullscreenRenderer::SPostProcessingBufferData& GetPostProcessingBufferData() const;
 		//void SetPostProcessingBufferData(const CFullscreenRenderer::SPostProcessingBufferData& someBufferData);
 
-		void SetAudioListener(CGameObject* aGameObject);
+		void SetAudioListener(CGameObject* gameObject);
 
-		void SetIsMenu(bool aMenuIsOpen);
+		void SetIsMenu(bool menuIsOpen);
 
 	private:
 		//void AllScenesToInactive();
@@ -107,35 +105,37 @@ namespace Havtorn
 		//void CheckIfMenuState(const CStateStack::EState& aState);
 
 	private:
-		static CEngine* ourInstance;
-		CWindowHandler* myWindowHandler;
-		CDirectXFramework* myFramework;
-		CForwardRenderer* myForwardRenderer;
+		static CEngine* Instance;
+		CWindowHandler* WindowHandler;
+		CDirectXFramework* Framework;
+		CForwardRenderer* ForwardRenderer;
+#ifdef _DEBUG
 		CImguiManager* ImguiManager;
-		CRenderManager* myRenderManager;
-		CTimer* myTimer;
-		CDebug* myDebug;
-		CPhysXWrapper* myPhysxWrapper;
+#endif
+		CRenderManager* RenderManager;
+		CTimer* Timer;
+		CDebug* Debug;
+		CPhysXWrapper* PhysxWrapper;
 
 		//unsigned int myActiveScene;
 		//CStateStack::EState myActiveState;
 		//std::vector<CScene*> myScenes;
 		//std::unordered_map<CStateStack::EState, CScene*> mySceneMap;
 
-		CModelFactory* myModelFactory;
-		CCameraFactory* myCameraFactory;
-		CLightFactory* myLightFactory;
-		CParticleEmitterFactory* myParticleFactory;
-		CVFXMeshFactory* myVFXFactory;
-		CLineFactory* myLineFactory;
-		CSpriteFactory* mySpriteFactory;
-		CTextFactory* myTextFactory;
-		CDecalFactory* myDecalFactory;
-		CInputMapper* myInputMapper;
-		CMainSingleton* myMainSingleton;
-		CAudioManager* myAudioManager;
-		CSceneFactory* mySceneFactory;
+		CModelFactory* ModelFactory;
+		CCameraFactory* CameraFactory;
+		CLightFactory* LightFactory;
+		CParticleEmitterFactory* ParticleFactory;
+		CVFXMeshFactory* VFXFactory;
+		CLineFactory* LineFactory;
+		CSpriteFactory* SpriteFactory;
+		CTextFactory* TextFactory;
+		CDecalFactory* DecalFactory;
+		CInputMapper* InputMapper;
+		CMainSingleton* MainSingleton;
+		CAudioManager* AudioManager;
+		CSceneFactory* SceneFactory;
 
-		bool myRenderSceneActive = false;
+		bool RenderSceneActive = false;
 	};
 }

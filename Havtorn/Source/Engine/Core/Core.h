@@ -16,3 +16,4 @@
 	#define HV_ASSERT(x, ...)
 #endif
 
+#define SAFE_DELETE(x) delete x; x = nullptr;

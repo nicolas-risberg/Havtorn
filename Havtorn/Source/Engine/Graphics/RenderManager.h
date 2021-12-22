@@ -21,13 +21,14 @@ namespace Havtorn
 	class CWindowHandler;
 	class CScene;
 
-	class CRenderManager {
+	class CRenderManager 
+	{
 	public:
 		CRenderManager();
 		~CRenderManager();
-		bool Init(CDirectXFramework* aFramework, CWindowHandler* aWindowHandler);
-		bool ReInit(CDirectXFramework* aFramework, CWindowHandler* aWindowHandler);
-		void Render(CScene& aScene);
+		bool Init(CDirectXFramework* framework, CWindowHandler* windowHandler);
+		bool ReInit(CDirectXFramework* framework, CWindowHandler* windowHandler);
+		void Render(CScene& scene);
 		void Render();
 
 		void Release();
@@ -39,20 +40,20 @@ namespace Havtorn
 		//void SetPostProcessingBufferData(const CFullscreenRenderer::SPostProcessingBufferData& someBufferData);
 
 	public:
-		static unsigned int myNumberOfDrawCallsThisFrame;
+		static U32 NumberOfDrawCallsThisFrame;
 
 	private:
 		void Clear(SVector4 clearColor);
-		void InitRenderTextures(CWindowHandler* aWindowHandler);
+		void InitRenderTextures(CWindowHandler* windowHandler);
 
 	private:
 		void RenderBloom();
 		void RenderWithoutBloom();
-		void ToggleRenderPass(bool aShouldToggleForwards = true);
+		void ToggleRenderPass(bool shouldToggleForwards = true);
 
 	private:
-		CRenderStateManager myRenderStateManager;
-		//CForwardRenderer myForwardRenderer;
+		CRenderStateManager RenderStateManager;
+		//CForwardRenderer ForwardRenderer;
 		//CDeferredRenderer myDeferredRenderer;
 		//CLightRenderer myLightRenderer;
 		//CFullscreenRenderer myFullscreenRenderer;
@@ -63,8 +64,8 @@ namespace Havtorn
 		//CShadowRenderer myShadowRenderer;
 		//CDecalRenderer myDecalRenderer;
 
-		CFullscreenTextureFactory myFullscreenTextureFactory;
-		CFullscreenTexture myBackbuffer;
+		CFullscreenTextureFactory FullscreenTextureFactory;
+		CFullscreenTexture Backbuffer;
 		//CFullscreenTexture myIntermediateTexture;
 		//CFullscreenTexture myIntermediateDepth;
 		//CFullscreenTexture myEnvironmentShadowDepth;
@@ -88,12 +89,12 @@ namespace Havtorn
 		//CGBuffer myGBuffer;
 		//CGBuffer myGBufferCopy;
 
-		SVector4 myClearColor;
+		SVector4 ClearColor;
 
-		int myRenderPassIndex;
+		I8 RenderPassIndex;
 		// Effectively used to toggle renderpasses and bloom. True == enable bloom, full render. False == disable bloom, isolated render pass
-		bool myDoFullRender;
-		bool myUseAntiAliasing;
-		bool myUseBrokenScreenPass;
+		bool DoFullRender;
+		bool UseAntiAliasing;
+		bool UseBrokenScreenPass;
 	};
 }

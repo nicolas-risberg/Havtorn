@@ -28,7 +28,7 @@ namespace Havtorn
 		friend class CGBuffer;
 
 	private:
-		ID3D11DeviceContext* myContext;
+		ID3D11DeviceContext* Context;
 		ID3D11Texture2D* myTexture;
 
 		union {
@@ -37,6 +37,6 @@ namespace Havtorn
 		};
 
 		ID3D11ShaderResourceView* myShaderResource;
-		D3D11_VIEWPORT* myViewport;
+		D3D11_VIEWPORT* Viewport;
 	};
 }

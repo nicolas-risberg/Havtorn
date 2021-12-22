@@ -64,7 +64,7 @@ namespace Havtorn
 		bool CreateSamplerStates(ID3D11Device* aDevice);
 
 	private:
-		ID3D11DeviceContext* myContext;
+		ID3D11DeviceContext* Context;
 		std::array<ID3D11BlendState*, (size_t)BlendStates::BLENDSTATE_COUNT> myBlendStates;
 		std::array<ID3D11DepthStencilState*, (size_t)DepthStencilStates::DEPTHSTENCILSTATE_COUNT> myDepthStencilStates;
 		std::array<ID3D11RasterizerState*, (size_t)RasterizerStates::RASTERIZERSTATE_COUNT> myRasterizerStates;

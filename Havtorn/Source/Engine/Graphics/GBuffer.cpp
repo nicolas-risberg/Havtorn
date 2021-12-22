@@ -5,6 +5,11 @@
 namespace Havtorn
 {
 	CGBuffer::CGBuffer()
+		: Context(nullptr)
+		, Textures()
+		, RenderTargets()
+		, ShaderResources()
+		, Viewport(nullptr)
 	{
 	}
 
@@ -12,57 +17,52 @@ namespace Havtorn
 	{
 	}
 
-	void CGBuffer::ClearTextures(SVector4 aClearColor)
+	void CGBuffer::ClearTextures(SVector4 clearColor)
 	{
-		for (UINT i = 0; i < static_cast<size_t>(EGBufferTextures::COUNT); ++i) {
-			myContext->ClearRenderTargetView(myRenderTargets[i], &aClearColor.X);
+		for (UINT i = 0; i < static_cast<U64>(EGBufferTextures::Count); ++i) 
+		{
+			Context->ClearRenderTargetView(RenderTargets[i], &clearColor.X);
 		}
 	}
 
 	void CGBuffer::ReleaseRenderTargets()
 	{
-		std::array<ID3D11RenderTargetView*, static_cast<size_t>(EGBufferTextures::COUNT)> nullViews = { NULL, NULL, NULL, NULL };
-		myContext->OMSetRenderTargets(static_cast<size_t>(EGBufferTextures::COUNT), &nullViews[0], nullptr);
+		std::array<ID3D11RenderTargetView*, static_cast<U64>(EGBufferTextures::Count)> nullViews = { NULL, NULL, NULL, NULL };
+		Context->OMSetRenderTargets(static_cast<U64>(EGBufferTextures::Count), &nullViews[0], nullptr);
 	}
 
-	void CGBuffer::SetAsActiveTarget(CFullscreenTexture* aDepth)
+	void CGBuffer::SetAsActiveTarget(CFullscreenTexture* depth)
 	{
-		if (aDepth)
-		{
-			myContext->OMSetRenderTargets(static_cast<size_t>(EGBufferTextures::COUNT), &myRenderTargets[0], aDepth->myDepth);
-		}
-		else
-		{
-			myContext->OMSetRenderTargets(static_cast<size_t>(EGBufferTextures::COUNT), &myRenderTargets[0], nullptr);
-		}
-		myContext->RSSetViewports(1, myViewport);
+		auto depthStencilView = depth ? depth->myDepth : nullptr;
+		Context->OMSetRenderTargets(static_cast<U64>(EGBufferTextures::Count), &RenderTargets[0], depthStencilView);
+		Context->RSSetViewports(1, Viewport);
 	}
 
-	void CGBuffer::SetAsResourceOnSlot(EGBufferTextures aResource, UINT aSlot)
+	void CGBuffer::SetAsResourceOnSlot(EGBufferTextures resource, U16 slot)
 	{
-		myContext->PSSetShaderResources(aSlot, 1, &myShaderResources[static_cast<size_t>(aResource)]);
+		Context->PSSetShaderResources(slot, 1, &ShaderResources[static_cast<U64>(resource)]);
 	}
 
-	void CGBuffer::SetAllAsResources()
+	void CGBuffer::SetAllAsResources(U16 startSlot)
 	{
-		myContext->PSSetShaderResources(1, static_cast<size_t>(EGBufferTextures::COUNT), &myShaderResources[0]);
+		Context->PSSetShaderResources(startSlot, static_cast<U64>(EGBufferTextures::Count), &ShaderResources[0]);
 	}
 
 	void CGBuffer::ReleaseResources()
 	{
-		myContext = nullptr;
+		Context = nullptr;
 
-		for (UINT i = 0; i < static_cast<size_t>(EGBufferTextures::COUNT); ++i)
+		for (UINT i = 0; i < static_cast<U64>(EGBufferTextures::Count); ++i)
 		{
-			myTextures[i]->Release();
-			myTextures[i] = nullptr;
-			myRenderTargets[i]->Release();
-			myRenderTargets[i] = nullptr;
-			myShaderResources[i]->Release();
-			myShaderResources[i] = nullptr;
+			Textures[i]->Release();
+			Textures[i] = nullptr;
+			RenderTargets[i]->Release();
+			RenderTargets[i] = nullptr;
+			ShaderResources[i]->Release();
+			ShaderResources[i] = nullptr;
 		}
 
-		delete myViewport;
-		myViewport = nullptr;
+		delete Viewport;
+		Viewport = nullptr;
 	}
 }

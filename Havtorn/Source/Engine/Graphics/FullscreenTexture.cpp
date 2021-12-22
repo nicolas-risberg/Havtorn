@@ -4,51 +4,51 @@
 
 namespace Havtorn
 {
-	CFullscreenTexture::CFullscreenTexture() : myContext(nullptr), myTexture(nullptr), myRenderTarget(nullptr), myShaderResource(nullptr), myViewport(nullptr) {}
+	CFullscreenTexture::CFullscreenTexture() : Context(nullptr), myTexture(nullptr), myRenderTarget(nullptr), myShaderResource(nullptr), Viewport(nullptr) {}
 
 	CFullscreenTexture::~CFullscreenTexture() {}
 
 	void CFullscreenTexture::ClearTexture(SVector4 aClearColor) 
 	{
-		myContext->ClearRenderTargetView(myRenderTarget, &aClearColor.X);
+		Context->ClearRenderTargetView(myRenderTarget, &aClearColor.X);
 	}
 
 	void CFullscreenTexture::ClearDepth(float /*aClearDepth*/, unsigned int /*aClearStencil*/) 
 	{
-		myContext->ClearDepthStencilView(myDepth, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		Context->ClearDepthStencilView(myDepth, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	}
 
 	void CFullscreenTexture::SetAsActiveTarget(CFullscreenTexture* aDepth) 
 	{
 		if (aDepth) {
-			myContext->OMSetRenderTargets(1, &myRenderTarget, aDepth->myDepth);
+			Context->OMSetRenderTargets(1, &myRenderTarget, aDepth->myDepth);
 		}
 		else {
-			myContext->OMSetRenderTargets(1, &myRenderTarget, nullptr);
+			Context->OMSetRenderTargets(1, &myRenderTarget, nullptr);
 		}
-		myContext->RSSetViewports(1, myViewport);
+		Context->RSSetViewports(1, Viewport);
 	}
 
 	void CFullscreenTexture::SetAsDepthTarget()
 	{
-		myContext->OMSetRenderTargets(0, NULL, myDepth);
-		myContext->RSSetViewports(1, myViewport);
+		Context->OMSetRenderTargets(0, NULL, myDepth);
+		Context->RSSetViewports(1, Viewport);
 	}
 
 	void CFullscreenTexture::SetAsDepthTarget(CFullscreenTexture* anIntermediateRenderTarget)
 	{
-		myContext->OMSetRenderTargets(1, &anIntermediateRenderTarget->myRenderTarget, myDepth);
-		myContext->RSSetViewports(1, myViewport);
+		Context->OMSetRenderTargets(1, &anIntermediateRenderTarget->myRenderTarget, myDepth);
+		Context->RSSetViewports(1, Viewport);
 	}
 
 	void CFullscreenTexture::SetAsResourceOnSlot(unsigned int aSlot) 
 	{
-		myContext->PSSetShaderResources(aSlot, 1, &myShaderResource);
+		Context->PSSetShaderResources(aSlot, 1, &myShaderResource);
 	}
 
 	void CFullscreenTexture::ReleaseTexture()
 	{
-		myContext = nullptr;
+		Context = nullptr;
 		myTexture->Release();
 		myTexture = nullptr;
 		myRenderTarget->Release();
@@ -58,13 +58,13 @@ namespace Havtorn
 			myShaderResource->Release();
 			myShaderResource = nullptr;
 		}
-		delete myViewport;
-		myViewport = nullptr;
+		delete Viewport;
+		Viewport = nullptr;
 	}
 
 	void CFullscreenTexture::ReleaseDepth()
 	{
-		myContext = nullptr;
+		Context = nullptr;
 		myTexture->Release();
 		myTexture = nullptr;
 		myDepth->Release();
@@ -74,7 +74,7 @@ namespace Havtorn
 			myShaderResource->Release();
 			myShaderResource = nullptr;
 		}
-		delete myViewport;
-		myViewport = nullptr;
+		delete Viewport;
+		Viewport = nullptr;
 	}
 }

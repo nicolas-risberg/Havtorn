@@ -1,14 +1,12 @@
 #include "hvpch.h"
 #include "ImguiManager.h"
 
-#ifdef _DEBUG
 #include "ImGui/Core/imgui.h"
 #include "ImGui/Core/imgui_impl_win32.h"
 #include "ImGui/Core/imgui_impl_dx11.h"
-#endif // _DEBUG
 
 #include <psapi.h>
-#ifdef _DEBUG
+
 //#include "Engine.h"
 //#include "Scene.h"
 //#include "SceneManager.h"
@@ -16,14 +14,12 @@
 //#include "JsonReader.h"
 #include "ImGuiWindows.h"
 //#include "PostMaster.h"
-#endif // _DEBUG
 
 
 //#pragma comment(lib, "psapi.lib")
 
 namespace Havtorn
 {
-#ifdef _DEBUG
 	static ImFont* ImGui_LoadFont(ImFontAtlas& atlas, const char* name, float size, const ImVec2 & /*displayOffset*/ = ImVec2(0, 0))
 	{
 		char* windir = nullptr;
@@ -52,7 +48,6 @@ namespace Havtorn
 		return font;
 	}
 	ImFontAtlas myFontAtlas;
-#endif // DEBUG
 
 	CImguiManager::CImguiManager() : myIsEnabled(true)
 	{
@@ -60,20 +55,15 @@ namespace Havtorn
 
 	CImguiManager::~CImguiManager()
 	{
-#ifdef _DEBUG
         ImGui_ImplWin32_Shutdown();
 		ImGui_ImplDX11_Shutdown();
 		ImGui::DestroyContext();
-#endif
 	}
 
-#ifdef _DEBUG
 	bool CImguiManager::Init(ID3D11Device* device, ID3D11DeviceContext* context, HWND windowHandle)
-#else
-	bool CImguiManager::Init(ID3D11Device*, ID3D11DeviceContext*, HWND)
-#endif //_DEBUG
 	{
-#ifdef _DEBUG
+		bool success = true;
+
 		ImGui::DebugCheckVersionAndDataLayout("1.86 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
@@ -95,15 +85,27 @@ namespace Havtorn
 		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorHideAndLock, this);
 		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorShowAndUnlock, this);
 
-		ImGui_ImplWin32_Init(windowHandle);
-		ImGui_ImplDX11_Init(device, context);
-#endif // _DEBUG
-		return true;
+		success = ImGui_ImplWin32_Init(windowHandle);
+		if (!success)
+			return false;
+
+		success = ImGui_ImplDX11_Init(device, context);
+		if (!success)
+			return false;
+
+		return success;
+	}
+
+	void CImguiManager::BeginFrame()
+	{
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
 	}
 
 	void CImguiManager::Update()
 	{
-#ifdef _DEBUG
+		// Main Menu bar
 		if (myIsEnabled)
 		{
 			ImGui::BeginMainMenuBar();
@@ -114,19 +116,26 @@ namespace Havtorn
 			ImGui::EndMainMenuBar();
 		}
 
-		for (const auto& window : myWindows) {
-			if (window->Enable() && !window->MainMenuBarChild()) {
+		// Windows
+		for (const auto& window : myWindows) 
+		{
+			if (window->Enable() && !window->MainMenuBarChild()) 
+			{
 				window->OnInspectorGUI();
 			}
 		}
 
 		DebugWindow();
-#endif
+	}
+
+	void CImguiManager::EndFrame()
+	{
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
 	void CImguiManager::DebugWindow()
 	{
-#ifdef _DEBUG
 		ImGui::ShowDemoWindow();
 
 		if (ImGui::Begin("Debug info", nullptr))
@@ -136,10 +145,8 @@ namespace Havtorn
 			ImGui::Text(GetDrawCalls().c_str());
 		}
 		ImGui::End();
-#endif // DEBUG
 	}
 
-#ifdef _DEBUG
 	//void CImguiManager::Receive(const SMessage& aMessage)
 	//{
 	//	if (aMessage.myMessageType == EMessageType::CursorHideAndLock)
@@ -151,7 +158,6 @@ namespace Havtorn
 	//		myIsEnabled = true;
 	//	}
 	//}
-#endif // _DEBUG
 
 //void CImguiManager::LevelSelect()
 //{
@@ -194,7 +200,6 @@ namespace Havtorn
 
 	const std::string CImguiManager::GetSystemMemory()
 	{
-#ifdef _DEBUG
 		PROCESS_MEMORY_COUNTERS memCounter;
 		BOOL result = GetProcessMemoryInfo(GetCurrentProcess(),
 			&memCounter,
@@ -215,22 +220,13 @@ namespace Havtorn
 		mem.append("Mb)");
 
 		return mem;
-#else
-		return "";
-#endif
-		// _DEBUG
-
 	}
 
 	const std::string CImguiManager::GetDrawCalls()
 	{
-#ifdef _DEBUG
 		std::string drawCalls = "Draw Calls: ";
-		drawCalls.append(std::to_string(CRenderManager::myNumberOfDrawCallsThisFrame));
+		drawCalls.append(std::to_string(CRenderManager::NumberOfDrawCallsThisFrame));
 		return drawCalls;
-#else
-		return "";
-#endif // _DEBUG
 	}
 
 	//void CImguiManager::LevelsToSelectFrom(std::vector<std::string> someLevelsToSelectFrom)

@@ -6,7 +6,7 @@ namespace Havtorn
 {
     CRenderStateManager::CRenderStateManager()
     {
-        myContext = nullptr;
+        Context = nullptr;
         myBlendStates = {};
         myDepthStencilStates = {};
         myRasterizerStates = {};
@@ -15,15 +15,15 @@ namespace Havtorn
 
     CRenderStateManager::~CRenderStateManager()
     {
-        myContext = nullptr;
+        Context = nullptr;
     }
 
     bool CRenderStateManager::Init(CDirectXFramework* aFramework)
     {
-        myContext = aFramework->GetContext();
+        Context = aFramework->GetContext();
         ID3D11Device* device = aFramework->GetDevice();
 
-        ENGINE_ERROR_BOOL_MESSAGE(myContext, "Could not bind context.");
+        ENGINE_ERROR_BOOL_MESSAGE(Context, "Could not bind context.");
         ENGINE_ERROR_BOOL_MESSAGE(device, "Device is null.");
 
         ENGINE_ERROR_BOOL_MESSAGE(CreateBlendStates(device), "Could not create Blend States.");
@@ -37,23 +37,23 @@ namespace Havtorn
     void CRenderStateManager::SetBlendState(BlendStates aBlendState)
     {
         std::array<float, 4> blendFactors = { 0.5f, 0.5f, 0.5f, 0.5f };
-        myContext->OMSetBlendState(myBlendStates[(size_t)aBlendState], blendFactors.data(), 0xFFFFFFFFu);
+        Context->OMSetBlendState(myBlendStates[(size_t)aBlendState], blendFactors.data(), 0xFFFFFFFFu);
     }
 
     void CRenderStateManager::SetDepthStencilState(DepthStencilStates aDepthStencilState, UINT aStencilRef)
     {
-        myContext->OMSetDepthStencilState(myDepthStencilStates[(size_t)aDepthStencilState], aStencilRef);
+        Context->OMSetDepthStencilState(myDepthStencilStates[(size_t)aDepthStencilState], aStencilRef);
     }
 
     void CRenderStateManager::SetRasterizerState(RasterizerStates aRasterizerState)
     {
-        myContext->RSSetState(myRasterizerStates[(size_t)aRasterizerState]);
+        Context->RSSetState(myRasterizerStates[(size_t)aRasterizerState]);
     }
 
     void CRenderStateManager::SetSamplerState(SamplerStates aSamplerState)
     {
-        myContext->VSSetSamplers(0, 1, &mySamplerStates[(size_t)aSamplerState]);
-        myContext->PSSetSamplers(0, 1, &mySamplerStates[(size_t)aSamplerState]);
+        Context->VSSetSamplers(0, 1, &mySamplerStates[(size_t)aSamplerState]);
+        Context->PSSetSamplers(0, 1, &mySamplerStates[(size_t)aSamplerState]);
     }
 
     void CRenderStateManager::SetAllStates(BlendStates aBlendState, DepthStencilStates aDepthStencilState, RasterizerStates aRasterizerState, SamplerStates aSamplerState)

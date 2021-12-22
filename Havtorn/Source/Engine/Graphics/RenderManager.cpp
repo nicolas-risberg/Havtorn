@@ -23,14 +23,14 @@
 
 namespace Havtorn
 {
-	unsigned int CRenderManager::myNumberOfDrawCallsThisFrame = 0;
+	unsigned int CRenderManager::NumberOfDrawCallsThisFrame = 0;
 
 	CRenderManager::CRenderManager()
-		: myDoFullRender(true)
-		, myUseAntiAliasing(true)
-		, myUseBrokenScreenPass(false)
-		, myClearColor(0.5f, 0.5f, 0.5f, 1.0f)
-		, myRenderPassIndex(0)
+		: DoFullRender(true)
+		, UseAntiAliasing(true)
+		, UseBrokenScreenPass(false)
+		, ClearColor(0.5f, 0.5f, 0.5f, 1.0f)
+		, RenderPassIndex(0)
 	{
 	}
 
@@ -39,97 +39,97 @@ namespace Havtorn
 		Release();
 	}
 
-	bool CRenderManager::Init(CDirectXFramework* aFramework, CWindowHandler* aWindowHandler)
+	bool CRenderManager::Init(CDirectXFramework* framework, CWindowHandler* windowHandler)
 	{
-		//ENGINE_ERROR_BOOL_MESSAGE(myForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
+		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myDeferredRenderer.Init(aFramework, &CMainSingleton::MaterialHandler()), "Failed to Init Deferred Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myFullscreenRenderer.Init(aFramework), "Failed to Init Fullscreen Renderer.");
-		ENGINE_ERROR_BOOL_MESSAGE(myFullscreenTextureFactory.Init(aFramework), "Failed to Init Fullscreen Texture Factory.");
+		ENGINE_ERROR_BOOL_MESSAGE(FullscreenTextureFactory.Init(framework), "Failed to Init Fullscreen Texture Factory.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myParticleRenderer.Init(aFramework), "Failed to Init Particle Renderer.");
-		ENGINE_ERROR_BOOL_MESSAGE(myRenderStateManager.Init(aFramework), "Failed to Init Render State Manager.");
+		ENGINE_ERROR_BOOL_MESSAGE(RenderStateManager.Init(framework), "Failed to Init Render State Manager.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myVFXRenderer.Init(aFramework), "Failed to Init VFX Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(mySpriteRenderer.Init(aFramework), "Failed to Init Sprite Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myTextRenderer.Init(aFramework), "Failed to Init Text Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myShadowRenderer.Init(aFramework), "Failed to Init Shadow Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myDecalRenderer.Init(aFramework), "Failed to Init Decal Renderer.");
 
-		ID3D11Texture2D* backbufferTexture = aFramework->GetBackbufferTexture();
+		ID3D11Texture2D* backbufferTexture = framework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
-		myBackbuffer = myFullscreenTextureFactory.CreateTexture(backbufferTexture);
-		InitRenderTextures(aWindowHandler);
+		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
+		InitRenderTextures(windowHandler);
 
 		return true;
 	}
 
-	bool CRenderManager::ReInit(CDirectXFramework* aFramework, CWindowHandler* aWindowHandler)
+	bool CRenderManager::ReInit(CDirectXFramework* framework, CWindowHandler* windowHandler)
 	{
-		ENGINE_ERROR_BOOL_MESSAGE(myRenderStateManager.Init(aFramework), "Failed to Init Render State Manager.");
+		ENGINE_ERROR_BOOL_MESSAGE(RenderStateManager.Init(framework), "Failed to Init Render State Manager.");
 
-		ID3D11Texture2D* backbufferTexture = aFramework->GetBackbufferTexture();
+		ID3D11Texture2D* backbufferTexture = framework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
-		myBackbuffer = myFullscreenTextureFactory.CreateTexture(backbufferTexture);
-		InitRenderTextures(aWindowHandler);
+		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
+		InitRenderTextures(windowHandler);
 
 		return true;
 	}
 
-	void CRenderManager::InitRenderTextures(CWindowHandler* /*aWindowHandler*/)
+	void CRenderManager::InitRenderTextures(CWindowHandler* /*windowHandler*/)
 	{
-		//myIntermediateDepth = myFullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R24G8_TYPELESS);
-		//myEnvironmentShadowDepth = myFullscreenTextureFactory.CreateDepth({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R32_TYPELESS);
-		//myBoxLightShadowDepth = myFullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_TYPELESS);
-		//myDepthCopy = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_FLOAT);
-		//myDownsampledDepth = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R32_FLOAT);
+		//myIntermediateDepth = FullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R24G8_TYPELESS);
+		//myEnvironmentShadowDepth = FullscreenTextureFactory.CreateDepth({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R32_TYPELESS);
+		//myBoxLightShadowDepth = FullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_TYPELESS);
+		//myDepthCopy = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_FLOAT);
+		//myDownsampledDepth = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R32_FLOAT);
 
-		//myIntermediateTexture = myFullscreenTextureFactory.CreateTexture({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myLuminanceTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myHalfSizeTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myQuarterSizeTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 4.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myBlurTexture1 = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myBlurTexture2 = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myVignetteTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myVignetteOverlayTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT, ASSETPATH("Assets/IronWrought/UI/Misc/UI_VignetteTexture.dds"));
+		//myIntermediateTexture = FullscreenTextureFactory.CreateTexture({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myLuminanceTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myHalfSizeTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myQuarterSizeTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 4.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myBlurTexture1 = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myBlurTexture2 = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myVignetteTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myVignetteOverlayTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT, ASSETPATH("Assets/IronWrought/UI/Misc/UI_VignetteTexture.dds"));
 
-		//myDeferredLightingTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myDeferredLightingTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
 
-		//myVolumetricAccumulationBuffer = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myVolumetricBlurTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myVolumetricAccumulationBuffer = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myVolumetricBlurTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
-		//mySSAOBuffer = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//mySSAOBlurTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//mySSAOBuffer = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//mySSAOBlurTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
-		//myTonemappedTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myAntiAliasedTexture = myFullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myGBuffer = myFullscreenTextureFactory.CreateGBuffer(aWindowHandler->GetResolution());
-		//myGBufferCopy = myFullscreenTextureFactory.CreateGBuffer(aWindowHandler->GetResolution());
+		//myTonemappedTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myAntiAliasedTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		//myGBuffer = FullscreenTextureFactory.CreateGBuffer(aWindowHandler->GetResolution());
+		//myGBufferCopy = FullscreenTextureFactory.CreateGBuffer(aWindowHandler->GetResolution());
 	}
 
-	void CRenderManager::Render(CScene& /*aScene*/)
+	void CRenderManager::Render(CScene& /*scene*/)
 	{
-		CRenderManager::myNumberOfDrawCallsThisFrame = 0;
+		CRenderManager::NumberOfDrawCallsThisFrame = 0;
 
 //#ifndef EXCELSIOR_BUILD
 //		if (Input::GetInstance()->IsKeyPressed(VK_F6))
 //		{
 //			ToggleRenderPass();
-//			myForwardRenderer.ToggleRenderPass(myRenderPassIndex);
+//			ForwardRenderer.ToggleRenderPass(RenderPassIndex);
 //		}
 //		if (Input::GetInstance()->IsKeyPressed(VK_F7))
 //		{
 //			ToggleRenderPass(false);
-//			myForwardRenderer.ToggleRenderPass(myRenderPassIndex);
+//			ForwardRenderer.ToggleRenderPass(RenderPassIndex);
 //		}
 //#endif
 //
-		myRenderStateManager.SetAllDefault();
-		myBackbuffer.ClearTexture(myClearColor);
-//		myIntermediateTexture.ClearTexture(myClearColor);
+		RenderStateManager.SetAllDefault();
+		Backbuffer.ClearTexture(ClearColor);
+//		myIntermediateTexture.ClearTexture(ClearColor);
 //		myIntermediateDepth.ClearDepth();
 //		myEnvironmentShadowDepth.ClearDepth();
-//		myGBuffer.ClearTextures(myClearColor);
+//		myGBuffer.ClearTextures(ClearColor);
 //		myDeferredLightingTexture.ClearTexture();
 //		myVolumetricAccumulationBuffer.ClearTexture();
 //		mySSAOBuffer.ClearTexture();
@@ -208,8 +208,8 @@ namespace Havtorn
 //		myIntermediateDepth.SetAsResourceOnSlot(0);
 //		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::CopyDepth);
 //
-//		myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
-//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
+//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
 //		myGBuffer.SetAsActiveTarget(&myIntermediateDepth);
 //		myDepthCopy.SetAsResourceOnSlot(21);
 //		myDecalRenderer.Render(maincamera, gameObjects);
@@ -219,7 +219,7 @@ namespace Havtorn
 //		myGBuffer.SetAsResourceOnSlot(CGBuffer::EGBufferTextures::NORMAL, 2);
 //		myIntermediateDepth.SetAsResourceOnSlot(21);
 //		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::SSAO);
-//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
 //
 //		mySSAOBlurTexture.SetAsActiveTarget();
 //		mySSAOBuffer.SetAsResourceOnSlot(0);
@@ -229,7 +229,7 @@ namespace Havtorn
 //		myDeferredLightingTexture.SetAsActiveTarget();
 //		myGBuffer.SetAllAsResources();
 //		myDepthCopy.SetAsResourceOnSlot(21);
-//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
 //		std::vector<CPointLight*> onlyPointLights;
 //		onlyPointLights = aScene.CullPointLights(gameObjects);
 //		std::vector<CSpotLight*> onlySpotLights;
@@ -239,13 +239,13 @@ namespace Havtorn
 //		std::vector<CEnvironmentLight*> onlySecondaryEnvironmentLights;
 //		onlySecondaryEnvironmentLights = aScene.CullSecondaryEnvironmentLights(&maincamera->GameObject());
 //
-//		if (myRenderPassIndex == 0)
+//		if (RenderPassIndex == 0)
 //		{
 //			myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
 //			mySSAOBlurTexture.SetAsResourceOnSlot(23);
 //			myLightRenderer.Render(maincamera, environmentlight);
 //
-//			myRenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
+//			RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
 //
 //			myLightRenderer.Render(maincamera, onlySpotLights);
 //			myLightRenderer.Render(maincamera, onlyPointLights);
@@ -253,7 +253,7 @@ namespace Havtorn
 //		}
 //
 //#pragma region Deferred Render Passes
-//		switch (myRenderPassIndex)
+//		switch (RenderPassIndex)
 //		{
 //		case 1:
 //			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredAlbedo);
@@ -279,28 +279,28 @@ namespace Havtorn
 //#pragma endregion
 //
 //		// Skybox
-//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
 //		myDeferredLightingTexture.SetAsActiveTarget(&myIntermediateDepth);
 //
-//		myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEPTHFIRST);
-//		myRenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
+//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEPTHFIRST);
+//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
 //		myDeferredRenderer.RenderSkybox(maincamera, environmentlight);
-//		myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-//		myRenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
 //
 //		// Render Lines
 //		const std::vector<CLineInstance*>& lineInstances = aScene.CullLineInstances();
 //		const std::vector<SLineTime>& lines = aScene.CullLines();
-//		myForwardRenderer.RenderLines(maincamera, lines);
-//		myForwardRenderer.RenderLineInstances(maincamera, lineInstances);
+//		ForwardRenderer.RenderLines(maincamera, lines);
+//		ForwardRenderer.RenderLineInstances(maincamera, lineInstances);
 //
 //		// All relevant objects are moved to deferred now
 //
 //		//// Alpha stage for objects in World 3D space
-//		////myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
-//		//myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE); // Alpha clipped
-//		//myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-//		////myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+//		////RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
+//		//RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE); // Alpha clipped
+//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+//		////RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
 //
 //		//std::vector<LightPair> pointlights;
 //		//std::vector<LightPair> pointLightsInstanced;
@@ -315,11 +315,11 @@ namespace Havtorn
 //		//}
 //
 //		//myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
-//		//myForwardRenderer.InstancedRender(environmentlight, pointLightsInstanced, maincamera, instancedGameObjectsWithAlpha);
-//		//myForwardRenderer.Render(environmentlight, pointlights, maincamera, gameObjectsWithAlpha);
+//		//ForwardRenderer.InstancedRender(environmentlight, pointLightsInstanced, maincamera, instancedGameObjectsWithAlpha);
+//		//ForwardRenderer.Render(environmentlight, pointlights, maincamera, gameObjectsWithAlpha);
 //
 //	//#pragma region Volumetric Lighting
-//	//	if (myRenderPassIndex == 0 || myRenderPassIndex == 7)
+//	//	if (RenderPassIndex == 0 || RenderPassIndex == 7)
 //	//	{
 //	//		// Depth Copy
 //	//		myDepthCopy.SetAsActiveTarget();
@@ -329,20 +329,20 @@ namespace Havtorn
 //	//		// Volumetric Lighting
 //	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
 //	//		myDepthCopy.SetAsResourceOnSlot(21);
-//	//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
-//	//		myRenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
+//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
 //	//
 //	//		myLightRenderer.RenderVolumetric(maincamera, onlyPointLights);
 //	//		myLightRenderer.RenderVolumetric(maincamera, onlySpotLights);
 //	//		myBoxLightShadowDepth.SetAsResourceOnSlot(22);
 //	//		myLightRenderer.RenderVolumetric(maincamera, onlyBoxLights);
-//	//		myRenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
 //	//		myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
 //	//		myLightRenderer.RenderVolumetric(maincamera, environmentlight);
 //	//		myLightRenderer.RenderVolumetric(maincamera, onlySecondaryEnvironmentLights);
 //	//
 //	//		// Downsampling and Blur
-//	//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
 //	//		myDownsampledDepth.SetAsActiveTarget();
 //	//		myIntermediateDepth.SetAsResourceOnSlot(0);
 //	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DownsampleDepth);
@@ -381,7 +381,7 @@ namespace Havtorn
 //	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
 //	//
 //	//		// Upsampling
-//	//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
 //	//		myDeferredLightingTexture.SetAsActiveTarget();
 //	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
 //	//		myDownsampledDepth.SetAsResourceOnSlot(1);
@@ -392,16 +392,16 @@ namespace Havtorn
 //
 //		//VFX
 //		myDeferredLightingTexture.SetAsActiveTarget(&myIntermediateDepth);
-//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
-//		myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
-//		myRenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
+//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
 //		myVFXRenderer.Render(maincamera, gameObjects);
-//		myRenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
 //
 //		myParticleRenderer.Render(maincamera, gameObjects);
 //
-//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-//		//myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
 //
 //		// Bloom
 //		RenderBloom();
@@ -417,12 +417,12 @@ namespace Havtorn
 //		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::FXAA);
 //
 //		// Broken Screen
-//		if (myUseBrokenScreenPass)
+//		if (UseBrokenScreenPass)
 //		{
 //			myAntiAliasedTexture.SetAsActiveTarget();
 //			myTonemappedTexture.SetAsResourceOnSlot(0);
 //			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BrokenScreenEffect);
-//			myBackbuffer.SetAsActiveTarget();
+//			Backbuffer.SetAsActiveTarget();
 //			myAntiAliasedTexture.SetAsResourceOnSlot(0);
 //		}
 //
@@ -430,18 +430,18 @@ namespace Havtorn
 //		myVignetteTexture.SetAsActiveTarget(); // For vignetting
 //		myAntiAliasedTexture.SetAsResourceOnSlot(0);
 //
-//		if (myRenderPassIndex == 7)
+//		if (RenderPassIndex == 7)
 //		{
 //			myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
 //		}
 //
-//		if (myRenderPassIndex == 8)
+//		if (RenderPassIndex == 8)
 //		{
 //			mySSAOBlurTexture.SetAsResourceOnSlot(0);
 //			//mySSAOBuffer.SetAsResourceOnSlot(0);
 //		}
 //
-//		if (myRenderPassIndex < 2)
+//		if (RenderPassIndex < 2)
 //		{
 //			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GammaCorrection);
 //		}
@@ -451,15 +451,15 @@ namespace Havtorn
 //		}
 //
 //		// Vignette
-//		myBackbuffer.SetAsActiveTarget();
+//		Backbuffer.SetAsActiveTarget();
 //		myVignetteTexture.SetAsResourceOnSlot(0);
 //		myVignetteOverlayTexture.SetAsResourceOnSlot(1);
 //		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Vignette);
 //
-//		//myBackbuffer.SetAsActiveTarget();
+//		//Backbuffer.SetAsActiveTarget();
 //
-//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
-//		myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
+//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
 //
 //		std::vector<CSpriteInstance*> sprites;
 //		std::vector<CSpriteInstance*> animatedUIFrames;
@@ -485,27 +485,27 @@ namespace Havtorn
 //		// Text
 //		CMainSingleton::PopupTextService().EmplaceTexts(textsToRender);
 //		CMainSingleton::DialogueSystem().EmplaceTexts(textsToRender);
-//		myRenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-//		myRenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
 //		myTextRenderer.Render(textsToRender);
 	}
 
 	void CRenderManager::Render()
 	{
-		CRenderManager::myNumberOfDrawCallsThisFrame = 0;
-		myRenderStateManager.SetAllDefault();
-		myBackbuffer.ClearTexture(myClearColor);
-		myBackbuffer.SetAsActiveTarget();
+		CRenderManager::NumberOfDrawCallsThisFrame = 0;
+		RenderStateManager.SetAllDefault();
+		Backbuffer.ClearTexture(ClearColor);
+		Backbuffer.SetAsActiveTarget();
 	}
 
 	void CRenderManager::Release()
 	{
-		Clear(myClearColor);
-		CEngine::GetInstance()->myFramework->GetContext()->OMSetRenderTargets(0, 0, 0);
-		CEngine::GetInstance()->myFramework->GetContext()->OMGetDepthStencilState(0, 0);
-		CEngine::GetInstance()->myFramework->GetContext()->ClearState();
+		Clear(ClearColor);
+		CEngine::GetInstance()->Framework->GetContext()->OMSetRenderTargets(0, 0, 0);
+		CEngine::GetInstance()->Framework->GetContext()->OMGetDepthStencilState(0, 0);
+		CEngine::GetInstance()->Framework->GetContext()->ClearState();
 
-		//myBackbuffer.ReleaseTexture();
+		//Backbuffer.ReleaseTexture();
 		//myIntermediateTexture.ReleaseTexture();
 		//myIntermediateDepth.ReleaseDepth();
 		//myLuminanceTexture.ReleaseTexture();
@@ -533,7 +533,7 @@ namespace Havtorn
 
 	//void CRenderManager::SetBrokenScreen(bool aShouldSetBrokenScreen)
 	//{
-	//	myUseBrokenScreenPass = aShouldSetBrokenScreen;
+	//	UseBrokenScreenPass = aShouldSetBrokenScreen;
 	//}
 
 	//const CFullscreenRenderer::SPostProcessingBufferData& CRenderManager::GetPostProcessingBufferData() const
@@ -548,7 +548,7 @@ namespace Havtorn
 
 	void CRenderManager::Clear(SVector4 /*clearColor*/)
 	{
-		//myBackbuffer.ClearTexture(aClearColor);
+		//Backbuffer.ClearTexture(clearColor);
 		//myIntermediateDepth.ClearDepth();
 	}
 
@@ -602,26 +602,26 @@ namespace Havtorn
 
 	void CRenderManager::RenderWithoutBloom()
 	{
-		//myBackbuffer.SetAsActiveTarget();
+		//Backbuffer.SetAsActiveTarget();
 		//myIntermediateTexture.SetAsResourceOnSlot(0);
 		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Vignette);
 	}
 
-	void CRenderManager::ToggleRenderPass(bool aShouldToggleForwards)
+	void CRenderManager::ToggleRenderPass(bool shouldToggleForwards)
 	{
-		if (!aShouldToggleForwards)
+		if (!shouldToggleForwards)
 		{
-			--myRenderPassIndex;
-			if (myRenderPassIndex < 0) {
-				myRenderPassIndex = 8;
+			--RenderPassIndex;
+			if (RenderPassIndex < 0) {
+				RenderPassIndex = 8;
 			}
 			return;
 		}
 
-		++myRenderPassIndex;
-		if (myRenderPassIndex > 8)
+		++RenderPassIndex;
+		if (RenderPassIndex > 8)
 		{
-			myRenderPassIndex = 0;
+			RenderPassIndex = 0;
 		}
 	}
 }

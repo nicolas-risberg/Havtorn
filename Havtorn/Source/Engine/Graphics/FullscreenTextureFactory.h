@@ -12,17 +12,17 @@ namespace Havtorn
 	public:
 		CFullscreenTextureFactory();
 		~CFullscreenTextureFactory();
-		bool Init(CDirectXFramework* aFramework);
-		CFullscreenTexture CreateTexture(SVector2<F32> aSize, DXGI_FORMAT aFormat);
-		CFullscreenTexture CreateTexture(ID3D11Texture2D* aTexture);
-		CFullscreenTexture CreateTexture(SVector2<F32> aSize, DXGI_FORMAT aFormat, const std::string& aFilePath);
-		CFullscreenTexture CreateDepth(SVector2<F32> aSize, DXGI_FORMAT aFormat);
-		class CGBuffer CreateGBuffer(SVector2<F32> aSize);
+		bool Init(CDirectXFramework* framework);
+		CFullscreenTexture CreateTexture(SVector2<F32> size, DXGI_FORMAT format);
+		CFullscreenTexture CreateTexture(ID3D11Texture2D* texture);
+		CFullscreenTexture CreateTexture(SVector2<F32> size, DXGI_FORMAT format, const std::string& filePath);
+		CFullscreenTexture CreateDepth(SVector2<F32> size, DXGI_FORMAT format);
+		class CGBuffer CreateGBuffer(SVector2<F32> size);
 
 	private:
-		ID3D11ShaderResourceView* GetShaderResourceView(ID3D11Device* aDevice, std::string aTexturePath);
+		ID3D11ShaderResourceView* GetShaderResourceView(ID3D11Device* device, std::string filePath);
 
 	private:
-		CDirectXFramework* myFramework;
+		CDirectXFramework* Framework;
 	};
 }
