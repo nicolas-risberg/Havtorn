@@ -6,9 +6,12 @@ struct ID3D11Device;
 struct ID3D11DeviceContext;
 
 struct ImFontAtlas;
+struct ImVec4;
 
-namespace ImGui {
+namespace ImGui 
+{
 	class CWindow;
+	class CPopup;
 }
 
 namespace Havtorn
@@ -19,6 +22,13 @@ namespace Havtorn
 		HavtornDark,
 		HavtornRed,
 		HavtornGreen,
+		Count
+	};
+
+	enum class EEditorStyleTheme
+	{
+		Default,
+		Havtorn,
 		Count
 	};
 
@@ -37,11 +47,12 @@ namespace Havtorn
 
 	public://Inherited
 	//void Receive(const SMessage& aMessage) override;
-	private:
-		void SetEditorStyle(EEditorColorTheme colorTheme = EEditorColorTheme::DefaultDark);
-
+		static void SetEditorTheme(EEditorColorTheme colorTheme = EEditorColorTheme::HavtornDark, EEditorStyleTheme styleTheme = EEditorStyleTheme::Havtorn);
+		static std::string GetEditorColorThemeName(EEditorColorTheme colorTheme);
+		static ::ImVec4 GetEditorColorThemeRepColor(EEditorColorTheme colorTheme);
 	private:
 		std::vector<Ptr<ImGui::CWindow>> myWindows;
+		std::vector<Ptr<ImGui::CPopup>> myPopups;
 
 		const std::string GetSystemMemory();
 		const std::string GetDrawCalls();

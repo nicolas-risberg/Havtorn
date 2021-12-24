@@ -13,6 +13,7 @@
 #include "Graphics/RenderManager.h"
 //#include "JsonReader.h"
 #include "ImguiWindows.h"
+#include "ImguiPopups.h"
 //#include "PostMaster.h"
 
 
@@ -20,33 +21,33 @@
 
 namespace Havtorn
 {
-	static ImFont* ImGui_LoadFont(ImFontAtlas& atlas, const char* name, float size, const ImVec2 & /*displayOffset*/ = ImVec2(0, 0))
-	{
-		char* windir = nullptr;
-		if (_dupenv_s(&windir, nullptr, "WINDIR") || windir == nullptr)
-			return nullptr;
+	//static ImFont* ImGui_LoadFont(ImFontAtlas& atlas, const char* name, float size, const ImVec2 & /*displayOffset*/ = ImVec2(0, 0))
+	//{
+	//	char* windir = nullptr;
+	//	if (_dupenv_s(&windir, nullptr, "WINDIR") || windir == nullptr)
+	//		return nullptr;
 
-		static const ImWchar ranges[] =
-		{
-			0x0020, 0x00FF, // Basic Latin + Latin Supplement
-			0x0104, 0x017C, // Polish characters and more
-			0,
-		};
+	//	static const ImWchar ranges[] =
+	//	{
+	//		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+	//		0x0104, 0x017C, // Polish characters and more
+	//		0,
+	//	};
 
-		ImFontConfig config;
-		config.OversampleH = 4;
-		config.OversampleV = 4;
-		config.PixelSnapH = false;
+	//	ImFontConfig config;
+	//	config.OversampleH = 4;
+	//	config.OversampleV = 4;
+	//	config.PixelSnapH = false;
 
-		auto path = std::string(windir) + "\\Fonts\\" + name;
-		auto font = atlas.AddFontFromFileTTF(path.c_str(), size, &config, ranges);
-		//if (font)
-		//font->DisplayOffset = displayOffset;
+	//	auto path = std::string(windir) + "\\Fonts\\" + name;
+	//	auto font = atlas.AddFontFromFileTTF(path.c_str(), size, &config, ranges);
+	//	//if (font)
+	//	//font->DisplayOffset = displayOffset;
 
-		free(windir);
+	//	free(windir);
 
-		return font;
-	}
+	//	return font;
+	//}
 	ImFontAtlas myFontAtlas;
 
 	CImguiManager::CImguiManager() : myIsEnabled(true)
@@ -66,12 +67,14 @@ namespace Havtorn
 
 		ImGui::DebugCheckVersionAndDataLayout("1.86 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
 		ImGui::CreateContext();
-		SetEditorStyle(EEditorColorTheme::HavtornDark);
-		ImGui_LoadFont(myFontAtlas, "segoeui.ttf", 22.0f); // Doesn't really set the font
+		SetEditorTheme(EEditorColorTheme::HavtornDark, EEditorStyleTheme::Havtorn);
+		//ImGui_LoadFont(myFontAtlas, "segoeui.ttf", 22.0f); // Doesn't really set the font
 		myFontAtlas.Build();
 		//ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\verdana.ttf", 14.0f);
 		ImGui::GetIO().Fonts->AddFontFromFileTTF("../External/imgui/misc/fonts/Roboto-Medium.ttf", 15.0f);
 		ImGui::CreateContext(&myFontAtlas);
+
+		myPopups.emplace_back(std::make_unique<ImGui::CSettings>("Settings"));
 
 		//myWindows.emplace_back(std::make_unique <ImGui::CLoadScene>("Load Scene", true));
 		//myWindows.emplace_back(std::make_unique <ImGui::CCameraSetting>("Camera Settings"));
@@ -113,6 +116,9 @@ namespace Havtorn
 
 			for (const auto& window : myWindows)
 				window->OnMainMenuGUI();
+
+			for (const auto& popup : myPopups)
+				popup->OnInspectorGUI();
 
 			ImGui::EndMainMenuBar();
 		}
@@ -201,7 +207,7 @@ namespace Havtorn
 //	ImGui::End();
 //}
 
-	void CImguiManager::SetEditorStyle(EEditorColorTheme colorTheme)
+	void CImguiManager::SetEditorTheme(EEditorColorTheme colorTheme, EEditorStyleTheme styleTheme)
 	{
 		ImGuiStyle* style = &ImGui::GetStyle();
 		ImVec4* colors = style->Colors;
@@ -258,45 +264,6 @@ namespace Havtorn
 			colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 			colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 			colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-
-			//style->FramePadding = ImVec2(4, 2);
-			//style->ItemSpacing = ImVec2(10, 2);
-			//style->IndentSpacing = 12;
-			//style->ScrollbarSize = 10;
-
-			//style->WindowRounding = 4;
-			//style->FrameRounding = 4;
-			//style->PopupRounding = 4;
-			//style->ScrollbarRounding = 6;
-			//style->GrabRounding = 4;
-			//style->TabRounding = 4;
-
-			//style->WindowTitleAlign = ImVec2(1.0f, 0.5f);
-			//style->WindowMenuButtonPosition = ImGuiDir_Right;
-
-			//style->DisplaySafeAreaPadding = ImVec2(4, 4);
-			style->WindowPadding = ImVec2(8.00f, 8.00f);
-			style->FramePadding = ImVec2(5.00f, 2.00f);
-			style->CellPadding = ImVec2(6.00f, 6.00f);
-			style->ItemSpacing = ImVec2(6.00f, 6.00f);
-			style->ItemInnerSpacing = ImVec2(6.00f, 6.00f);
-			style->TouchExtraPadding = ImVec2(0.00f, 0.00f);
-			style->IndentSpacing = 25;
-			style->ScrollbarSize = 15;
-			style->GrabMinSize = 10;
-			style->WindowBorderSize = 1;
-			style->ChildBorderSize = 1;
-			style->PopupBorderSize = 1;
-			style->FrameBorderSize = 1;
-			style->TabBorderSize = 1;
-			style->WindowRounding = 7;
-			style->ChildRounding = 4;
-			style->FrameRounding = 3;
-			style->PopupRounding = 4;
-			style->ScrollbarRounding = 9;
-			style->GrabRounding = 3;
-			style->LogSliderDeadzone = 4;
-			style->TabRounding = 4;
 			break;
 
 		case Havtorn::EEditorColorTheme::HavtornRed:
@@ -422,6 +389,78 @@ namespace Havtorn
 		case Havtorn::EEditorColorTheme::DefaultDark:
 			ImGui::StyleColorsDark();
 			break;
+		}
+
+		switch (styleTheme)
+		{
+		case Havtorn::EEditorStyleTheme::Havtorn:
+
+			style->WindowPadding = ImVec2(8.00f, 8.00f);
+			style->FramePadding = ImVec2(5.00f, 2.00f);
+			style->CellPadding = ImVec2(6.00f, 6.00f);
+			style->ItemSpacing = ImVec2(6.00f, 6.00f);
+			style->ItemInnerSpacing = ImVec2(6.00f, 6.00f);
+			style->TouchExtraPadding = ImVec2(0.00f, 0.00f);
+			style->IndentSpacing = 25;
+			style->ScrollbarSize = 15;
+			style->GrabMinSize = 10;
+			style->WindowBorderSize = 1;
+			style->ChildBorderSize = 1;
+			style->PopupBorderSize = 1;
+			style->FrameBorderSize = 1;
+			style->TabBorderSize = 1;
+			style->WindowRounding = 7;
+			style->ChildRounding = 4;
+			style->FrameRounding = 3;
+			style->PopupRounding = 4;
+			style->ScrollbarRounding = 9;
+			style->GrabRounding = 3;
+			style->LogSliderDeadzone = 4;
+			style->TabRounding = 4;
+			break;
+
+		default:
+		case Havtorn::EEditorStyleTheme::Count:
+		case Havtorn::EEditorStyleTheme::Default:
+			break;
+		}
+	}
+
+	std::string CImguiManager::GetEditorColorThemeName(EEditorColorTheme colorTheme)
+	{
+		switch (colorTheme)
+		{
+		case Havtorn::EEditorColorTheme::DefaultDark:
+			return "ImGui Dark";
+		case Havtorn::EEditorColorTheme::HavtornDark:
+			return "Havtorn Dark";
+		case Havtorn::EEditorColorTheme::HavtornRed:
+			return "Havtorn Red";
+		case Havtorn::EEditorColorTheme::HavtornGreen:
+			return "Havtorn Green";
+		case Havtorn::EEditorColorTheme::Count:
+			return std::string();
+		default:
+			return std::string();
+		}
+	}
+
+	::ImVec4 CImguiManager::GetEditorColorThemeRepColor(EEditorColorTheme colorTheme)
+	{
+		switch (colorTheme)
+		{
+		case Havtorn::EEditorColorTheme::DefaultDark:
+			return ImVec4(0.11f, 0.16f, 0.55f, 1.00f);
+		case Havtorn::EEditorColorTheme::HavtornDark:
+			return ImVec4(0.51f, 0.36f, 0.15f, 1.00f);
+		case Havtorn::EEditorColorTheme::HavtornRed:
+			return ImVec4(0.48f, 0.16f, 0.16f, 1.00f);
+		case Havtorn::EEditorColorTheme::HavtornGreen:
+			return ImVec4(0.13f, 0.75f, 0.55f, 0.40f);
+		case Havtorn::EEditorColorTheme::Count:
+			return ImVec4();
+		default:
+			return ImVec4();
 		}
 	}
 
