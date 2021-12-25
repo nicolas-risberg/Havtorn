@@ -74,7 +74,10 @@ namespace Havtorn
 		ImGui::GetIO().Fonts->AddFontFromFileTTF("../External/imgui/misc/fonts/Roboto-Medium.ttf", 15.0f);
 		ImGui::CreateContext(&myFontAtlas);
 
-		myPopups.emplace_back(std::make_unique<ImGui::CSettings>("Settings"));
+		myPopups.emplace_back(std::make_unique<ImGui::CFileMenu>("File"));
+		myPopups.emplace_back(std::make_unique<ImGui::CEditMenu>("Edit"));
+		myPopups.emplace_back(std::make_unique<ImGui::CWindowMenu>("Window"));
+		myPopups.emplace_back(std::make_unique<ImGui::CHelpMenu>("Help"));
 
 		//myWindows.emplace_back(std::make_unique <ImGui::CLoadScene>("Load Scene", true));
 		//myWindows.emplace_back(std::make_unique <ImGui::CCameraSetting>("Camera Settings"));

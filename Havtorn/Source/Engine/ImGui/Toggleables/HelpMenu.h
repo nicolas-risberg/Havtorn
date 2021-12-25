@@ -3,11 +3,11 @@
 
 namespace ImGui
 {
-	class CSettings : public CToggleable
+	class CHelpMenu : public CToggleable
 	{
 	public:
-		CSettings(const char* aName);
-		~CSettings() override;
+		CHelpMenu(const char* aName);
+		~CHelpMenu() override;
 		void OnEnable() override;
 		void OnInspectorGUI() override;
 		void OnDisable() override;
@@ -16,4 +16,3 @@ namespace ImGui
 
 	};
 }
-

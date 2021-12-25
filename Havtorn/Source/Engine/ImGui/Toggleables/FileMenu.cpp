@@ -1,30 +1,30 @@
 #include "hvpch.h"
-#include "Settings.h"
+#include "FileMenu.h"
 #include <imgui.h>
 #include "Imgui/ImguiManager.h"
 
 namespace ImGui
 {
-	CSettings::CSettings(const char* aName)
-		: CToggleable(aName)
-	{
-	}
+    CFileMenu::CFileMenu(const char* aName)
+        : CToggleable(aName)
+    {
+    }
 
-	CSettings::~CSettings()
-	{
-	}
+    CFileMenu::~CFileMenu()
+    {
+    }
 
-	void CSettings::OnEnable()
-	{
-	}
+    void CFileMenu::OnEnable()
+    {
+    }
 
-	void CSettings::OnInspectorGUI()
-	{
-		if (ImGui::Button(Name()))
-			ImGui::OpenPopup("my_file_popup");
-		
+    void CFileMenu::OnInspectorGUI()
+    {
+        if (ImGui::Button(Name()))
+            ImGui::OpenPopup("my_file_popup");
+
         if (ImGui::BeginPopup("my_file_popup"))
-		{
+        {
             ImGui::MenuItem("(demo menu)", NULL, false, false);
             if (ImGui::MenuItem("New")) {}
             if (ImGui::MenuItem("Open", "Ctrl+O")) {}
@@ -64,22 +64,17 @@ namespace ImGui
                 ImGui::EndMenu();
             }
 
-            if (ImGui::BeginMenu("Editor Themes"))
+            if (ImGui::BeginMenu("Colors"))
             {
-                Havtorn::F32 sz = ImGui::GetTextLineHeight();
-                for (Havtorn::U16 i = 0; i < static_cast<Havtorn::U16>(Havtorn::EEditorColorTheme::Count); i++)
+                float sz = ImGui::GetTextLineHeight();
+                for (int i = 0; i < ImGuiCol_COUNT; i++)
                 {
-                    auto colorTheme = static_cast<Havtorn::EEditorColorTheme>(i);
-                    std::string name = Havtorn::CImguiManager::GetEditorColorThemeName(colorTheme).c_str();
+                    const char* name = ImGui::GetStyleColorName((ImGuiCol)i);
                     ImVec2 p = ImGui::GetCursorScreenPos();
-                    auto previewColor = Havtorn::CImguiManager::GetEditorColorThemeRepColor(colorTheme);
-                    ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x + sz, p.y + sz), ImGui::ColorConvertFloat4ToU32(previewColor));
+                    ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x + sz, p.y + sz), ImGui::GetColorU32((ImGuiCol)i));
                     ImGui::Dummy(ImVec2(sz, sz));
                     ImGui::SameLine();
-                    if (ImGui::MenuItem(name.c_str()))
-                    {
-                        Havtorn::CImguiManager::SetEditorTheme(static_cast<Havtorn::EEditorColorTheme>(i));
-                    }
+                    ImGui::MenuItem(name);
                 }
                 ImGui::EndMenu();
             }
@@ -104,11 +99,11 @@ namespace ImGui
 
 
 
-			ImGui::EndPopup();
-		}
-	}
+            ImGui::EndPopup();
+        }
+    }
 
-	void CSettings::OnDisable()
-	{
-	}
+    void CFileMenu::OnDisable()
+    {
+    }
 }
