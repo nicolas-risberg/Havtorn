@@ -12,6 +12,7 @@
 #include <sstream>
 #include <string_view>
 #include <vector>
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
 #include <deque>
@@ -24,4 +25,5 @@
 
 #include "Core/EngineTypes.h"
 #include "Core/EngineException.h"
+#include "Timer.h"
 #include "Log.h"

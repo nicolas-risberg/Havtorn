@@ -6,7 +6,7 @@
 namespace ImGui
 {
 	CSettings::CSettings(const char* aName)
-		: CPopup(aName)
+		: CToggleable(aName)
 	{
 	}
 
@@ -22,9 +22,9 @@ namespace ImGui
 	{
 		if (ImGui::Button(Name()))
 			ImGui::OpenPopup("my_file_popup");
-		if (ImGui::BeginPopup("my_file_popup"))
+		
+        if (ImGui::BeginPopup("my_file_popup"))
 		{
-	
             ImGui::MenuItem("(demo menu)", NULL, false, false);
             if (ImGui::MenuItem("New")) {}
             if (ImGui::MenuItem("Open", "Ctrl+O")) {}

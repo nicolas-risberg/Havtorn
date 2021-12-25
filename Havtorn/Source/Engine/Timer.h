@@ -4,12 +4,16 @@
 
 namespace Havtorn
 {
+
+#define NO_FRAMES_TO_AVERAGE 1500
+
 	class CTimer 
 	{
 	public:
 		static F32 Time();
 		static F32 Dt();
 		static F32 FixedDt();
+		static F32 AverageFrameRate();
 
 		CTimer();
 		~CTimer();
@@ -26,8 +30,15 @@ namespace Havtorn
 		static CTimer* Instance;
 		std::chrono::steady_clock::time_point First;
 		std::chrono::steady_clock::time_point Last;
+		
+		std::array<F32, NO_FRAMES_TO_AVERAGE> FrameTimes;
+		
 		F32 DeltaTime;
 		F32 FixedTime;
 		F32 FixedTimeInterval;
+
+		F32 AverageFrameTime;
+		U16 CurrentFrameTimeIndex;
+		U16 FrameTimesLoaded;
 	};
 }

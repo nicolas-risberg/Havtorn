@@ -13,7 +13,7 @@
 #include "Graphics/RenderManager.h"
 //#include "JsonReader.h"
 #include "ImguiWindows.h"
-#include "ImguiPopups.h"
+#include "ImguiToggleables.h"
 //#include "PostMaster.h"
 
 
@@ -50,7 +50,7 @@ namespace Havtorn
 	//}
 	ImFontAtlas myFontAtlas;
 
-	CImguiManager::CImguiManager() : myIsEnabled(true)
+	CImguiManager::CImguiManager() : IsEnabled(true)
 	{
 	}
 
@@ -110,7 +110,7 @@ namespace Havtorn
 	void CImguiManager::Update()
 	{
 		// Main Menu bar
-		if (myIsEnabled)
+		if (IsEnabled)
 		{
 			ImGui::BeginMainMenuBar();
 
@@ -148,7 +148,7 @@ namespace Havtorn
 
 		if (ImGui::Begin("Debug info", nullptr))
 		{
-			ImGui::Text("Framerate: %.0f", ImGui::GetIO().Framerate);
+			ImGui::Text(GetFrameRate().c_str());
 			ImGui::Text(GetSystemMemory().c_str());
 			ImGui::Text(GetDrawCalls().c_str());
 		}
@@ -160,11 +160,11 @@ namespace Havtorn
 	//{
 	//	if (aMessage.myMessageType == EMessageType::CursorHideAndLock)
 	//	{
-	//		myIsEnabled = false;
+	//		IsEnabled = false;
 	//	}
 	//	else if (aMessage.myMessageType == EMessageType::CursorShowAndUnlock)
 	//	{
-	//		myIsEnabled = true;
+	//		IsEnabled = true;
 	//	}
 	//}
 
@@ -196,7 +196,7 @@ namespace Havtorn
 //					CScene* myUnityScene = CSceneManager::CreateScene(buf);
 //					CEngine::GetInstance()->AddScene(CStateStack::EState::InGame, myUnityScene);
 //					CEngine::GetInstance()->SetActiveScene(CStateStack::EState::InGame);
-//					myIsEnabled = !myIsEnabled;
+//					IsEnabled = !IsEnabled;
 //				}
 //			}
 //		}
@@ -462,6 +462,16 @@ namespace Havtorn
 		default:
 			return ImVec4();
 		}
+	}
+
+	const std::string CImguiManager::GetFrameRate()
+	{
+		std::string frameRateString = "Framerate: ";
+		//I16 frameRate = static_cast<I16>(ImGui::GetIO().Framerate);
+		//I16 frameRate = static_cast<I16>((1.0f / CTimer::Dt()));
+		I16 frameRate = static_cast<I16>(CTimer::AverageFrameRate());
+		frameRateString.append(std::to_string(frameRate));
+		return frameRateString;
 	}
 
 	const std::string CImguiManager::GetSystemMemory()

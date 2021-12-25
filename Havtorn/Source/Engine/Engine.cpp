@@ -181,10 +181,11 @@ namespace Havtorn
 	float CEngine::BeginFrame()
 	{
 #ifdef _DEBUG
-		std::string fpsString = std::to_string((1.0f / CTimer::Dt()));
-		size_t decimalIndex = fpsString.find_first_of('.');
-		fpsString = fpsString.substr(0, decimalIndex);
-		WindowHandler->SetWindowTitle("Havtorn Editor | FPS: " + fpsString);
+
+		// Very Expensive, maybe not do this
+		//std::string fpsString = "Havtorn Editor | FPS: ";
+		//fpsString.append(std::to_string(static_cast<I16>(CTimer::AverageFrameRate())));
+		//WindowHandler->SetWindowTitle(fpsString);
 
 		ImguiManager->BeginFrame();
 #endif

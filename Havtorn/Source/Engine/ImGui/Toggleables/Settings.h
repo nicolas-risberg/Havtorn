@@ -1,9 +1,9 @@
 #pragma once
-#include "Imgui/ImguiPopup.h"
+#include "Imgui/ImguiToggleable.h"
 
 namespace ImGui
 {
-	class CSettings : public CPopup
+	class CSettings : public CToggleable
 	{
 	public:
 		CSettings(const char* aName);

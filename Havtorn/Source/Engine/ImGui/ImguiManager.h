@@ -11,7 +11,7 @@ struct ImVec4;
 namespace ImGui 
 {
 	class CWindow;
-	class CPopup;
+	class CToggleable;
 }
 
 namespace Havtorn
@@ -52,11 +52,12 @@ namespace Havtorn
 		static ::ImVec4 GetEditorColorThemeRepColor(EEditorColorTheme colorTheme);
 	private:
 		std::vector<Ptr<ImGui::CWindow>> myWindows;
-		std::vector<Ptr<ImGui::CPopup>> myPopups;
+		std::vector<Ptr<ImGui::CToggleable>> myPopups;
 
+		const std::string GetFrameRate();
 		const std::string GetSystemMemory();
 		const std::string GetDrawCalls();
 
-		bool myIsEnabled;
+		bool IsEnabled;
 	};
 }
