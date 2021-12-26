@@ -1,12 +1,17 @@
 #pragma once
 
+namespace Havtorn
+{
+	class CImguiManager;
+}
+
 namespace ImGui
 {
 	class CToggleable
 	{
 	public:
 		virtual ~CToggleable() { }
-		CToggleable(const char* displayName);
+		CToggleable(const char* displayName, Havtorn::CImguiManager* manager);
 	public:
 		virtual void OnEnable() = 0;
 		virtual void OnInspectorGUI() = 0;
@@ -20,6 +25,9 @@ namespace ImGui
 	protected:
 		bool* Open() { return &IsEnabled; }
 
+	protected:
+		Havtorn::Ref<Havtorn::CImguiManager> Manager;
+	
 	private:
 		const char* DisplayName;
 		bool IsEnabled;

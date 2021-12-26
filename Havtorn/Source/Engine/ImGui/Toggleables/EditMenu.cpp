@@ -5,8 +5,8 @@
 
 namespace ImGui
 {
-	CEditMenu::CEditMenu(const char* aName)
-		: CToggleable(aName)
+	CEditMenu::CEditMenu(const char* aName, Havtorn::CImguiManager* manager)
+		: CToggleable(aName, manager)
 	{
 	}
 
@@ -31,15 +31,15 @@ namespace ImGui
                 for (Havtorn::U16 i = 0; i < static_cast<Havtorn::U16>(Havtorn::EEditorColorTheme::Count); i++)
                 {
                     auto colorTheme = static_cast<Havtorn::EEditorColorTheme>(i);
-                    std::string name = Havtorn::CImguiManager::GetEditorColorThemeName(colorTheme).c_str();
+                    std::string name = Manager->GetEditorColorThemeName(colorTheme).c_str();
                     ImVec2 p = ImGui::GetCursorScreenPos();
-                    auto previewColor = Havtorn::CImguiManager::GetEditorColorThemeRepColor(colorTheme);
+                    auto previewColor = Manager->GetEditorColorThemeRepColor(colorTheme);
                     ImGui::GetWindowDrawList()->AddRectFilled(p, ImVec2(p.x + sz, p.y + sz), ImGui::ColorConvertFloat4ToU32(previewColor));
                     ImGui::Dummy(ImVec2(sz, sz));
                     ImGui::SameLine();
                     if (ImGui::MenuItem(name.c_str()))
                     {
-                        Havtorn::CImguiManager::SetEditorTheme(static_cast<Havtorn::EEditorColorTheme>(i));
+                        Manager->SetEditorTheme(static_cast<Havtorn::EEditorColorTheme>(i));
                     }
                 }
                 ImGui::EndMenu();

@@ -183,6 +183,16 @@ namespace Havtorn
 
         //LockCursor(true);
 
+        //HBRUSH hBrush = CreateSolidBrush(RGB(255, 153, 0));
+
+        //MENUINFO mi = { 0 };
+        //mi.cbSize = sizeof(mi);
+        //mi.fMask = MIM_BACKGROUND | MIM_APPLYTOSUBMENUS;
+        //mi.hbrBack = hBrush;
+
+        //HMENU hMenu = ::GetMenu(WindowHandle);
+        //SetMenuInfo(hMenu, &mi);
+
         Resolution = new SVector2<F32>();
         return true;
     }

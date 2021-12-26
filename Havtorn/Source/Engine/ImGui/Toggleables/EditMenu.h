@@ -6,7 +6,7 @@ namespace ImGui
 	class CEditMenu : public CToggleable
 	{
 	public:
-		CEditMenu(const char* aName);
+		CEditMenu(const char* aName, Havtorn::CImguiManager* manager);
 		~CEditMenu() override;
 		void OnEnable() override;
 		void OnInspectorGUI() override;

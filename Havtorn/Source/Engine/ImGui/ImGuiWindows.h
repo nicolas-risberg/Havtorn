@@ -1,5 +1,9 @@
 #pragma once
 #include "ImguiWindow.h"
+#include "Windows/ViewportWindow.h"
+#include "Windows/AssetBrowserWindow.h"
+#include "Windows/HierarchyWindow.h"
+#include "Windows/InspectorWindow.h"
 //#include "LoadScene.h"
 //#include "CameraSetting.h"
 //#include "VFXEditorWindow.h"

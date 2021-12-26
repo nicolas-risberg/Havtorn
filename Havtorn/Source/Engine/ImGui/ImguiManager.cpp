@@ -7,7 +7,8 @@
 
 #include <psapi.h>
 
-//#include "Engine.h"
+#include "Engine.h"
+#include "Application/WindowHandler.h"
 //#include "Scene.h"
 //#include "SceneManager.h"
 #include "Graphics/RenderManager.h"
@@ -74,11 +75,15 @@ namespace Havtorn
 		ImGui::GetIO().Fonts->AddFontFromFileTTF("../External/imgui/misc/fonts/Roboto-Medium.ttf", 15.0f);
 		ImGui::CreateContext(&myFontAtlas);
 
-		myPopups.emplace_back(std::make_unique<ImGui::CFileMenu>("File"));
-		myPopups.emplace_back(std::make_unique<ImGui::CEditMenu>("Edit"));
-		myPopups.emplace_back(std::make_unique<ImGui::CWindowMenu>("Window"));
-		myPopups.emplace_back(std::make_unique<ImGui::CHelpMenu>("Help"));
+		MenuElements.emplace_back(std::make_unique<ImGui::CFileMenu>("File", this));
+		MenuElements.emplace_back(std::make_unique<ImGui::CEditMenu>("Edit", this));
+		MenuElements.emplace_back(std::make_unique<ImGui::CWindowMenu>("Window", this));
+		MenuElements.emplace_back(std::make_unique<ImGui::CHelpMenu>("Help", this));
 
+		Windows.emplace_back(std::make_unique<ImGui::CViewportWindow>("Viewport", this));
+		Windows.emplace_back(std::make_unique<ImGui::CAssetBrowserWindow>("Asset Browser", this));
+		Windows.emplace_back(std::make_unique<ImGui::CHierarchyWindow>("Hierarchy", this));
+		Windows.emplace_back(std::make_unique<ImGui::CInspectorWindow>("Inspector", this));
 		//myWindows.emplace_back(std::make_unique <ImGui::CLoadScene>("Load Scene", true));
 		//myWindows.emplace_back(std::make_unique <ImGui::CCameraSetting>("Camera Settings"));
 		//myWindows.emplace_back(std::make_unique <ImGui::CVFXEditorWindow>("VFX Editor"));
@@ -91,6 +96,8 @@ namespace Havtorn
 
 		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorHideAndLock, this);
 		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorShowAndUnlock, this);
+
+		InitEditorLayout();
 
 		success = ImGui_ImplWin32_Init(windowHandle);
 		if (!success)
@@ -117,23 +124,15 @@ namespace Havtorn
 		{
 			ImGui::BeginMainMenuBar();
 
-			for (const auto& window : myWindows)
-				window->OnMainMenuGUI();
-
-			for (const auto& popup : myPopups)
-				popup->OnInspectorGUI();
+			for (const auto& element : MenuElements)
+				element->OnInspectorGUI();
 
 			ImGui::EndMainMenuBar();
 		}
 
 		// Windows
-		for (const auto& window : myWindows) 
-		{
-			if (window->Enable() && !window->MainMenuBarChild()) 
-			{
-				window->OnInspectorGUI();
-			}
-		}
+		for (const auto& window : Windows)
+			window->OnInspectorGUI();
 
 		DebugWindow();
 	}
@@ -155,7 +154,6 @@ namespace Havtorn
 			ImGui::Text(GetSystemMemory().c_str());
 			ImGui::Text(GetDrawCalls().c_str());
 		}
-
 		ImGui::End();
 	}
 
@@ -467,12 +465,40 @@ namespace Havtorn
 		}
 	}
 
+	const SEditorLayout& CImguiManager::GetEditorLayout() const
+	{
+		return EditorLayout;
+	}
+
+	void CImguiManager::InitEditorLayout()
+	{
+		EditorLayout = SEditorLayout();
+
+		Havtorn::SVector2<F32> resolution = CEngine::GetInstance()->GetWindowHandler()->GetResolution();
+
+		F32 viewportAspectRatioInv = (9.0f / 16.0f);
+		F32 viewportPaddingX = 0.2f;
+		F32 viewportPaddingY = 0.0f;
+
+		I16 viewportPosX = static_cast<I16>(resolution.X * viewportPaddingX);
+		I16 viewportPosY = static_cast<I16>(viewportPaddingY);
+		U16 viewportSizeX = static_cast<U16>(resolution.X - (2.0f * viewportPosX));
+		U16 viewportSizeY = static_cast<U16>(viewportSizeX * viewportAspectRatioInv);
+
+		EditorLayout.ViewportPosition		= { viewportPosX, viewportPosY };
+		EditorLayout.ViewportSize			= { viewportSizeX, viewportSizeY };
+		EditorLayout.AssetBrowserPosition	= { viewportPosX, viewportPosY + viewportSizeY };
+		EditorLayout.AssetBrowserSize		= { viewportSizeX, U16(resolution.Y - viewportSizeY) };
+		EditorLayout.HierarchyViewPosition	= { 0, viewportPosY };
+		EditorLayout.HierarchyViewSize		= { U16(viewportPosX), U16(resolution.Y) };
+		EditorLayout.InspectorPosition		= { I16(resolution.X - viewportPosX), viewportPosY };
+		EditorLayout.InspectorSize			= { U16(viewportPosX), U16(resolution.Y) };
+	}
+
 	const std::string CImguiManager::GetFrameRate()
 	{
 		std::string frameRateString = "Framerate: ";
-		//I16 frameRate = static_cast<I16>(ImGui::GetIO().Framerate);
-		//I16 frameRate = static_cast<I16>((1.0f / CTimer::Dt()));
-		I16 frameRate = static_cast<I16>(CTimer::AverageFrameRate());
+		U16 frameRate = static_cast<U16>(CTimer::AverageFrameRate());
 		frameRateString.append(std::to_string(frameRate));
 		return frameRateString;
 	}

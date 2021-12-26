@@ -5,8 +5,8 @@
 
 namespace ImGui
 {
-	CWindowMenu::CWindowMenu(const char* aName)
-		: CToggleable(aName)
+	CWindowMenu::CWindowMenu(const char* aName, Havtorn::CImguiManager* manager)
+		: CToggleable(aName, manager)
 	{
 	}
 

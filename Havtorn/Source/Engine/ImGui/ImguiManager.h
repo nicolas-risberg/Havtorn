@@ -32,6 +32,18 @@ namespace Havtorn
 		Count
 	};
 
+	struct SEditorLayout
+	{
+		SVector2<I16> ViewportPosition		= SVector2<I16>::Zero;
+		SVector2<U16> ViewportSize			= SVector2<U16>::Zero;
+		SVector2<I16> AssetBrowserPosition	= SVector2<I16>::Zero;
+		SVector2<U16> AssetBrowserSize		= SVector2<U16>::Zero;
+		SVector2<I16> HierarchyViewPosition	= SVector2<I16>::Zero;
+		SVector2<U16> HierarchyViewSize		= SVector2<U16>::Zero;
+		SVector2<I16> InspectorPosition		= SVector2<I16>::Zero;
+		SVector2<U16> InspectorSize			= SVector2<U16>::Zero;
+	};
+
 	class CImguiManager
 		//: public IObserver
 	{
@@ -47,16 +59,22 @@ namespace Havtorn
 
 	public://Inherited
 	//void Receive(const SMessage& aMessage) override;
-		static void SetEditorTheme(EEditorColorTheme colorTheme = EEditorColorTheme::HavtornDark, EEditorStyleTheme styleTheme = EEditorStyleTheme::Havtorn);
-		static std::string GetEditorColorThemeName(EEditorColorTheme colorTheme);
-		static ::ImVec4 GetEditorColorThemeRepColor(EEditorColorTheme colorTheme);
+		void SetEditorTheme(EEditorColorTheme colorTheme = EEditorColorTheme::HavtornDark, EEditorStyleTheme styleTheme = EEditorStyleTheme::Havtorn);
+		std::string GetEditorColorThemeName(EEditorColorTheme colorTheme);
+		::ImVec4 GetEditorColorThemeRepColor(EEditorColorTheme colorTheme);
+		const SEditorLayout& GetEditorLayout() const;
+	
 	private:
-		std::vector<Ptr<ImGui::CWindow>> myWindows;
-		std::vector<Ptr<ImGui::CToggleable>> myPopups;
-
+		void InitEditorLayout(); // TODO.NR: Let CImguiManager::Init receive windowHandler and pass along to this
 		const std::string GetFrameRate();
 		const std::string GetSystemMemory();
 		const std::string GetDrawCalls();
+
+	private:
+		std::vector<Ptr<ImGui::CWindow>> Windows;
+		std::vector<Ptr<ImGui::CToggleable>> MenuElements;
+
+		SEditorLayout EditorLayout;
 
 		bool IsEnabled;
 	};

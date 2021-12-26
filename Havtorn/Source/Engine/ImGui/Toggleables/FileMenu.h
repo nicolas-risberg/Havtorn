@@ -6,7 +6,7 @@ namespace ImGui
 	class CFileMenu : public CToggleable
 	{
 	public:
-		CFileMenu(const char* aName);
+		CFileMenu(const char* aName, Havtorn::CImguiManager* manager);
 		~CFileMenu() override;
 		void OnEnable() override;
 		void OnInspectorGUI() override;
