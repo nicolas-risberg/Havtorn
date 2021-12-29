@@ -11,6 +11,7 @@
 #include "Application/WindowHandler.h"
 //#include "Scene.h"
 //#include "SceneManager.h"
+#include "Graphics/GraphicsFramework.h"
 #include "Graphics/RenderManager.h"
 //#include "JsonReader.h"
 #include "ImguiWindows.h"
@@ -51,18 +52,22 @@ namespace Havtorn
 	//}
 	ImFontAtlas myFontAtlas;
 
-	CImguiManager::CImguiManager() : IsEnabled(true)
+	CImguiManager::CImguiManager() 
+		: RenderManager(nullptr)
+		, ViewportPadding(0.2f)
+		, IsEnabled(true)
 	{
 	}
 
 	CImguiManager::~CImguiManager()
 	{
+		RenderManager = nullptr;
         ImGui_ImplWin32_Shutdown();
 		ImGui_ImplDX11_Shutdown();
 		ImGui::DestroyContext();
 	}
 
-	bool CImguiManager::Init(ID3D11Device* device, ID3D11DeviceContext* context, HWND windowHandle)
+	bool CImguiManager::Init(CDirectXFramework* framework, HWND windowHandle, const CRenderManager* renderManager)
 	{
 		bool success = true;
 
@@ -103,9 +108,11 @@ namespace Havtorn
 		if (!success)
 			return false;
 
-		success = ImGui_ImplDX11_Init(device, context);
+		success = ImGui_ImplDX11_Init(framework->GetDevice(), framework->GetContext());
 		if (!success)
 			return false;
+
+		RenderManager = renderManager;
 
 		return success;
 	}
@@ -470,6 +477,25 @@ namespace Havtorn
 		return EditorLayout;
 	}
 
+	F32 CImguiManager::GetViewportPadding() const
+	{
+		return ViewportPadding;
+	}
+
+	void CImguiManager::SetViewportPadding(F32 padding)
+	{
+		if (ViewportPadding != padding)
+		{
+			ViewportPadding = padding;
+			InitEditorLayout();
+		}
+	}
+
+	const CRenderManager* CImguiManager::GetRenderManager() const
+	{
+		return RenderManager;
+	}
+
 	void CImguiManager::InitEditorLayout()
 	{
 		EditorLayout = SEditorLayout();
@@ -477,7 +503,7 @@ namespace Havtorn
 		Havtorn::SVector2<F32> resolution = CEngine::GetInstance()->GetWindowHandler()->GetResolution();
 
 		F32 viewportAspectRatioInv = (9.0f / 16.0f);
-		F32 viewportPaddingX = 0.2f;
+		F32 viewportPaddingX = ViewportPadding;
 		F32 viewportPaddingY = 0.0f;
 
 		I16 viewportPosX = static_cast<I16>(resolution.X * viewportPaddingX);

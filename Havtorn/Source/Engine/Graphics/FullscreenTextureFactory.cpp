@@ -64,6 +64,14 @@ namespace Havtorn
 		returnTexture.myTexture = texture;
 		returnTexture.myRenderTarget = renderTarget;
 		returnTexture.Viewport = viewport;
+
+		// Temporary test for ImguiManager viewport shenanigans - Nico 28/12-2021
+		//ID3D11ShaderResourceView* shaderResource;
+		//ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateShaderResourceView(returnTexture.myTexture, nullptr, &shaderResource), "Could not create Fullscreen Shader Resource View.");
+
+		//returnTexture.myShaderResource = shaderResource;
+		// Temporary test for ImguiManager viewport shenanigans - Nico 28/12-2021
+
 		return returnTexture;
 	}
 

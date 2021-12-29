@@ -77,4 +77,13 @@ namespace Havtorn
 		delete Viewport;
 		Viewport = nullptr;
 	}
+
+	ID3D11Texture2D* const CFullscreenTexture::GetTexture() const
+	{
+		return myTexture;
+	}
+	ID3D11ShaderResourceView* const CFullscreenTexture::GetShaderResourceView() const
+	{
+		return myShaderResource;
+	}
 }

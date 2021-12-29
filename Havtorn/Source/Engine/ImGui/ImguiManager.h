@@ -16,6 +16,9 @@ namespace ImGui
 
 namespace Havtorn
 {
+	class CDirectXFramework;
+	class CRenderManager;
+
 	enum class EEditorColorTheme
 	{
 		DefaultDark,
@@ -51,7 +54,7 @@ namespace Havtorn
 		CImguiManager();
 		~CImguiManager();
 
-		bool Init(ID3D11Device* device, ID3D11DeviceContext* context, HWND windowHandle);
+		bool Init(CDirectXFramework* framework, HWND windowHandle, const CRenderManager* renderManager);
 		void BeginFrame();
 		void Update();
 		void EndFrame();
@@ -63,19 +66,28 @@ namespace Havtorn
 		std::string GetEditorColorThemeName(EEditorColorTheme colorTheme);
 		::ImVec4 GetEditorColorThemeRepColor(EEditorColorTheme colorTheme);
 		const SEditorLayout& GetEditorLayout() const;
+
+		F32 GetViewportPadding() const;
+		void SetViewportPadding(F32 padding);
 	
+		const CRenderManager* GetRenderManager() const;
+
 	private:
 		void InitEditorLayout(); // TODO.NR: Let CImguiManager::Init receive windowHandler and pass along to this
+	
 		const std::string GetFrameRate();
 		const std::string GetSystemMemory();
 		const std::string GetDrawCalls();
 
 	private:
+		const CRenderManager* RenderManager;
+
 		std::vector<Ptr<ImGui::CWindow>> Windows;
 		std::vector<Ptr<ImGui::CToggleable>> MenuElements;
 
 		SEditorLayout EditorLayout;
 
+		F32 ViewportPadding;
 		bool IsEnabled;
 	};
 }

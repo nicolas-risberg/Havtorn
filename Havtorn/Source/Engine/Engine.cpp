@@ -103,7 +103,6 @@ namespace Havtorn
 		//CameraFactory = nullptr;
 		//delete LightFactory;
 		//LightFactory = nullptr;
-		SAFE_DELETE(RenderManager);
 
 		//delete ParticleFactory;
 		//ParticleFactory = nullptr;
@@ -142,6 +141,7 @@ namespace Havtorn
 #ifdef _DEBUG
 		SAFE_DELETE(ImguiManager);
 #endif
+		SAFE_DELETE(RenderManager);
 		SAFE_DELETE(WindowHandler);
 		SAFE_DELETE(Framework);
 		SAFE_DELETE(Timer);
@@ -154,13 +154,14 @@ namespace Havtorn
 		ENGINE_ERROR_BOOL_MESSAGE(WindowHandler->Init(windowData), "Window Handler could not be initialized.");
 		WindowHandler->SetInternalResolution();
 		ENGINE_ERROR_BOOL_MESSAGE(Framework->Init(WindowHandler), "Framework could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(RenderManager->Init(Framework, WindowHandler), "RenderManager could not be initialized.");
+
 #ifdef _DEBUG
-		ENGINE_ERROR_BOOL_MESSAGE(ImguiManager->Init(Framework->GetDevice(), Framework->GetContext(), WindowHandler->GetWindowHandle()), "ImguiManager could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(ImguiManager->Init(Framework, WindowHandler->GetWindowHandle(), RenderManager), "ImguiManager could not be initialized.");
 #endif
 		//ENGINE_ERROR_BOOL_MESSAGE(ModelFactory->Init(Framework), "Model Factory could not be initiliazed.");
 		//ENGINE_ERROR_BOOL_MESSAGE(CameraFactory->Init(WindowHandler), "Camera Factory could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(CMainSingleton::MaterialHandler().Init(Framework), "Material Handler could not be initialized.");
-		ENGINE_ERROR_BOOL_MESSAGE(RenderManager->Init(Framework, WindowHandler), "RenderManager could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(LightFactory->Init(*this), "Light Factory could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(ParticleFactory->Init(Framework), "Particle Factory could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(VFXFactory->Init(Framework), "VFX Factory could not be initialized.");

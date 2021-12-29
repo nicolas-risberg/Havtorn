@@ -33,22 +33,22 @@ namespace Havtorn
 		inline SVector operator+(F32 a) const;
 		inline SVector operator-(F32 a) const;
 		inline SVector operator*(F32 a) const;
-			   SVector operator/(F32 a) const;
+		inline SVector operator/(F32 a) const;
 		
 		inline SVector operator+(const SVector& other) const;
 		inline SVector operator-(const SVector& other) const;
 		inline SVector operator*(const SVector& other) const;
-			   SVector operator/(const SVector& other) const;
+		inline SVector operator/(const SVector& other) const;
 
 		inline SVector operator+=(F32 a);
 		inline SVector operator-=(F32 a);
 		inline SVector operator*=(F32 a);
-			   SVector operator/=(F32 a);
+		inline SVector operator/=(F32 a);
 
 		inline SVector operator+=(const SVector& other);
 		inline SVector operator-=(const SVector& other);
 		inline SVector operator*=(const SVector& other);
-			   SVector operator/=(const SVector& other);
+		inline SVector operator/=(const SVector& other);
 
 		inline bool operator==(const SVector& other) const;
 		inline bool operator!=(const SVector& other) const;
@@ -68,9 +68,9 @@ namespace Havtorn
 		inline F32 Size2D() const;
 		inline F32 SizeSquared2D() const;
 
-		void Normalize();
-		SVector GetNormalized() const;
-		bool IsNormalized() const;
+		inline void Normalize();
+		inline SVector GetNormalized() const;
+		inline bool IsNormalized() const;
 
 		inline bool IsEqual(const SVector& other, F32 tolerance = VECTOR_COMPARISON_EPSILON) const;
 
@@ -81,27 +81,19 @@ namespace Havtorn
 		inline F32 Distance2D(const SVector& other) const;
 		inline F32 DistanceSquared2D(const SVector& other) const;
 
-		SVector Projection(const SVector& other) const;
-		SVector Mirrored(const SVector& mirrorNormal) const;
+		inline SVector Projection(const SVector& other) const;
+		inline SVector Mirrored(const SVector& mirrorNormal) const;
 
-		std::string ToString();
+		inline static SVector SVector::Random(const SVector& lowerBound, const SVector& upperBound);
+
+		inline std::string ToString();
 	};
-
-	const SVector SVector::Zero		= SVector(0, 0, 0);
-
-	const SVector SVector::Right	= SVector(1, 0, 0);
-	const SVector SVector::Up		= SVector(0, 1, 0);
-	const SVector SVector::Forward	= SVector(0, 0, 1);
-
-	const SVector SVector::Left		= SVector(-1, 0, 0);;
-	const SVector SVector::Down		= SVector(0, -1, 0);
-	const SVector SVector::Backward	= SVector(0, 0, -1);
 
 	SVector::SVector() : X(0), Y(0), Z(0) {}
 	SVector::SVector(F32 a) : X(a), Y(a), Z(a) {}
 	SVector::SVector(F32 x, F32 y) : X(x), Y(y), Z(0) {}
 	SVector::SVector(F32 x, F32 y, F32 z) : X(x), Y(y), Z(z) {}
-	
+
 	inline SVector SVector::operator+(F32 a) const
 	{
 		return SVector(X + a, Y + a, Z + a);
@@ -117,7 +109,7 @@ namespace Havtorn
 		return SVector(X * a, Y * a, Z * a);
 	}
 
-	SVector SVector::operator/(F32 a) const
+	inline SVector SVector::operator/(F32 a) const
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (a == 0)
@@ -143,7 +135,7 @@ namespace Havtorn
 		return SVector(X * other.X, Y * other.Y, Z * other.Z);
 	}
 
-	SVector SVector::operator/(const SVector& other) const
+	inline SVector SVector::operator/(const SVector& other) const
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (other.X == 0 || other.Y == 0 || other.Z == 0)
@@ -170,7 +162,7 @@ namespace Havtorn
 		return *this;
 	}
 
-	SVector SVector::operator/=(F32 a)
+	inline SVector SVector::operator/=(F32 a)
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (a == 0)
@@ -200,7 +192,7 @@ namespace Havtorn
 		return *this;
 	}
 
-	SVector SVector::operator/=(const SVector& other)
+	inline SVector SVector::operator/=(const SVector& other)
 	{
 		// TODO.NR: Print out error message about div with zero 
 		if (other.X == 0 || other.Y == 0 || other.Z == 0)
@@ -280,7 +272,7 @@ namespace Havtorn
 		return this->LengthSquared2D();
 	}
 
-	void SVector::Normalize()
+	inline void SVector::Normalize()
 	{
 		F32 length = this->Length();
 		*this /= length;
@@ -349,14 +341,24 @@ namespace Havtorn
 		return *this - mirrorNormal * (2.0f * (this->Dot(mirrorNormal)));
 	}
 
-	SVector operator*(F32 a, const SVector& vector)
+	inline SVector operator*(F32 a, const SVector& vector)
 	{
 		SVector newVector = vector;
 		newVector *= a;
 		return newVector;
 	}
 
-	std::string SVector::ToString()
+	// Returns a vector with components randomized in the range given by lower and upper bounds
+	inline SVector SVector::Random(const SVector& lowerBound, const SVector& upperBound)
+	{
+		F32 x = UMath::Random(lowerBound.X, upperBound.X);
+		F32 y = UMath::Random(lowerBound.Y, upperBound.Y);
+		F32 z = UMath::Random(lowerBound.Z, upperBound.Z);
+
+		return SVector(x, y, z);
+	}
+
+	inline std::string SVector::ToString()
 	{
 		char buffer[32];
 		sprintf_s(buffer, "{X: %.1f, Y: %.1f, Z: %.1f}", X, Y, Z);
@@ -382,28 +384,28 @@ namespace Havtorn
 		inline SVector2();
 		inline SVector2(T a);
 		inline SVector2(T x, T y);
-		SVector2(const SVector2& other) = default;
-		~SVector2() = default;
+		inline SVector2(const SVector2& other) = default;
+		inline ~SVector2() = default;
 
 		inline SVector2 operator+(T a) const;
 		inline SVector2 operator-(T a) const;
 		inline SVector2 operator*(T a) const;
-		SVector2 operator/(T a) const;
+		inline SVector2 operator/(T a) const;
 
 		inline SVector2 operator+(const SVector2& other) const;
 		inline SVector2 operator-(const SVector2& other) const;
 		inline SVector2 operator*(const SVector2& other) const;
-		SVector2 operator/(const SVector2& other) const;
+		inline SVector2 operator/(const SVector2& other) const;
 
 		inline SVector2 operator+=(T a);
 		inline SVector2 operator-=(T a);
 		inline SVector2 operator*=(T a);
-		SVector2 operator/=(T a);
+		inline SVector2 operator/=(T a);
 
 		inline SVector2 operator+=(const SVector2& other);
 		inline SVector2 operator-=(const SVector2& other);
 		inline SVector2 operator*=(const SVector2& other);
-		SVector2 operator/=(const SVector2& other);
+		inline SVector2 operator/=(const SVector2& other);
 
 		inline bool operator==(const SVector2& other) const;
 		inline bool operator!=(const SVector2& other) const;
@@ -417,9 +419,9 @@ namespace Havtorn
 		inline T Size() const;
 		inline T SizeSquared() const;
 
-		void Normalize();
-		SVector2 GetNormalized() const;
-		bool IsNormalized() const;
+		inline void Normalize();
+		inline SVector2 GetNormalized() const;
+		inline bool IsNormalized() const;
 
 		inline bool IsEqual(const SVector2& other, T tolerance = VECTOR_COMPARISON_EPSILON) const;
 
@@ -428,10 +430,10 @@ namespace Havtorn
 		inline T Distance(const SVector2& other) const;
 		inline T DistanceSquared(const SVector2& other) const;
 
-		SVector2 Projection(const SVector2& other) const;
-		SVector2 Mirrored(const SVector2& mirrorNormal) const;
+		inline SVector2 Projection(const SVector2& other) const;
+		inline SVector2 Mirrored(const SVector2& mirrorNormal) const;
 
-		std::string ToString();
+		inline std::string ToString();
 	};
 
 	template<typename T>
@@ -473,7 +475,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	SVector2<T> SVector2<T>::operator/(T a) const
+	inline SVector2<T> SVector2<T>::operator/(T a) const
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (a == 0)
@@ -503,7 +505,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	SVector2<T> SVector2<T>::operator/(const SVector2& other) const
+	inline SVector2<T> SVector2<T>::operator/(const SVector2& other) const
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (other.X == 0 || other.Y == 0)
@@ -534,7 +536,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	SVector2<T> SVector2<T>::operator/=(T a)
+	inline SVector2<T> SVector2<T>::operator/=(T a)
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (a == 0)
@@ -568,7 +570,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	SVector2<T> SVector2<T>::operator/=(const SVector2& other)
+	inline SVector2<T> SVector2<T>::operator/=(const SVector2& other)
 	{
 		// TODO.NR: Print out error message about div with zero 
 		if (other.X == 0 || other.Y == 0)
@@ -627,7 +629,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	void SVector2<T>::Normalize()
+	inline void SVector2<T>::Normalize()
 	{
 		T length = this->Length();
 		*this /= length;
@@ -687,7 +689,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	SVector2<T> operator*(T a, const SVector2<T>& vector)
+	inline SVector2<T> operator*(T a, const SVector2<T>& vector)
 	{
 		SVector2 newVector = vector;
 		newVector *= a;
@@ -695,7 +697,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	std::string SVector2<T>::ToString()
+	inline std::string SVector2<T>::ToString()
 	{
 		char buffer[32];
 		sprintf_s(buffer, "{X: %.1f, Y: %.1f}", X, Y);
@@ -733,22 +735,22 @@ namespace Havtorn
 		inline SVector4 operator+(F32 a) const;
 		inline SVector4 operator-(F32 a) const;
 		inline SVector4 operator*(F32 a) const;
-		SVector4 operator/(F32 a) const;
+		inline SVector4 operator/(F32 a) const;
 
 		inline SVector4 operator+(const SVector4& other) const;
 		inline SVector4 operator-(const SVector4& other) const;
 		inline SVector4 operator*(const SVector4& other) const;
-		SVector4 operator/(const SVector4& other) const;
+		inline SVector4 operator/(const SVector4& other) const;
 
 		inline SVector4 operator+=(F32 a);
 		inline SVector4 operator-=(F32 a);
 		inline SVector4 operator*=(F32 a);
-		SVector4 operator/=(F32 a);
+		inline SVector4 operator/=(F32 a);
 
 		inline SVector4 operator+=(const SVector4& other);
 		inline SVector4 operator-=(const SVector4& other);
 		inline SVector4 operator*=(const SVector4& other);
-		SVector4 operator/=(const SVector4& other);
+		inline SVector4 operator/=(const SVector4& other);
 
 		inline bool operator==(const SVector4& other) const;
 		inline bool operator!=(const SVector4& other) const;
@@ -768,9 +770,9 @@ namespace Havtorn
 		inline F32 Size2D() const;
 		inline F32 SizeSquared2D() const;
 
-		void Normalize();
-		SVector4 GetNormalized() const;
-		bool IsNormalized() const;
+		inline void Normalize();
+		inline SVector4 GetNormalized() const;
+		inline bool IsNormalized() const;
 
 		inline bool IsEqual(const SVector4& other, F32 tolerance = VECTOR_COMPARISON_EPSILON) const;
 
@@ -784,21 +786,13 @@ namespace Havtorn
 		inline F32 Distance2D(const SVector4& other) const;
 		inline F32 DistanceSquared2D(const SVector4& other) const;
 
-		SVector4 Projection(const SVector4& other) const;
-		SVector4 Mirrored(const SVector4& mirrorNormal) const;
+		inline SVector4 Projection(const SVector4& other) const;
+		inline SVector4 Mirrored(const SVector4& mirrorNormal) const;
 
-		std::string ToString();
+		static inline SVector4 Random(SVector& lowerBound, SVector& upperBound, F32 w);
+
+		inline std::string ToString();
 	};
-
-	const SVector4 SVector4::Zero = SVector4(0, 0, 0, 0);
-
-	const SVector4 SVector4::Right = SVector4(1, 0, 0, 0);
-	const SVector4 SVector4::Up = SVector4(0, 1, 0, 0);
-	const SVector4 SVector4::Forward = SVector4(0, 0, 1, 0);
-
-	const SVector4 SVector4::Left = SVector4(-1, 0, 0, 0);
-	const SVector4 SVector4::Down = SVector4(0, -1, 0, 0);
-	const SVector4 SVector4::Backward = SVector4(0, 0, -1, 0);
 
 	SVector4::SVector4() : X(0), Y(0), Z(0), W(0) {}
 	SVector4::SVector4(F32 a) : X(a), Y(a), Z(a), W(0) {}
@@ -820,7 +814,7 @@ namespace Havtorn
 		return SVector4(X * a, Y * a, Z * a, W);
 	}
 
-	SVector4 SVector4::operator/(F32 a) const
+	inline SVector4 SVector4::operator/(F32 a) const
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (a == 0)
@@ -846,7 +840,7 @@ namespace Havtorn
 		return SVector4(X * other.X, Y * other.Y, Z * other.Z, W);
 	}
 
-	SVector4 SVector4::operator/(const SVector4& other) const
+	inline SVector4 SVector4::operator/(const SVector4& other) const
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (other.X == 0 || other.Y == 0 || other.Z == 0)
@@ -873,7 +867,7 @@ namespace Havtorn
 		return *this;
 	}
 
-	SVector4 SVector4::operator/=(F32 a)
+	inline SVector4 SVector4::operator/=(F32 a)
 	{
 		// TODO.NR: Print out error message about div with zero
 		if (a == 0)
@@ -903,7 +897,7 @@ namespace Havtorn
 		return *this;
 	}
 
-	SVector4 SVector4::operator/=(const SVector4& other)
+	inline SVector4 SVector4::operator/=(const SVector4& other)
 	{
 		// TODO.NR: Print out error message about div with zero 
 		if (other.X == 0 || other.Y == 0 || other.Z == 0)
@@ -984,7 +978,7 @@ namespace Havtorn
 		return this->LengthSquared2D();
 	}
 
-	void SVector4::Normalize()
+	inline void SVector4::Normalize()
 	{
 		F32 length = this->Length();
 		*this /= length;
@@ -1063,14 +1057,20 @@ namespace Havtorn
 		return *this - mirrorNormal * (2.0f * (this->Dot(mirrorNormal)));
 	}
 
-	SVector4 operator*(F32 a, const SVector4& vector)
+	inline SVector4 operator*(F32 a, const SVector4& vector)
 	{
 		SVector4 newVector = vector;
 		newVector *= a;
 		return newVector;
 	}
 
-	std::string SVector4::ToString()
+	inline SVector4 SVector4::Random(SVector& lowerBound, SVector& upperBound, F32 w)
+	{
+		SVector vector3 = SVector::Random(lowerBound, upperBound);
+		return SVector4(vector3.X, vector3.Y, vector3.Z, w);
+	}
+
+	inline std::string SVector4::ToString()
 	{
 		char buffer[64];
 		sprintf_s(buffer, "{X: %.1f, Y: %.1f, Z: %.1f, W: %.1f}", X, Y, Z, W);

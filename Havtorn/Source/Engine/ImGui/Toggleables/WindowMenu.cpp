@@ -21,8 +21,17 @@ namespace ImGui
 	void CWindowMenu::OnInspectorGUI()
 	{
 		if (ImGui::Button(Name()))
+			ImGui::OpenPopup("window_popup");
+		
+		if (ImGui::BeginPopup("window_popup"))
 		{
+			Havtorn::F32 viewportPadding = Manager->GetViewportPadding();
+			if (ImGui::DragFloat("Viewport Padding", &viewportPadding, 0.01f, 0.0f, 0.5f))
+			{
+				Manager->SetViewportPadding(viewportPadding);
+			}
 
+			ImGui::EndPopup();
 		}
 	}
 

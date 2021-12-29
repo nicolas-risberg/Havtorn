@@ -1,6 +1,13 @@
 #pragma once
 #include "Imgui/ImguiWindow.h"
 
+struct ID3D11Texture2D;
+
+namespace Havtorn
+{
+	class CFullscreenTexture;
+}
+
 namespace ImGui
 {
 	class CViewportWindow : public CWindow
@@ -13,6 +20,6 @@ namespace ImGui
 		void OnDisable() override;
 
 	private:
-
+		const Havtorn::CFullscreenTexture* RenderedSceneTextureReference;
 	};
 }

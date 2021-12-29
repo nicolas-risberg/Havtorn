@@ -1,14 +1,23 @@
 #pragma once
 
 #include <complex>
+#include <random>
 #include "Core/CoreTypes.h"
 #include "EngineMathSSE.h"
+//#include <FastNoise/FastNoise.h>
+
+namespace
+{
+	std::random_device myRandomDevice{};
+	std::mt19937 myRandomEngine{ myRandomDevice() };
+}
 
 namespace Havtorn
 {
 
 #define SMALL_NUMBER 1.e-8f
-#define DEGREES_TO_RADIANS_RECIPROCAL 0.00555555555f // 1 / 180
+#define DEGREES_TO_RADIANS 0.01745329251f // Pi * (1 / 180)
+#define RADIANS_TO_DEGREES 57.2957795131f // 180 * (1 / Pi)
 
 	struct UMath
 	{
@@ -95,6 +104,13 @@ namespace Havtorn
 
 		static inline F32 UpFacingQuadCurve(F32 x);
 		static inline F32 DownFacingQuadCurve(F32 x);
+
+		static inline F32 RandomGaussian(F32 mean, F32 standardDeviation);
+		static inline F32 Random(F32 lowerBound, F32 upperBound);
+		static inline I32 Random(I32 lowerBound, I32 upperBound);
+
+		static inline I32 Random(I32 lowerBound, I32 upperBound, I32 excludedNumber);
+		static inline I32 Random(I32 lowerBound, I32 upperBound, std::vector<I32>& excludedNumbers);
 	};
 
 	const F32 UMath::Pi = 3.14159265359f;
@@ -106,7 +122,7 @@ namespace Havtorn
 	template<typename T>
 	inline T UMath::Sqrt(T x)
 	{
-		return std::sqrt(x);
+		return static_cast<T>(std::sqrt(x));
 	}
 
 	template<typename T>
@@ -173,13 +189,13 @@ namespace Havtorn
 	template<typename T>
 	inline T UMath::DegToRad(T angleInDegrees)
 	{
-		return angleInDegrees * (UMath::Pi * DEGREES_TO_RADIANS_RECIPROCAL);
+		return angleInDegrees * DEGREES_TO_RADIANS;
 	}
 
 	template<typename T>
 	inline T UMath::RadToDeg(T angleInRadians)
 	{
-		return angleInRadians * (180 * UMath::PiReciprocal);
+		return angleInRadians * RADIANS_TO_DEGREES;
 	}
 
 	/* Easing Functions Start */
@@ -382,5 +398,71 @@ namespace Havtorn
 	{
 		x = UMath::Clamp(x);
 		return 1.0f - (4.0f * x) - (4.0f * x * x);
+	}
+
+	inline F32 UMath::RandomGaussian(F32 mean, F32 standardDeviation)
+	{
+		return std::normal_distribution<F32>{ mean, standardDeviation }(myRandomEngine);
+	}
+
+	inline F32 UMath::Random(F32 lowerBound, F32 upperBound)
+	{
+		return std::uniform_real_distribution<F32>{ lowerBound, upperBound }(myRandomEngine);
+	}
+
+	inline I32 UMath::Random(I32 lowerBound, I32 upperBound)
+	{
+		return std::uniform_int_distribution<>{ lowerBound, upperBound }(myRandomEngine);
+	}
+
+	inline I32 UMath::Random(I32 lowerBound, I32 upperBound, I32 excludedNumber)
+	{
+		I32 num = excludedNumber;
+
+		if (upperBound - lowerBound > 0)
+		{
+			while (num == excludedNumber)
+			{
+				num = Random(lowerBound, upperBound);
+			}
+		}
+		else
+		{
+			return Random(lowerBound, upperBound);
+		}
+
+		return num;
+	}
+
+	inline I32 UMath::Random(I32 lowerBound, I32 upperBound, std::vector<I32>& excludedNumbers)
+	{
+		if (excludedNumbers.empty())
+		{
+			I32 result = Random(lowerBound, upperBound);
+			excludedNumbers.push_back(result);
+			return result;
+		}
+
+		I32 num = excludedNumbers[0];
+
+		if (upperBound - lowerBound > 0)
+		{
+			while (std::find(excludedNumbers.begin(), excludedNumbers.end(), num) != excludedNumbers.end())
+			{
+				num = Random(lowerBound, upperBound);
+			}
+			excludedNumbers.push_back(num);
+
+			if (excludedNumbers.size() > upperBound)
+			{
+				excludedNumbers.clear();
+			}
+		}
+		else
+		{
+			return Random(lowerBound, upperBound);
+		}
+
+		return num;
 	}
 }

@@ -23,6 +23,9 @@ namespace Havtorn
 		void SetAsResourceOnSlot(unsigned int aSlot);
 		void ReleaseTexture();
 		void ReleaseDepth();
+		
+		ID3D11Texture2D* const GetTexture() const;
+		ID3D11ShaderResourceView* const GetShaderResourceView() const;
 
 		friend CFullscreenTextureFactory;
 		friend class CGBuffer;

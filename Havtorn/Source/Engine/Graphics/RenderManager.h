@@ -34,6 +34,7 @@ namespace Havtorn
 		void Release();
 
 	public:
+		const CFullscreenTexture& GetRenderedSceneTexture() const;
 		//void SetBrokenScreen(bool aShouldSetBrokenScreen);
 
 		//const CFullscreenRenderer::SPostProcessingBufferData& GetPostProcessingBufferData() const;
@@ -65,6 +66,7 @@ namespace Havtorn
 		//CDecalRenderer myDecalRenderer;
 
 		CFullscreenTextureFactory FullscreenTextureFactory;
+		CFullscreenTexture RenderedScene;
 		CFullscreenTexture Backbuffer;
 		//CFullscreenTexture myIntermediateTexture;
 		//CFullscreenTexture myIntermediateDepth;

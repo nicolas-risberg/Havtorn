@@ -23,7 +23,7 @@ project "Engine"
 	objdir ("Temp/" .. outputdir .. "/%{prj.name}") 
 
 	warnings "Extra"
-	flags { "FatalWarnings", "ShadowedVariables" }
+	flags { "FatalWarnings", "ShadowedVariables", "MultiProcessorCompile" }
 
 	pchheader "hvpch.h"
 	pchsource "Source/Engine/hvpch.cpp"
@@ -54,6 +54,34 @@ project "Engine"
 	floatingpoint "Fast"
 	debugdir "Bin/"
 
+	-- Begin Shader stuff
+	filter{} -- Clear filter
+
+	shaderSource = engineSource .. "Graphics/Shaders/"
+	shaderTarget = "$(SolutionDir)../Bin/Shaders/"
+
+	shadermodel("5.0")
+	-- Warnings as errors
+	-- shaderoptions({"/WX"})
+	shaderobjectfileoutput(shaderTarget .. "%%(Filename).cso")
+
+	files
+	{
+		shaderSource .. "*.hlsl",
+		shaderSource .. "Includes/*.hlsli",
+	}
+ 
+	filter("files:**_PS.hlsl")
+	   removeflags("ExcludeFromBuild")
+	   shadertype("Pixel")
+ 
+	filter("files:**_VS.hlsl")
+	   removeflags("ExcludeFromBuild")
+	   shadertype("Vertex")
+	
+	filter{} -- Clear filter
+	-- End Shader Stuff
+
 	filter "system:Windows"
 		staticruntime "On"
 		systemversion "latest"
@@ -65,9 +93,14 @@ project "Engine"
 			"HV_BUILD_DLL"
 		}
 
-		postbuildcommands
+		prebuildcommands
 		{
 			"{MKDIR} ../../Bin/",
+			"{MKDIR} ../../Bin/Shaders/"
+		}
+
+		postbuildcommands
+		{
 			"{COPY} %{cfg.buildtarget.relpath} ../../Bin/"
 		}
 
@@ -104,7 +137,7 @@ project "Launcher"
 	objdir ("Temp/" .. outputdir .. "/%{prj.name}") 
 
 	warnings "Extra"
-	flags { "FatalWarnings", "ShadowedVariables" }
+	flags { "FatalWarnings", "ShadowedVariables", "MultiProcessorCompile" }
 
 	files
 	{

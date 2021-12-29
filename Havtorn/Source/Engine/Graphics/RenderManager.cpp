@@ -57,6 +57,7 @@ namespace Havtorn
 		ID3D11Texture2D* backbufferTexture = framework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
+		RenderedScene = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(windowHandler);
 
@@ -70,14 +71,16 @@ namespace Havtorn
 		ID3D11Texture2D* backbufferTexture = framework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
+		//RenderedScene = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(windowHandler);
 
 		return true;
 	}
 
-	void CRenderManager::InitRenderTextures(CWindowHandler* /*windowHandler*/)
+	void CRenderManager::InitRenderTextures(CWindowHandler* windowHandler)
 	{
+		RenderedScene = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
 		//myIntermediateDepth = FullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R24G8_TYPELESS);
 		//myEnvironmentShadowDepth = FullscreenTextureFactory.CreateDepth({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R32_TYPELESS);
 		//myBoxLightShadowDepth = FullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_TYPELESS);
@@ -494,6 +497,8 @@ namespace Havtorn
 	{
 		CRenderManager::NumberOfDrawCallsThisFrame = 0;
 		RenderStateManager.SetAllDefault();
+		RenderedScene.ClearTexture(ClearColor);
+		//RenderedScene.SetAsActiveTarget();
 		Backbuffer.ClearTexture(ClearColor);
 		Backbuffer.SetAsActiveTarget();
 	}
@@ -529,6 +534,11 @@ namespace Havtorn
 
 		//myGBuffer.ReleaseResources();
 		//myGBufferCopy.ReleaseResources();
+	}
+
+	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
+	{
+		return Backbuffer;
 	}
 
 	//void CRenderManager::SetBrokenScreen(bool aShouldSetBrokenScreen)

@@ -2,11 +2,14 @@
 #include "ViewportWindow.h"
 #include <imgui.h>
 #include "Imgui/ImguiManager.h"
+#include "Graphics/RenderManager.h"
+#include "Graphics/FullscreenTexture.h"
 
 namespace ImGui
 {
 	CViewportWindow::CViewportWindow(const char* aName, Havtorn::CImguiManager* manager)
 		: CWindow(aName, manager)
+		, RenderedSceneTextureReference(nullptr)
 	{
 	}
 
@@ -28,6 +31,17 @@ namespace ImGui
 
 		if (ImGui::Begin(Name(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
 		{
+			RenderedSceneTextureReference = &(Manager->GetRenderManager()->GetRenderedSceneTexture());
+			
+			if (RenderedSceneTextureReference)
+			{
+				auto underlyingTexture = RenderedSceneTextureReference->GetTexture();
+				D3D11_TEXTURE2D_DESC textureDesc;
+				underlyingTexture->GetDesc(&textureDesc);
+				Havtorn::F32 width = static_cast<Havtorn::F32>(textureDesc.Width);
+				Havtorn::F32 height = static_cast<Havtorn::F32>(textureDesc.Height);
+				ImGui::Image((void*)RenderedSceneTextureReference->GetShaderResourceView(), ImVec2(width, height));
+			}
 		}
 		ImGui::End();
 	}
