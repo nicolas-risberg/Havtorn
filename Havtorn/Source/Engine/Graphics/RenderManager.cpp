@@ -44,7 +44,7 @@ namespace Havtorn
 		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myDeferredRenderer.Init(aFramework, &CMainSingleton::MaterialHandler()), "Failed to Init Deferred Renderer.");
-		//ENGINE_ERROR_BOOL_MESSAGE(myFullscreenRenderer.Init(aFramework), "Failed to Init Fullscreen Renderer.");
+		ENGINE_ERROR_BOOL_MESSAGE(FullscreenRenderer.Init(framework), "Failed to Init Fullscreen Renderer.");
 		ENGINE_ERROR_BOOL_MESSAGE(FullscreenTextureFactory.Init(framework), "Failed to Init Fullscreen Texture Factory.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myParticleRenderer.Init(aFramework), "Failed to Init Particle Renderer.");
 		ENGINE_ERROR_BOOL_MESSAGE(RenderStateManager.Init(framework), "Failed to Init Render State Manager.");
@@ -57,7 +57,7 @@ namespace Havtorn
 		ID3D11Texture2D* backbufferTexture = framework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
-		RenderedScene = FullscreenTextureFactory.CreateTexture(backbufferTexture);
+		//RenderedScene = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(windowHandler);
 
@@ -498,9 +498,12 @@ namespace Havtorn
 		CRenderManager::NumberOfDrawCallsThisFrame = 0;
 		RenderStateManager.SetAllDefault();
 		RenderedScene.ClearTexture(ClearColor);
-		//RenderedScene.SetAsActiveTarget();
-		Backbuffer.ClearTexture(ClearColor);
+		RenderedScene.SetAsActiveTarget();
+
 		Backbuffer.SetAsActiveTarget();
+		RenderedScene.SetAsResourceOnSlot(0);
+		FullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Copy);
+		//Backbuffer.ClearTexture(ClearColor);
 	}
 
 	void CRenderManager::Release()
@@ -538,7 +541,7 @@ namespace Havtorn
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
 	{
-		return Backbuffer;
+		return RenderedScene;
 	}
 
 	//void CRenderManager::SetBrokenScreen(bool aShouldSetBrokenScreen)

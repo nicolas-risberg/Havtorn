@@ -1,12 +1,12 @@
 #include "hvpch.h"
 #include "FullscreenRenderer.h"
+#include "Engine.h"
 #include "Graphics/GraphicsFramework.h"
 #include "Graphics/RenderManager.h"
-#include "Engine.h"
+#include "Graphics/GraphicsUtilities.h"
 //#include "Scene.h"
-//#include "RandomNumberGenerator.h"
 //#include "CameraComponent.h"
-#include <fstream>
+//#include <fstream>
 
 namespace Havtorn
 {
@@ -32,7 +32,8 @@ namespace Havtorn
 		return (a * (1.0f - t)) + (b * t);
 	}
 
-	bool CFullscreenRenderer::Init(CDirectXFramework* aFramework) {
+	bool CFullscreenRenderer::Init(CDirectXFramework* aFramework) 
+	{
 		if (!aFramework) {
 			return false;
 		}
@@ -43,7 +44,7 @@ namespace Havtorn
 		}
 
 		ID3D11Device* device = aFramework->GetDevice();
-		HRESULT result;
+		//HRESULT result;
 
 		D3D11_BUFFER_DESC bufferDescription = { 0 };
 		bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
@@ -59,57 +60,60 @@ namespace Havtorn
 		bufferDescription.ByteWidth = sizeof(SPostProcessingBufferData);
 		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &myPostProcessingBuffer), "Post Processing Buffer could not be created.");
 
-		std::ifstream vsFile;
-		vsFile.open("Shaders/FullscreenVertexShader.cso", std::ios::binary);
-		std::string vsData = { std::istreambuf_iterator<char>(vsFile), std::istreambuf_iterator<char>() };
-		ID3D11VertexShader* vertexShader;
-		result = device->CreateVertexShader(vsData.data(), vsData.size(), nullptr, &vertexShader);
-		if (FAILED(result)) {
-			return false;
-		}
-		vsFile.close();
-		myVertexShader = vertexShader;
+		std::string vsData;
+		ENGINE_ERROR_BOOL_MESSAGE(UGraphicsUtils::CreateVertexShader("Shaders/FullscreenVertexShader_VS.cso", aFramework, &myVertexShader, vsData), "Could not create Vertex Shader from FullscreenVertexShader_VS.cso");
+		//std::ifstream vsFile;
+		//vsFile.open("Shaders/FullscreenVertexShader.cso", std::ios::binary);
+		//std::string vsData = { std::istreambuf_iterator<char>(vsFile), std::istreambuf_iterator<char>() };
+		//ID3D11VertexShader* vertexShader;
+		//result = device->CreateVertexShader(vsData.data(), vsData.size(), nullptr, &vertexShader);
+		//if (FAILED(result)) {
+		//	return false;
+		//}
+		//vsFile.close();
+		//myVertexShader = vertexShader;
 
 		std::array<std::string, static_cast<size_t>(FullscreenShader::Count)> filepaths;
-		filepaths[static_cast<size_t>(FullscreenShader::Multiply)] = "Shaders/FullscreenPixelShader_Multiply.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::Copy)] = "Shaders/FullscreenPixelShader_Copy.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::CopyDepth)] = "Shaders/FullscreenPixelShader_CopyDepth.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::CopyGBuffer)] = "Shaders/FullscreenPixelShader_CopyGBuffer.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::Luminance)] = "Shaders/FullscreenPixelShader_Luminance.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::GaussianHorizontal)] = "Shaders/FullscreenPixelShader_GaussianBlurHorizontal.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::GaussianVertical)] = "Shaders/FullscreenPixelShader_GaussianBlurVertical.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::BilateralHorizontal)] = "Shaders/FullscreenPixelShader_BilateralBlurHorizontal.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::BilateralVertical)] = "Shaders/FullscreenPixelShader_BilateralBlurVertical.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::Bloom)] = "Shaders/FullscreenPixelShader_Bloom.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::Vignette)] = "Shaders/FullscreenPixelShader_Vignette.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::Tonemap)] = "Shaders/FullscreenPixelShader_Tonemap.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::GammaCorrection)] = "Shaders/FullscreenPixelShader_GammaCorrection.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::GammaCorrectionRenderPass)] = "Shaders/DeferredRenderPassFullscreenPixelShader_GammaCorrection.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::FXAA)] = "Shaders/FullscreenPixelShader_FXAA.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::SSAO)] = "Shaders/FullscreenPixelShader_SSAO.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::SSAOBlur)] = "Shaders/FullscreenPixelShader_SSAOBlur.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::BrokenScreenEffect)] = "Shaders/FullscreenPixelShader_BrokenScreenEffect.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::DownsampleDepth)] = "Shaders/FullscreenPixelShader_DepthDownSample.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::DepthAwareUpsampling)] = "Shaders/FullscreenPixelShader_DepthAwareUpsample.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::DeferredAlbedo)] = "Shaders/DeferredRenderPassShader_Albedo.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::DeferredNormals)] = "Shaders/DeferredRenderPassShader_Normal.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::DeferredRoughness)] = "Shaders/DeferredRenderPassShader_Roughness.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::DeferredMetalness)] = "Shaders/DeferredRenderPassShader_Metalness.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::DeferredAmbientOcclusion)] = "Shaders/DeferredRenderPassShader_AO.cso";
-		filepaths[static_cast<size_t>(FullscreenShader::DeferredEmissive)] = "Shaders/DeferredRenderPassShader_Emissive.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::Multiply)] = "Shaders/FullscreenMultiply_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::Copy)] = "Shaders/FullscreenCopy_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::CopyDepth)] = "Shaders/FullscreenCopyDepth_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::CopyGBuffer)] = "Shaders/FullscreenCopyGBuffer_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::Luminance)] = "Shaders/FullscreenLuminance_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::GaussianHorizontal)] = "Shaders/FullscreenGaussianBlurHorizontal_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::GaussianVertical)] = "Shaders/FullscreenGaussianBlurVertical_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::BilateralHorizontal)] = "Shaders/FullscreenBilateralBlurHorizontal_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::BilateralVertical)] = "Shaders/FullscreenBilateralBlurVertical_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::Bloom)] = "Shaders/FullscreenBloom_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::Vignette)] = "Shaders/FullscreenVignette_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::Tonemap)] = "Shaders/FullscreenTonemap_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::GammaCorrection)] = "Shaders/FullscreenGammaCorrection_PS.cso";
+		//filepaths[static_cast<size_t>(FullscreenShader::GammaCorrectionRenderPass)] = "Shaders/DeferredRenderPassFullscreenPixelShader_GammaCorrection.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::FXAA)] = "Shaders/FullscreenFXAA_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::SSAO)] = "Shaders/FullscreenSSAO_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::SSAOBlur)] = "Shaders/FullscreenSSAOBlur_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::BrokenScreenEffect)] = "Shaders/FullscreenBrokenScreenEffect_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::DownsampleDepth)] = "Shaders/FullscreenDepthDownSample_PS.cso";
+		filepaths[static_cast<size_t>(FullscreenShader::DepthAwareUpsampling)] = "Shaders/FullscreenDepthAwareUpsample_PS.cso";
+		//filepaths[static_cast<size_t>(FullscreenShader::DeferredAlbedo)] = "Shaders/DeferredRenderPassShader_Albedo.cso";
+		//filepaths[static_cast<size_t>(FullscreenShader::DeferredNormals)] = "Shaders/DeferredRenderPassShader_Normal.cso";
+		//filepaths[static_cast<size_t>(FullscreenShader::DeferredRoughness)] = "Shaders/DeferredRenderPassShader_Roughness.cso";
+		//filepaths[static_cast<size_t>(FullscreenShader::DeferredMetalness)] = "Shaders/DeferredRenderPassShader_Metalness.cso";
+		//filepaths[static_cast<size_t>(FullscreenShader::DeferredAmbientOcclusion)] = "Shaders/DeferredRenderPassShader_AO.cso";
+		//filepaths[static_cast<size_t>(FullscreenShader::DeferredEmissive)] = "Shaders/DeferredRenderPassShader_Emissive.cso";
 
 		for (UINT i = 0; i < static_cast<size_t>(FullscreenShader::Count); i++) 
 		{
-			std::ifstream psFile;
-			psFile.open(filepaths[i], std::ios::binary);
-			std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
-			ID3D11PixelShader* pixelShader;
-			result = device->CreatePixelShader(psData.data(), psData.size(), nullptr, &pixelShader);
-			if (FAILED(result)) {
-				return false;
-			}
-			psFile.close();
-			myPixelShaders[i] = pixelShader;
+			//std::ifstream psFile;
+			//psFile.open(filepaths[i], std::ios::binary);
+			//std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
+			//ID3D11PixelShader* pixelShader;
+			//result = device->CreatePixelShader(psData.data(), psData.size(), nullptr, &pixelShader);
+			//if (FAILED(result)) {
+			//	return false;
+			//}
+			//psFile.close();
+			//myPixelShaders[i] = pixelShader;
+			ENGINE_ERROR_BOOL_MESSAGE(UGraphicsUtils::CreatePixelShader(filepaths[i], aFramework, &myPixelShaders[i]), "Could not create Pixel Shader from %s", filepaths[i].c_str());
 		}
 
 		//Start Samplers

@@ -3,7 +3,7 @@
 //#include "ForwardRenderer.h"
 //#include "DeferredRenderer.h"
 //#include "LightRenderer.h"
-//#include "FullscreenRenderer.h"
+#include "Renderers/FullscreenRenderer.h"
 #include "FullscreenTexture.h"
 #include "FullscreenTextureFactory.h"
 //#include "ParticleRenderer.h"
@@ -57,7 +57,7 @@ namespace Havtorn
 		//CForwardRenderer ForwardRenderer;
 		//CDeferredRenderer myDeferredRenderer;
 		//CLightRenderer myLightRenderer;
-		//CFullscreenRenderer myFullscreenRenderer;
+		CFullscreenRenderer FullscreenRenderer;
 		//CParticleRenderer myParticleRenderer;
 		//CVFXRenderer myVFXRenderer;
 		//CSpriteRenderer mySpriteRenderer;
