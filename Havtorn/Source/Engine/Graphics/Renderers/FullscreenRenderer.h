@@ -74,7 +74,7 @@ namespace Havtorn
 		friend CRenderManager;
 
 	private:
-		static const unsigned int KernelSize = 16;
+		static const U16 KernelSize = 16;
 
 	private:
 		template<class T>
