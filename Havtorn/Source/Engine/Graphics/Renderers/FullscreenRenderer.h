@@ -25,9 +25,9 @@ namespace Havtorn
 			F32 SSAOMagnitude = 0.2f;
 			F32 SSAOContrast = 1.0f;
 
-			int IsReinhard = 0;
-			int IsUncharted = 1;
-			int IsACES = 1;
+			I32 IsReinhard = 0;
+			I32 IsUncharted = 1;
+			I32 IsACES = 1;
 
 			F32 EmissiveStrength = 20.0f;
 

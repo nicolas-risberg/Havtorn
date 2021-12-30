@@ -24,13 +24,8 @@ namespace Havtorn
 	{
 	}
 
-	CFullscreenRenderer::~CFullscreenRenderer() {
-	}
-
-	float KernelLerp(float a, float b, float t)
-	{
-		return (a * (1.0f - t)) + (b * t);
-	}
+	CFullscreenRenderer::~CFullscreenRenderer() 
+	{}
 
 	bool CFullscreenRenderer::Init(CDirectXFramework* framework) 
 	{
@@ -42,7 +37,6 @@ namespace Havtorn
 			return false;
 
 		ID3D11Device* device = framework->GetDevice();
-		//HRESULT result;
 
 		D3D11_BUFFER_DESC bufferDescription = { 0 };
 		bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
@@ -111,22 +105,23 @@ namespace Havtorn
 		//End Samplers
 
 #pragma region SSAO Setup
-	//for (unsigned int i = 0; i < myKernelSize; ++i) {
-	//	float r = 1.0f * sqrt(Random(0.0f, 1.0f));
-	//	float theta = Random(float(i) / float(myKernelSize), float(i+1) / float(myKernelSize)) * 2.0f * 3.14159265f;
+	//for (unsigned int i = 0; i < KernelSize; ++i) 
+	//{
+	//	float r = 1.0f * sqrt(UMath::Random(0.0f, 1.0f));
+	//	float theta = UMath::Random(F32(i) / F32(KernelSize), F32(i+1) / F32(KernelSize)) * UMath::Tau;
 	//	float x = r * cosf(theta);
 	//	float y = r * sinf(theta);
 	//	float z = sqrt(1 - x * x - y * y);
-	//	myKernel[i] = Vector4(
+	//	Kernel[i] = SVector4(
 	//		x,
 	//		y,
 	//		z,
 	//		1.0f);
-	//		//myKernel[i].Normalize();
-	//		myKernel[i] *= Random(0.0f, 1.0f);
-	//		//float scale = float(i) / float(myKernelSize);
-	//		//scale = KernelLerp(0.1f, 1.0f, scale * scale);
-	//		//myKernel[i] *= scale;
+	//		//Kernel[i].Normalize();
+	//		Kernel[i] *= UMath::Random(0.0f, 1.0f);
+	//		//F32 scale = F32(i) / F32(KernelSize);
+	//		//scale = UMath::Lerp(0.1f, 1.0f, scale * scale);
+	//		//Kernel[i] *= scale;
 	//}
 
 	// Hardcoded Kernel
@@ -148,7 +143,7 @@ namespace Havtorn
 		Kernel[15] = { 0.163490131f, -0.039255358f, 0.532910645f, 1.0f };
 
 		SVector4 noise[KernelSize];
-		for (unsigned int i = 0; i < KernelSize; ++i)
+		for (U16 i = 0; i < KernelSize; ++i)
 		{
 			noise[i] = SVector4(
 				UMath::Random(-1.0f, 1.0f),
@@ -159,7 +154,7 @@ namespace Havtorn
 			noise[i].Normalize();
 		}
 
-		unsigned int width = UMath::Sqrt(KernelSize);
+		U16 width = UMath::Sqrt(KernelSize);
 
 		D3D11_TEXTURE2D_DESC noiseTextureDesc = { 0 };
 		noiseTextureDesc.Width = width;
