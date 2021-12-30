@@ -47,6 +47,11 @@ namespace Havtorn
 		SVector2<U16> InspectorSize			= SVector2<U16>::Zero;
 	};
 
+	struct SEditorColorProfile
+	{
+		// TODO.NR: Add for setting editor themes
+	};
+
 	class CImguiManager
 		//: public IObserver
 	{
