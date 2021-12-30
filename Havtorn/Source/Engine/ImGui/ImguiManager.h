@@ -1,5 +1,4 @@
 #pragma once
-
 //#include "Observer.h"
 
 struct ID3D11Device;
@@ -49,7 +48,12 @@ namespace Havtorn
 
 	struct SEditorColorProfile
 	{
-		// TODO.NR: Add for setting editor themes
+		SVector4 BackgroundBase = SVector4::Zero;
+		SVector4 BackgroundMid = SVector4::Zero;
+		SVector4 ElementBackground = SVector4::Zero;
+		SVector4 ElementHovered = SVector4::Zero;
+		SVector4 ElementActive = SVector4::Zero;
+		SVector4 ElementHighlight = SVector4::Zero;
 	};
 
 	class CImguiManager
@@ -79,7 +83,8 @@ namespace Havtorn
 
 	private:
 		void InitEditorLayout(); // TODO.NR: Let CImguiManager::Init receive windowHandler and pass along to this
-	
+		void SetEditorColorProfile(const SEditorColorProfile& colorProfile);
+
 		const std::string GetFrameRate();
 		const std::string GetSystemMemory();
 		const std::string GetDrawCalls();
@@ -91,6 +96,7 @@ namespace Havtorn
 		std::vector<Ptr<ImGui::CToggleable>> MenuElements;
 
 		SEditorLayout EditorLayout;
+		SEditorColorProfile EditorColorProfile;
 
 		F32 ViewportPadding;
 		bool IsEnabled;
