@@ -1,57 +1,46 @@
 #pragma once
 #include "hvpch.h"
 #include <array>
-//#include "EngineException.h"
-//#include <d3d11.h>
-//#include <SimpleMath.h>
 
 struct ID3D11DeviceContext;
 struct ID3D11VertexShader;
 struct ID3D11PixelShader;
 struct ID3D11Buffer;
 
-//namespace DirectX
-//{
-//	namespace SimpleMath
-//	{
-//		struct Vector2;
-//		struct Vector4;
-//	}
-//}
-
 namespace Havtorn
 {
 	class CDirectXFramework;
 	class CRenderManager;
 
-	class CFullscreenRenderer {
+	class CFullscreenRenderer 
+	{
 	public:
 		struct SPostProcessingBufferData
 		{
-			SVector4 myWhitePointColor = SVector4::Zero;
-			F32 myWhitePointIntensity = 1.0f;
-			F32 myExposure = 1.0f;
-			F32 mySSAORadius = 0.25f;
-			F32 mySSAOSampleBias = 0.2f;
-			F32 mySSAOMagnitude = 0.2f;
-			F32 mySSAOContrast = 1.0f;
+			SVector4 WhitePointColor = SVector4::Zero;
+			F32 WhitePointIntensity = 1.0f;
+			F32 Exposure = 1.0f;
+			F32 SSAORadius = 0.25f;
+			F32 SSAOSampleBias = 0.2f;
+			F32 SSAOMagnitude = 0.2f;
+			F32 SSAOContrast = 1.0f;
 
-			int myIsReinhard = 0;
-			int myIsUncharted = 1;
-			int myIsACES = 1;
+			int IsReinhard = 0;
+			int IsUncharted = 1;
+			int IsACES = 1;
 
-			F32 myEmissiveStrength = 20.0f;
+			F32 EmissiveStrength = 20.0f;
 
-			F32 myVignetteStrength = 0.25f;
-			F32 myPadding = FLT_MAX;
+			F32 VignetteStrength = 0.25f;
+			F32 Padding = FLT_MAX;
 
-			SVector4 myVignetteColor = SVector4::Zero;
+			SVector4 VignetteColor = SVector4::Zero;
 		};
 
 		static_assert((sizeof(SPostProcessingBufferData) % 16) == 0, "CB size not padded correctly");
 
 	public:
-		enum class FullscreenShader 
+		enum class EFullscreenShader 
 		{
 			Multiply,
 			Copy,
@@ -85,60 +74,60 @@ namespace Havtorn
 		friend CRenderManager;
 
 	private:
-		static const unsigned int myKernelSize = 16;
+		static const unsigned int KernelSize = 16;
 
 	private:
 		template<class T>
-		void BindBuffer(ID3D11Buffer* aBuffer, T& someBufferData, std::string aBufferType)
+		void BindBuffer(ID3D11Buffer* buffer, T& bufferData, std::string bufferType)
 		{
-			D3D11_MAPPED_SUBRESOURCE bufferData;
-			ZeroMemory(&bufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
-			std::string errorMessage = aBufferType + " could not be bound.";
-			ENGINE_HR_MESSAGE(myContext->Map(aBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &bufferData), errorMessage.c_str());
+			D3D11_MAPPED_SUBRESOURCE localBufferData;
+			ZeroMemory(&localBufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
+			std::string errorMessage = bufferType + " could not be bound.";
+			ENGINE_HR_MESSAGE(Context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &localBufferData), errorMessage.c_str());
 
-			memcpy(bufferData.pData, &someBufferData, sizeof(T));
-			myContext->Unmap(aBuffer, 0);
+			memcpy(localBufferData.pData, &bufferData, sizeof(T));
+			Context->Unmap(buffer, 0);
 		}
 
 		struct SFullscreenData 
 		{
-			SVector2<F32> myResolution;
-			SVector2<F32> myNoiseScale;
-			SVector4 mySampleKernel[myKernelSize];
-		} myFullscreenData;
+			SVector2<F32> Resolution;
+			SVector2<F32> NoiseScale;
+			SVector4 SampleKernel[KernelSize];
+		} FullscreenData;
 
 		static_assert((sizeof(SFullscreenData) % 16) == 0, "CB size not padded correctly");
 
 		struct SFrameBufferData
 		{
-			SMatrix myToCameraSpace;
-			SMatrix myToWorldFromCamera;
-			SMatrix myToProjectionSpace;
-			SMatrix myToCameraFromProjection;
-			SVector4 myCameraPosition;
-		} myFrameBufferData;
+			SMatrix ToCameraSpace;
+			SMatrix ToWorldFromCamera;
+			SMatrix ToProjectionSpace;
+			SMatrix ToCameraFromProjection;
+			SVector4 CameraPosition;
+		} FrameBufferData;
 
 		static_assert((sizeof(SFrameBufferData) % 16) == 0, "CB size not padded correctly");
 
 	private:
 		CFullscreenRenderer();
 		~CFullscreenRenderer();
-		bool Init(CDirectXFramework* aFramework);
-		void Render(FullscreenShader aEffect);
+		bool Init(CDirectXFramework* framework);
+		void Render(EFullscreenShader effect);
 
-		SPostProcessingBufferData myPostProcessingBufferData;
+		SPostProcessingBufferData PostProcessingBufferData;
 
-		ID3D11DeviceContext* myContext;
-		ID3D11Buffer* myFullscreenDataBuffer;
-		ID3D11Buffer* myFrameBuffer;
-		ID3D11Buffer* myPostProcessingBuffer;
-		ID3D11VertexShader* myVertexShader;
-		ID3D11SamplerState* myClampSampler;
-		ID3D11SamplerState* myWrapSampler;
+		ID3D11DeviceContext* Context;
+		ID3D11Buffer* FullscreenDataBuffer;
+		ID3D11Buffer* FrameBuffer;
+		ID3D11Buffer* PostProcessingBuffer;
+		ID3D11VertexShader* VertexShader;
+		ID3D11SamplerState* ClampSampler;
+		ID3D11SamplerState* WrapSampler;
 
-		std::array<ID3D11PixelShader*, static_cast<size_t>(FullscreenShader::Count)> myPixelShaders;
+		std::array<ID3D11PixelShader*, static_cast<size_t>(EFullscreenShader::Count)> PixelShaders;
 
-		ID3D11ShaderResourceView* myNoiseTexture;
-		SVector4 myKernel[myKernelSize];
+		ID3D11ShaderResourceView* NoiseTexture;
+		SVector4 Kernel[KernelSize];
 	};
 }

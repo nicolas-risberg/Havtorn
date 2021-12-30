@@ -502,7 +502,7 @@ namespace Havtorn
 
 		Backbuffer.SetAsActiveTarget();
 		RenderedScene.SetAsResourceOnSlot(0);
-		FullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Copy);
+		FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::Copy);
 		//Backbuffer.ClearTexture(ClearColor);
 	}
 
