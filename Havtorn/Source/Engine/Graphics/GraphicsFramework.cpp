@@ -1,3 +1,4 @@
+#include "hvpch.h"
 #include "GraphicsFramework.h"
 #include "Application/WindowHandler.h"
 #include <d3d11.h>

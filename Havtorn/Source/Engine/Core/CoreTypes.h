@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <wrl.h>
 
 namespace Havtorn
 {
@@ -23,7 +24,6 @@ namespace Havtorn
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
 
-#define BIT(x) (1 << x)
-#define CACHE_LINE 32
-#define CACHE_ALIGN __declspec(align(CACHE_LINE))
+	template<typename T>
+	using WinComPtr = Microsoft::WRL::ComPtr<T>;
 }

@@ -16,6 +16,7 @@ namespace ImGui
 namespace Havtorn
 {
 	class CDirectXFramework;
+	class CWindowHandler;
 	class CRenderManager;
 
 	enum class EEditorColorTheme
@@ -63,7 +64,7 @@ namespace Havtorn
 		CImguiManager();
 		~CImguiManager();
 
-		bool Init(CDirectXFramework* framework, HWND windowHandle, const CRenderManager* renderManager);
+		bool Init(CDirectXFramework* framework, CWindowHandler* windowHandler, const CRenderManager* renderManager);
 		void BeginFrame();
 		void Update();
 		void EndFrame();
@@ -82,7 +83,7 @@ namespace Havtorn
 		const CRenderManager* GetRenderManager() const;
 
 	private:
-		void InitEditorLayout(); // TODO.NR: Let CImguiManager::Init receive windowHandler and pass along to this
+		void InitEditorLayout(); 
 		void SetEditorColorProfile(const SEditorColorProfile& colorProfile);
 
 		const std::string GetFrameRate();

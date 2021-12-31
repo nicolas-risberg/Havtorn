@@ -1,7 +1,6 @@
 #pragma once
 #include "Core/WindowsInclude.h"
 #include <array>
-#include <wrl.h>
 
 struct IDXGISwapChain;
 struct ID3D11Device;
@@ -9,9 +8,6 @@ struct ID3D11DeviceContext;
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
 struct ID3D11Texture2D;
-
-template<typename T>
-using WinComPtr = Microsoft::WRL::ComPtr<T>;
 
 namespace Havtorn
 {

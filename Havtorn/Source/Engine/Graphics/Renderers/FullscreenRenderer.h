@@ -36,8 +36,7 @@ namespace Havtorn
 
 			SVector4 VignetteColor = SVector4::Zero;
 		};
-
-		static_assert((sizeof(SPostProcessingBufferData) % 16) == 0, "CB size not padded correctly");
+		HV_ASSERT_BUFFER(SPostProcessingBufferData)
 
 	public:
 		enum class EFullscreenShader 
@@ -95,8 +94,7 @@ namespace Havtorn
 			SVector2<F32> NoiseScale;
 			SVector4 SampleKernel[KernelSize];
 		} FullscreenData;
-
-		static_assert((sizeof(SFullscreenData) % 16) == 0, "CB size not padded correctly");
+		HV_ASSERT_BUFFER(SFullscreenData)
 
 		struct SFrameBufferData
 		{
@@ -106,8 +104,7 @@ namespace Havtorn
 			SMatrix ToCameraFromProjection;
 			SVector4 CameraPosition;
 		} FrameBufferData;
-
-		static_assert((sizeof(SFrameBufferData) % 16) == 0, "CB size not padded correctly");
+		HV_ASSERT_BUFFER(SFrameBufferData)
 
 	private:
 		CFullscreenRenderer();

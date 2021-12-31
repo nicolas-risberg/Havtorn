@@ -67,7 +67,7 @@ namespace Havtorn
 		ImGui::DestroyContext();
 	}
 
-	bool CImguiManager::Init(CDirectXFramework* framework, HWND windowHandle, const CRenderManager* renderManager)
+	bool CImguiManager::Init(CDirectXFramework* framework, CWindowHandler* windowHandler, const CRenderManager* renderManager)
 	{
 		bool success = true;
 
@@ -104,7 +104,7 @@ namespace Havtorn
 
 		InitEditorLayout();
 
-		success = ImGui_ImplWin32_Init(windowHandle);
+		success = ImGui_ImplWin32_Init(windowHandler->GetWindowHandle());
 		if (!success)
 			return false;
 
