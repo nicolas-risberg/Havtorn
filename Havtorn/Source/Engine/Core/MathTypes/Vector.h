@@ -84,7 +84,7 @@ namespace Havtorn
 		inline SVector Projection(const SVector& other) const;
 		inline SVector Mirrored(const SVector& mirrorNormal) const;
 
-		inline static SVector SVector::Random(const SVector& lowerBound, const SVector& upperBound);
+		inline static SVector Random(const SVector& lowerBound, const SVector& upperBound);
 
 		inline std::string ToString();
 	};

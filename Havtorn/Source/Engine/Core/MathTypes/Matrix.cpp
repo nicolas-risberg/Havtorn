@@ -79,6 +79,39 @@ namespace Havtorn
 		return matrix;
 	}
 
+	SMatrix SMatrix::FastInverse() const
+	{
+		SMatrix rotation = this->RotationMatrix() * -1.0f;
+		SVector4 translation = SVector4(this->Translation(), 1.0f);
+		translation *= -1.0f;
+		translation = translation * rotation;
+		
+		SMatrix result;
+		for (U8 row = 0; row < 3; ++row) 
+		{
+			for (U8 column = 0; column < 3; ++column) 
+			{
+				result(row, column) = rotation(row, column);
+			}
+		}
+
+		result.Translation(translation);
+		return result;
+	}
+
+	SMatrix SMatrix::RotationMatrix() const
+	{
+		SMatrix rotationMatrix = *this;
+		rotationMatrix.Translation(SVector::Zero);
+		return rotationMatrix;
+	}
+
+	SMatrix SMatrix::TranslationMatrix() const
+	{
+		SMatrix translationMatrix = SMatrix();
+		translationMatrix.Translation(this->Translation());
+		return translationMatrix;
+	}
 
 	SMatrix SMatrix::operator+(const SMatrix& matrix)
 	{
@@ -222,6 +255,31 @@ namespace Havtorn
 		return *this;
 	}
 
+	SMatrix SMatrix::operator*(F32 scalar)
+	{
+		SMatrix matrix = *this;
+		for (U8 row = 0; row < 4; ++row)
+		{
+			for (U8 column = 0; column < 4; ++column)
+			{
+				matrix(row, column) *= scalar;
+			}
+		}
+		return matrix;
+	}
+
+	SMatrix& SMatrix::operator*=(F32 scalar)
+	{
+		for (U8 row = 0; row < 4; ++row)
+		{
+			for (U8 column = 0; column < 4; ++column)
+			{
+				M[row][column] *= scalar;
+			}
+		}
+		return *this;
+	}
+
 
 	bool SMatrix::operator==(const SMatrix& matrix) const
 	{
@@ -275,6 +333,108 @@ namespace Havtorn
 		matrix(3, 2) = -fRange * nearZ;
 		matrix(3, 3) = 0.0f;
 		return matrix;
+	}
+
+	SVector4 SMatrix::Row(U8 index) const
+	{
+		return SVector4(M[index][0], M[index][1], M[index][2], M[index][3]);
+	}
+
+	SVector4 SMatrix::Column(U8 index) const
+	{
+		return SVector4(M[0][index], M[1][index], M[2][index], M[3][index]);
+	}
+
+	inline SVector SMatrix::Up() const
+	{
+		return SVector(M[1][0], M[1][1], M[1][2]);
+	}
+
+	inline SVector SMatrix::Down() const
+	{
+		return SVector(-M[1][0], -M[1][1], -M[1][2]);
+	}
+
+	inline SVector SMatrix::Right() const
+	{
+		return SVector(M[0][0], M[0][1], M[0][2]);
+	}
+
+	inline SVector SMatrix::Left() const
+	{
+		return SVector(-M[0][0], -M[0][1], -M[0][2]);
+	}
+
+	inline SVector SMatrix::Forward() const
+	{
+		return SVector(M[2][0], M[2][1], M[2][2]);
+	}
+
+	inline SVector SMatrix::Backward() const
+	{
+		return SVector(-M[2][0], -M[2][1], -M[2][2]);
+	}
+
+	inline SVector SMatrix::Translation() const
+	{
+		return SVector(M[3][0], M[3][1], M[3][2]);
+	}
+
+	inline void SMatrix::Up(const SVector& v)
+	{
+		M[1][0] = v.X;
+		M[1][1] = v.Y;
+		M[1][2] = v.Z;
+	}
+
+	inline void SMatrix::Down(const SVector& v)
+	{
+		M[1][0] = -v.X;
+		M[1][1] = -v.Y;
+		M[1][2] = -v.Z;
+	}
+
+	inline void SMatrix::Right(const SVector& v)
+	{
+		M[0][0] = v.X;
+		M[0][1] = v.Y;
+		M[0][2] = v.Z;
+	}
+
+	inline void SMatrix::Left(const SVector& v)
+	{
+		M[0][0] = -v.X;
+		M[0][1] = -v.Y;
+		M[0][2] = -v.Z;
+	}
+
+	inline void SMatrix::Forward(const SVector& v)
+	{
+		M[2][0] = v.X;
+		M[2][1] = v.Y;
+		M[2][2] = v.Z;
+	}
+
+	inline void SMatrix::Backward(const SVector& v)
+	{
+		M[2][0] = -v.X;
+		M[2][1] = -v.Y;
+		M[2][2] = -v.Z;
+	}
+
+	inline void SMatrix::Translation(const SVector& v)
+	{
+		M[3][0] = v.X;
+		M[3][1] = v.Y;
+		M[3][2] = v.Z;
+	}
+
+	inline void SMatrix::Translation(const SVector4& v)
+	{
+		M[3][0] = v.X;
+		M[3][1] = v.Y;
+		M[3][2] = v.Z;
+		M[3][3] = v.W;
 	}
 
 }
