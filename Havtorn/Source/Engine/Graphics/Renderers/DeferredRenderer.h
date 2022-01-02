@@ -59,10 +59,8 @@ namespace Havtorn
 			SMatrix myToWorld;
 			U16 myNumberOfDetailNormals;
 			U16 myNumberOfTextureSets;
-			//U16 myPaddington[2];
-			bool d;
-			char w;
 		} myObjectBufferData;
+		//static_assert((sizeof(SObjectBufferData) % 16) == 0, "CB size not padded correctly");
 		HV_ASSERT_BUFFER(SObjectBufferData)
 
 		struct SLightBufferData

@@ -16,6 +16,7 @@ namespace Havtorn
 {
 
 #define SMALL_NUMBER 1.e-8f
+#define KINDA_SMALL_NUMBER 1.e-4f
 #define DEGREES_TO_RADIANS 0.01745329251f // Pi * (1 / 180)
 #define RADIANS_TO_DEGREES 57.2957795131f // 180 * (1 / Pi)
 
@@ -42,6 +43,8 @@ namespace Havtorn
 		template<typename T>
 		static inline T Clamp(T x, T minValue = 0, T maxValue = 1);
 
+		static inline bool NearlyEqual(F32 a, F32 b, F32 tolerance = KINDA_SMALL_NUMBER);
+
 		template<typename T>
 		static inline T Abs(T x);
 
@@ -63,6 +66,9 @@ namespace Havtorn
 		static inline T DegToRad(T angleInDegrees);
 		template<typename T>
 		static inline T RadToDeg(T angleInRadians);
+
+		/* From XM Math Misc - XMScalarSinCos */
+		static inline void MapFov(F32& outSinValue, F32& outCosValue, F32 halfYFovAngle);
 
 		/* Easing Functions Start */
 		static inline F32 EaseInSine(F32 x);
@@ -196,6 +202,52 @@ namespace Havtorn
 	inline T UMath::RadToDeg(T angleInRadians)
 	{
 		return angleInRadians * RADIANS_TO_DEGREES;
+	}
+
+	inline bool UMath::NearlyEqual(F32 a, F32 b, F32 tolerance)
+	{
+		return UMath::Abs(a - b) < tolerance;
+	}
+
+	inline void UMath::MapFov(F32& outSinValue, F32& outCosValue, F32 halfYFovAngle)
+	{
+		// Map Value to y in [-pi,pi], x = 2*pi*quotient + remainder.
+		F32 quotient = 0.5f * UMath::PiReciprocal * halfYFovAngle;
+		if (halfYFovAngle >= 0.0f)
+		{
+			quotient = static_cast<F32>(static_cast<I32>(quotient + 0.5f));
+		}
+		else
+		{
+			quotient = static_cast<F32>(static_cast<I32>(quotient - 0.5f));
+		}
+		F32 y = halfYFovAngle - UMath::Tau * quotient;
+
+		// Map y to [-pi/2,pi/2] with sin(y) = sin(Value).
+		F32 sign;
+		if (y > 0.5f * UMath::Pi)
+		{
+			y = UMath::Pi - y;
+			sign = -1.0f;
+		}
+		else if (y < -(0.5f * UMath::Pi))
+		{
+			y = -UMath::Pi - y;
+			sign = -1.0f;
+		}
+		else
+		{
+			sign = +1.0f;
+		}
+
+		F32 y2 = y * y;
+
+		// 11-degree minimax approximation
+		outSinValue = (((((-2.3889859e-08f * y2 + 2.7525562e-06f) * y2 - 0.00019840874f) * y2 + 0.0083333310f) * y2 - 0.16666667f) * y2 + 1.0f) * y;
+
+		// 10-degree minimax approximation
+		F32 p = ((((-2.6051615e-07f * y2 + 2.4760495e-05f) * y2 - 0.0013888378f) * y2 + 0.041666638f) * y2 - 0.5f) * y2 + 1.0f;
+		outCosValue = sign * p;
 	}
 
 	/* Easing Functions Start */

@@ -69,7 +69,7 @@ namespace Havtorn
 
 		//const CStateStack::EState AddScene(const CStateStack::EState aState, CScene* aScene);
 		//void SetActiveScene(const CStateStack::EState aState);
-		//CScene& GetActiveScene();
+		CScene& GetActiveScene();
 		//inline const bool IsActiveScene(const CStateStack::EState& aState);
 		//void UpdateScene(const CStateStack::EState& aState);
 		//CPhysXWrapper& GetPhysx() { return *PhysxWrapper; }
@@ -119,6 +119,7 @@ namespace Havtorn
 
 		//unsigned int myActiveScene;
 		//CStateStack::EState myActiveState;
+		CScene* Scene;
 		//std::vector<CScene*> myScenes;
 		//std::unordered_map<CStateStack::EState, CScene*> mySceneMap;
 

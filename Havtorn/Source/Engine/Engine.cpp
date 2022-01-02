@@ -15,7 +15,8 @@
 //#include "WindowHandler.h"
 //#include "DirectXFramework.h"
 //#include "ForwardRenderer.h"
-//#include "Scene.h"
+#include "Scene/Scene.h"
+#include "ECS/ECSInclude.h"
 //#include "Camera.h"
 //#include "EnvironmentLight.h"
 //#include "LightFactory.h"
@@ -61,6 +62,7 @@ namespace Havtorn
 		Timer = new CTimer();
 		WindowHandler = new CWindowHandler();
 		Framework = new CDirectXFramework();
+		RenderManager = new CRenderManager();
 #ifdef _DEBUG
 		ImguiManager = new CImguiManager();
 #endif
@@ -76,7 +78,7 @@ namespace Havtorn
 		//DecalFactory = new CDecalFactory();
 		//InputMapper = new CInputMapper();
 		//Debug = new CDebug();
-		RenderManager = new CRenderManager();
+		Scene = new CScene();
 		//MainSingleton = new CMainSingleton();
 		//// Audio Manager must be constructed after main singleton, since it subscribes to postmaster messages
 		//AudioManager = new CAudioManager();
@@ -138,6 +140,8 @@ namespace Havtorn
 		//delete SceneFactory;
 		//SceneFactory = nullptr;
 
+		SAFE_DELETE(Scene);
+
 #ifdef _DEBUG
 		SAFE_DELETE(ImguiManager);
 #endif
@@ -159,6 +163,8 @@ namespace Havtorn
 #ifdef _DEBUG
 		ENGINE_ERROR_BOOL_MESSAGE(ImguiManager->Init(Framework, WindowHandler, RenderManager), "ImguiManager could not be initialized.");
 #endif
+
+		ENGINE_ERROR_BOOL_MESSAGE(Scene->Init(), "Scene could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(ModelFactory->Init(Framework), "Model Factory could not be initiliazed.");
 		//ENGINE_ERROR_BOOL_MESSAGE(CameraFactory->Init(WindowHandler), "Camera Factory could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(CMainSingleton::MaterialHandler().Init(Framework), "Material Handler could not be initialized.");
@@ -206,6 +212,7 @@ namespace Havtorn
 		//	mySceneMap[myActiveState]->Update();
 		//}
 
+		Scene->Update();
 		//AudioManager->Update();
 		//CMainSingleton::DialogueSystem().Update();
 		//Debug->Update();
@@ -274,8 +281,8 @@ namespace Havtorn
 	void CEngine::SetResolution(SVector2<F32> resolution)
 	{
 		WindowHandler->SetResolution(resolution);
-		//RenderManager->Release();
-		//RenderManager->ReInit(Framework, WindowHandler);
+		RenderManager->Release();
+		RenderManager->ReInit(Framework, WindowHandler);
 		//mySceneMap[CStateStack::EState::InGame]->ReInitCanvas(ASSETPATH("Assets/Graphics/UI/JSON/UI_MainMenu.json"));
 		//mySceneMap[CStateStack::EState::PauseMenu]->ReInitCanvas(ASSETPATH("Assets/Graphics/UI/JSON/UI_PauseMenu.json"));
 	}
