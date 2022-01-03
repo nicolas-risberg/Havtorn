@@ -1,4 +1,6 @@
 #include "Matrix.h"
+#include "Vector.h"
+#include "Quaternion.h"
 
 namespace Havtorn
 {
@@ -65,6 +67,39 @@ namespace Havtorn
 		return matrix;
 	}
 
+	SMatrix SMatrix::CreateRotationFromEuler(F32 pitch, F32 yaw, F32 roll)
+	{
+		SQuaternion quaternion = SQuaternion(pitch, yaw, roll);
+		return CreateRotationFromQuaternion(quaternion);
+	}
+
+	SMatrix SMatrix::CreateRotationFromQuaternion(SQuaternion quaternion)
+	{
+		SMatrix result;
+		F32 xx2 = 2.0f * quaternion.X * quaternion.X;
+		F32 yy2 = 2.0f * quaternion.Y * quaternion.Y;
+		F32 zz2 = 2.0f * quaternion.Z * quaternion.Z;
+		F32 xy2 = 2.0f * quaternion.X * quaternion.Y;
+		F32 xz2 = 2.0f * quaternion.X * quaternion.Z;
+		F32 xw2 = 2.0f * quaternion.X * quaternion.W;
+		F32 yz2 = 2.0f * quaternion.Y * quaternion.Z;
+		F32 yw2 = 2.0f * quaternion.Y * quaternion.W;
+		F32 zw2 = 2.0f * quaternion.Z * quaternion.W;
+
+		result(0, 0) = 1.0f - yy2 - zz2;
+		result(0, 1) = xy2 + zw2;
+		result(0, 2) = xz2 - yw2;
+		
+		result(1, 0) = xy2 - zw2;
+		result(1, 1) = 1.0f - xx2 - zz2;
+		result(1, 2) = yz2 + xw2;
+		
+		result(2, 0) = xz2 + yw2;
+		result(2, 1) = yz2 - xw2;
+		result(2, 2) = 1.0f - xx2 - yy2;
+		return result;
+	}
+
 	// Static function for creating a transpose of a matrix.
 	SMatrix SMatrix::Transpose(const SMatrix& matrixToTranspose)
 	{
@@ -81,36 +116,45 @@ namespace Havtorn
 
 	SMatrix SMatrix::FastInverse() const
 	{
-		SMatrix rotation = this->RotationMatrix() * -1.0f;
+		SMatrix rotation = this->GetRotationMatrix() * -1.0f;
 		SVector4 translation = SVector4(this->Translation(), 1.0f);
 		translation *= -1.0f;
 		translation = translation * rotation;
 		
 		SMatrix result;
-		for (U8 row = 0; row < 3; ++row) 
-		{
-			for (U8 column = 0; column < 3; ++column) 
-			{
-				result(row, column) = rotation(row, column);
-			}
-		}
-
+		result.SetRotation(rotation);
 		result.Translation(translation);
 		return result;
 	}
 
-	SMatrix SMatrix::RotationMatrix() const
+	SMatrix SMatrix::GetRotationMatrix() const
 	{
 		SMatrix rotationMatrix = *this;
 		rotationMatrix.Translation(SVector::Zero);
 		return rotationMatrix;
 	}
 
-	SMatrix SMatrix::TranslationMatrix() const
+	inline void SMatrix::SetRotation(SMatrix matrix)
+	{
+		for (U8 row = 0; row < 3; ++row)
+		{
+			for (U8 column = 0; column < 3; ++column)
+			{
+				M[row][column] = matrix(row, column);
+			}
+		}
+	}
+
+	SMatrix SMatrix::GetTranslationMatrix() const
 	{
 		SMatrix translationMatrix = SMatrix();
 		translationMatrix.Translation(this->Translation());
 		return translationMatrix;
+	}
+
+	inline F32 SMatrix::GetRotationMatrixTrace() const
+	{
+		return M[0][0] + M[1][1] + M[2][2];
 	}
 
 	SMatrix SMatrix::operator+(const SMatrix& matrix)
@@ -295,6 +339,38 @@ namespace Havtorn
 			}
 		}
 		return equal;
+	}
+
+	SMatrix SMatrix::LookAtLH(SVector eyePosition, SVector focusPosition, SVector upDirection)
+	{
+		SVector eyeDirection = focusPosition - eyePosition;
+		return LookToLH(eyePosition, eyeDirection, upDirection);
+	}
+
+	SMatrix SMatrix::LookToLH(SVector eyePosition, SVector eyeDirection, SVector upDirection)
+	{
+		assert(!eyeDirection.IsEqual(SVector::Zero));
+		assert(!upDirection.IsEqual(SVector::Zero));
+
+		SVector r2 = eyeDirection.GetNormalized();
+		SVector r0 = upDirection.Cross(r2).GetNormalized();
+		SVector r1 = r2.Cross(r0);
+
+		SVector negEyePosition = -eyePosition;
+
+		F32 d0 = r0.Dot(negEyePosition);
+		F32 d1 = r1.Dot(negEyePosition);
+		F32 d2 = r2.Dot(negEyePosition);
+
+		SMatrix M;
+		M.Right({ r0.X, r0.Y, r0.Z });
+		M.Up({ r1.X, r1.Y, r1.Z });
+		M.Forward({ r2.X, r2.Y, r2.Z });
+		M(0, 3) = d0;
+		M(1, 3) = d1;
+		M(2, 3) = d2;
+
+		return Transpose(M);
 	}
 
 	SMatrix SMatrix::PerspectiveFovLH(F32 fovAngleY, F32 aspectRatio, F32 nearZ, F32 farZ)

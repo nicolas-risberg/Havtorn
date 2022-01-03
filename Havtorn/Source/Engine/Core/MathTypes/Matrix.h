@@ -2,11 +2,13 @@
 
 #include "Core/CoreTypes.h"
 #include "EngineMath.h"
-#include "Vector.h"
-#include "Quaternion.h"
 
 namespace Havtorn 
 {
+	struct SVector;
+	struct SVector4;
+	struct SQuaternion;
+
 	// Left-handed row-major
 	struct SMatrix {
 		
@@ -26,13 +28,17 @@ namespace Havtorn
 		static SMatrix CreateRotationAroundX(F32 angleInRadians);
 		static SMatrix CreateRotationAroundY(F32 angleInRadians);
 		static SMatrix CreateRotationAroundZ(F32 angleInRadians);
+		static SMatrix CreateRotationFromEuler(F32 pitch, F32 yaw, F32 roll);
+		static SMatrix CreateRotationFromQuaternion(SQuaternion quaternion);
 		// Static function for creating a transpose of a matrix.
 		static SMatrix Transpose(const SMatrix& matrixToTranspose);
 		// Negates rotation and negates + rotates translation
 		inline SMatrix FastInverse() const;
 		
-		inline SMatrix RotationMatrix() const;
-		inline SMatrix TranslationMatrix() const;
+		inline SMatrix GetRotationMatrix() const;
+		inline void SetRotation(SMatrix matrix);
+		inline SMatrix GetTranslationMatrix() const;
+		inline F32 GetRotationMatrixTrace() const;
 
 		SMatrix operator+(const SMatrix& matrix);
 		SMatrix& operator+=(const SMatrix& matrix);
@@ -68,6 +74,8 @@ namespace Havtorn
 
 		bool operator==(const SMatrix& matrix) const;
 
-		SMatrix PerspectiveFovLH(F32 fovAngleY, F32 aspectRatio, F32 nearZ, F32 farZ);
+		static SMatrix PerspectiveFovLH(F32 fovAngleY, F32 aspectRatio, F32 nearZ, F32 farZ);
+		static SMatrix LookAtLH(SVector eyePosition, SVector focusPosition, SVector upDirection);
+		static SMatrix LookToLH(SVector eyePosition, SVector eyeDirection, SVector upDirection);
 	};
 }
