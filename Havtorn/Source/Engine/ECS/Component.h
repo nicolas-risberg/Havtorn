@@ -7,12 +7,12 @@ namespace Havtorn
 
 	struct SComponent
 	{
-		explicit SComponent(SEntity entity, EComponentType type)
+		explicit SComponent(Ref<SEntity> entity, EComponentType type)
 			: Entity(entity)
 			, Type(type)
 		{}
 
-		const SEntity& Entity;
+		const Ref<SEntity> Entity;
 		const EComponentType Type;
 	};
 }

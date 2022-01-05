@@ -3,14 +3,16 @@
 
 namespace Havtorn
 {
+	class CRenderManager;
+
 	class CRenderSystem final : public CSystem
 	{
 	public:
-		CRenderSystem();
+		CRenderSystem(CRenderManager* renderManager);
 		~CRenderSystem();
 
 		void Update(CScene* scene) override;
 	private:
-
+		CRenderManager* RenderManager;
 	};
 }

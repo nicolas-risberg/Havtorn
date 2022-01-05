@@ -10,6 +10,7 @@
 namespace Havtorn
 {
 	class CWindowHandler;
+	class CThreadManager;
 	class CDirextXFramework;
 	class CTimer;
 	class CImguiManager;
@@ -107,6 +108,7 @@ namespace Havtorn
 	private:
 		static CEngine* Instance;
 		CWindowHandler* WindowHandler;
+		CThreadManager* ThreadManager;
 		CDirectXFramework* Framework;
 		CForwardRenderer* ForwardRenderer;
 #ifdef _DEBUG

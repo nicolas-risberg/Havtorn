@@ -14,12 +14,19 @@
 //#include "ShadowRenderer.h"
 //#include "DecalRenderer.h"
 //#include "GBuffer.h"
+#include <queue>
 
 namespace Havtorn
 {
 	class CDirectXFramework;
 	class CWindowHandler;
 	class CScene;
+	struct SRenderCommand;
+
+	struct SRenderCommandComparer
+	{
+		bool operator()(const SRenderCommand& a, const SRenderCommand& b);
+	};
 
 	class CRenderManager 
 	{
@@ -29,12 +36,13 @@ namespace Havtorn
 		bool Init(CDirectXFramework* framework, CWindowHandler* windowHandler);
 		bool ReInit(CDirectXFramework* framework, CWindowHandler* windowHandler);
 		void Render(CScene& scene);
-		void Render();
+		void sRender();
 
 		void Release();
 
 	public:
 		const CFullscreenTexture& GetRenderedSceneTexture() const;
+		void PushRenderCommand(SRenderCommand& command);
 		//void SetBrokenScreen(bool aShouldSetBrokenScreen);
 
 		//const CFullscreenRenderer::SPostProcessingBufferData& GetPostProcessingBufferData() const;
@@ -90,6 +98,7 @@ namespace Havtorn
 		//CFullscreenTexture myAntiAliasedTexture;
 		//CGBuffer myGBuffer;
 		//CGBuffer myGBufferCopy;
+		std::priority_queue<SRenderCommand, std::vector<SRenderCommand>, SRenderCommandComparer> RenderCommands;
 
 		SVector4 ClearColor;
 
@@ -98,5 +107,7 @@ namespace Havtorn
 		bool DoFullRender;
 		bool UseAntiAliasing;
 		bool UseBrokenScreenPass;
+
+
 	};
 }

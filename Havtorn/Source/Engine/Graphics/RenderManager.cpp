@@ -1,6 +1,7 @@
 #include "hvpch.h"
 #include "RenderManager.h"
 #include "GraphicsFramework.h"
+#include "RenderCommand.h"
 //#include "Scene.h"
 //#include "LineInstance.h"
 //#include "ModelFactory.h"
@@ -493,8 +494,13 @@ namespace Havtorn
 //		myTextRenderer.Render(textsToRender);
 	}
 
-	void CRenderManager::Render()
+	void CRenderManager::sRender()
 	{
+		for (U16 i = 0; i < RenderCommands.size(); ++i)
+		{
+			RenderCommands.pop();
+		}
+
 		CRenderManager::NumberOfDrawCallsThisFrame = 0;
 		RenderStateManager.SetAllDefault();
 		RenderedScene.ClearTexture(ClearColor);
@@ -542,6 +548,11 @@ namespace Havtorn
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
 	{
 		return RenderedScene;
+	}
+
+	void CRenderManager::PushRenderCommand(SRenderCommand& command)
+	{
+		RenderCommands.push(command);
 	}
 
 	//void CRenderManager::SetBrokenScreen(bool aShouldSetBrokenScreen)
@@ -636,5 +647,10 @@ namespace Havtorn
 		{
 			RenderPassIndex = 0;
 		}
+	}
+	
+	bool SRenderCommandComparer::operator()(const SRenderCommand& a, const SRenderCommand& b)
+	{
+		return 	static_cast<U16>(a.Type) > static_cast<U16>(b.Type);
 	}
 }

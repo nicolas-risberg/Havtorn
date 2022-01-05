@@ -5,7 +5,9 @@ namespace Havtorn
 	struct SEntity;
 	struct STransformComponent;
 	struct SRenderComponent;
+	struct SCameraComponent;
 	class CSystem;
+	class CRenderManager;
 
 	class CScene final
 	{
@@ -13,15 +15,17 @@ namespace Havtorn
 		CScene() = default;
 		~CScene();
 
-		bool Init();
+		bool Init(CRenderManager* renderManager);
 		void Update();
 
-		std::vector<Ptr<STransformComponent>>& GetTransformComponents() { return TransformComponents; }
-		std::vector<Ptr<SRenderComponent>>& GetRenderComponents() { return RenderComponents; }
+		std::vector<Ref<STransformComponent>>& GetTransformComponents() { return TransformComponents; }
+		std::vector<Ref<SRenderComponent>>& GetRenderComponents() { return RenderComponents; }
+		std::vector<Ref<SCameraComponent>>& GetCameraComponents() { return CameraComponents; }
 	private:
-		std::vector<Ptr<SEntity>> Entities;
-		std::vector<Ptr<STransformComponent>> TransformComponents;
-		std::vector<Ptr<SRenderComponent>> RenderComponents;
+		std::vector<Ref<SEntity>> Entities;
+		std::vector<Ref<STransformComponent>> TransformComponents;
+		std::vector<Ref<SRenderComponent>> RenderComponents;
+		std::vector<Ref<SCameraComponent>> CameraComponents;
 		std::vector<Ptr<CSystem>> Systems;
 	};
 }

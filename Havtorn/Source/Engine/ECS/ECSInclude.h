@@ -8,3 +8,4 @@
 
 #include "ECS/Components/TransformComponent.h"
 #include "ECS/Components/RenderComponent.h"
+#include "ECS/Components/CameraComponent.h"

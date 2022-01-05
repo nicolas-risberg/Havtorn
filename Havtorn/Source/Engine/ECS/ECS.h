@@ -6,6 +6,7 @@ namespace Havtorn
 	{
 		TransformComponent,
 		RenderComponent,
+		CameraComponent,
 		Count
 	};
 }

@@ -5,7 +5,7 @@ namespace Havtorn
 {
 	struct SRenderComponent : public SComponent
 	{
-		SRenderComponent(SEntity entity, EComponentType type)
+		SRenderComponent(Ref<SEntity> entity, EComponentType type)
 			: SComponent(entity, type) 
 		{}
 

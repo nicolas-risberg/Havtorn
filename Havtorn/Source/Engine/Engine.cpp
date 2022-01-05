@@ -8,6 +8,7 @@
 
 #include "Engine.h"
 #include "Application/WindowHandler.h"
+#include "Threading/ThreadManager.h"
 #include "Graphics/GraphicsFramework.h"
 #ifdef _DEBUG
 #include "ImGui/ImguiManager.h"
@@ -61,6 +62,7 @@ namespace Havtorn
 
 		Timer = new CTimer();
 		WindowHandler = new CWindowHandler();
+		ThreadManager = new CThreadManager();
 		Framework = new CDirectXFramework();
 		RenderManager = new CRenderManager();
 #ifdef _DEBUG
@@ -145,9 +147,10 @@ namespace Havtorn
 #ifdef _DEBUG
 		SAFE_DELETE(ImguiManager);
 #endif
+		SAFE_DELETE(ThreadManager);
 		SAFE_DELETE(RenderManager);
-		SAFE_DELETE(WindowHandler);
 		SAFE_DELETE(Framework);
+		SAFE_DELETE(WindowHandler);
 		SAFE_DELETE(Timer);
 
 		Instance = nullptr;
@@ -159,12 +162,13 @@ namespace Havtorn
 		WindowHandler->SetInternalResolution();
 		ENGINE_ERROR_BOOL_MESSAGE(Framework->Init(WindowHandler), "Framework could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(RenderManager->Init(Framework, WindowHandler), "RenderManager could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(ThreadManager->Init(RenderManager), "Thread Manager could not be initialized.");
 
 #ifdef _DEBUG
 		ENGINE_ERROR_BOOL_MESSAGE(ImguiManager->Init(Framework, WindowHandler, RenderManager), "ImguiManager could not be initialized.");
 #endif
 
-		ENGINE_ERROR_BOOL_MESSAGE(Scene->Init(), "Scene could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(Scene->Init(RenderManager), "Scene could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(ModelFactory->Init(Framework), "Model Factory could not be initiliazed.");
 		//ENGINE_ERROR_BOOL_MESSAGE(CameraFactory->Init(WindowHandler), "Camera Factory could not be initialized.");
 		//ENGINE_ERROR_BOOL_MESSAGE(CMainSingleton::MaterialHandler().Init(Framework), "Material Handler could not be initialized.");
@@ -226,7 +230,8 @@ namespace Havtorn
 
 		//ENGINE_BOOL_POPUP(mySceneMap[myActiveState], "The Scene you want to render is nullptr");
 		//RenderManager->Render(*mySceneMap[myActiveState]);
-		RenderManager->Render();
+		//ThreadManager->PushJob(std::bind(&CRenderManager::sRender, RenderManager));
+		RenderManager->sRender();
 #ifdef _DEBUG
 		ImguiManager->Update();
 #endif

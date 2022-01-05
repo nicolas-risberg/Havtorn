@@ -7,6 +7,8 @@ namespace Havtorn
 		: ID(id)
 		, Name(name)
 	{
+		for (U16 i = 0; i < static_cast<U16>(EComponentType::Count); ++i)
+			ComponentIndices[i] = -1;
 	}
 
 	void SEntity::AddComponent(EComponentType type, U64 arrayIndex) const
