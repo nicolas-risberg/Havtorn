@@ -20,7 +20,6 @@ namespace Havtorn
 {
 	class CDirectXFramework;
 	class CWindowHandler;
-	class CScene;
 	struct SRenderCommand;
 
 	struct SRenderCommandComparer
@@ -35,8 +34,7 @@ namespace Havtorn
 		~CRenderManager();
 		bool Init(CDirectXFramework* framework, CWindowHandler* windowHandler);
 		bool ReInit(CDirectXFramework* framework, CWindowHandler* windowHandler);
-		void Render(CScene& scene);
-		void sRender();
+		void Render();
 
 		void Release();
 
@@ -61,6 +59,32 @@ namespace Havtorn
 		void ToggleRenderPass(bool shouldToggleForwards = true);
 
 	private:
+		template<class T>
+		void BindBuffer(ID3D11Buffer* buffer, T& bufferData, std::string bufferType)
+		{
+			D3D11_MAPPED_SUBRESOURCE localBufferData;
+			ZeroMemory(&localBufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
+			std::string errorMessage = bufferType + " could not be bound.";
+			ENGINE_HR_MESSAGE(Context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &localBufferData), errorMessage.c_str());
+
+			memcpy(localBufferData.pData, &bufferData, sizeof(T));
+			Context->Unmap(buffer, 0);
+		}
+
+	private:
+		struct SFrameBufferData
+		{
+			SMatrix ToCameraFromWorld;
+			SMatrix ToWorldFromCamera;
+			SMatrix ToProjectionFromCamera;
+			SMatrix ToCameraFromProjection;
+			SVector4 CameraPosition;
+		} FrameBufferData;
+		HV_ASSERT_BUFFER(SFrameBufferData)
+
+	private:
+		ID3D11DeviceContext* Context;
+		ID3D11Buffer* FrameBuffer;
 		CRenderStateManager RenderStateManager;
 		//CForwardRenderer ForwardRenderer;
 		//CDeferredRenderer myDeferredRenderer;

@@ -11,6 +11,7 @@ namespace Havtorn
 			: Entity(entity)
 			, Type(type)
 		{}
+		virtual ~SComponent() = default;
 
 		const Ref<SEntity> Entity;
 		const EComponentType Type;

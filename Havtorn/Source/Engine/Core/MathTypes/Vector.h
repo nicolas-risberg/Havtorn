@@ -924,7 +924,7 @@ namespace Havtorn
 
 	inline F32 SVector4::Dot(const SVector4& other) const
 	{
-		return X * other.X + Y * other.Y + Z * other.Z;
+		return X * other.X + Y * other.Y + Z * other.Z + W * other.W;
 	}
 
 	inline SVector4 SVector4::Cross(const SVector4& other) const

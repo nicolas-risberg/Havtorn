@@ -228,10 +228,8 @@ namespace Havtorn
 		if (!RenderSceneActive)
 			return;
 
-		//ENGINE_BOOL_POPUP(mySceneMap[myActiveState], "The Scene you want to render is nullptr");
-		//RenderManager->Render(*mySceneMap[myActiveState]);
-		//ThreadManager->PushJob(std::bind(&CRenderManager::sRender, RenderManager));
-		RenderManager->sRender();
+		//ThreadManager->PushJob(std::bind(&CRenderManager::Render, RenderManager));
+		RenderManager->Render();
 #ifdef _DEBUG
 		ImguiManager->Update();
 #endif

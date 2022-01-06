@@ -24,6 +24,7 @@
 #endif
 
 #include "Core/EngineTypes.h"
+#include "Core/MathTypes/HavtornMath.h"
 #include "Core/EngineException.h"
 #include "Timer.h"
 #include "Log.h"

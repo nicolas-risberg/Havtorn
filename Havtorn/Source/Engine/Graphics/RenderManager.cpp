@@ -19,6 +19,7 @@
 
 //#include "BoxLightComponent.h"
 //#include "BoxLight.h"
+#include "ECS/ECSInclude.h"
 
 #include <algorithm>
 
@@ -42,6 +43,17 @@ namespace Havtorn
 
 	bool CRenderManager::Init(CDirectXFramework* framework, CWindowHandler* windowHandler)
 	{
+		Context = framework->GetContext();
+		ID3D11Device* device = framework->GetDevice();
+
+		D3D11_BUFFER_DESC bufferDescription = { 0 };
+		bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
+		bufferDescription.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDescription.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		bufferDescription.ByteWidth = sizeof(SFrameBufferData);
+		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &FrameBuffer), "Frame Buffer could not be created.");
+
 		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myDeferredRenderer.Init(aFramework, &CMainSingleton::MaterialHandler()), "Failed to Init Deferred Renderer.");
@@ -111,9 +123,45 @@ namespace Havtorn
 		//myGBufferCopy = FullscreenTextureFactory.CreateGBuffer(aWindowHandler->GetResolution());
 	}
 
-	void CRenderManager::Render(CScene& /*scene*/)
+	void CRenderManager::Render()
 	{
 		CRenderManager::NumberOfDrawCallsThisFrame = 0;
+
+		for (U16 i = 0; i < RenderCommands.size(); ++i)
+		{
+			SRenderCommand currentCommand = RenderCommands.top();
+			switch (currentCommand.Type)
+			{
+			case ERenderCommandType::CameraDataStorage:
+			{
+				//auto transformComp = currentCommand.operator[]<STransformComponent*>(EComponentType::TransformComponent);
+				auto transformComp = currentCommand.GetComponent(TransformComponent);
+				//auto cameraComp = currentCommand.operator[]<SCameraComponent*>(EComponentType::CameraComponent);
+				auto cameraComp = currentCommand.GetComponent(CameraComponent);
+				auto otherInverse = transformComp->Transform.Inverse();
+				FrameBufferData.CameraPosition = transformComp->Transform.Translation4();
+				FrameBufferData.ToCameraFromWorld = transformComp->Transform.FastInverse();
+				FrameBufferData.ToWorldFromCamera = transformComp->Transform;
+				FrameBufferData.ToProjectionFromCamera = cameraComp->ProjectionMatrix;
+				FrameBufferData.ToCameraFromProjection = cameraComp->ProjectionMatrix.Inverse();
+				BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
+			}
+				break;
+			default:
+				break;
+			}
+			RenderCommands.pop();
+		}
+
+		CRenderManager::NumberOfDrawCallsThisFrame = 0;
+		RenderStateManager.SetAllDefault();
+		RenderedScene.ClearTexture(ClearColor);
+		RenderedScene.SetAsActiveTarget();
+
+		Backbuffer.SetAsActiveTarget();
+		RenderedScene.SetAsResourceOnSlot(0);
+		FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::Copy);
+		//Backbuffer.ClearTexture(ClearColor);
 
 //#ifndef EXCELSIOR_BUILD
 //		if (Input::GetInstance()->IsKeyPressed(VK_F6))
@@ -492,24 +540,6 @@ namespace Havtorn
 //		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
 //		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
 //		myTextRenderer.Render(textsToRender);
-	}
-
-	void CRenderManager::sRender()
-	{
-		for (U16 i = 0; i < RenderCommands.size(); ++i)
-		{
-			RenderCommands.pop();
-		}
-
-		CRenderManager::NumberOfDrawCallsThisFrame = 0;
-		RenderStateManager.SetAllDefault();
-		RenderedScene.ClearTexture(ClearColor);
-		RenderedScene.SetAsActiveTarget();
-
-		Backbuffer.SetAsActiveTarget();
-		RenderedScene.SetAsResourceOnSlot(0);
-		FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::Copy);
-		//Backbuffer.ClearTexture(ClearColor);
 	}
 
 	void CRenderManager::Release()

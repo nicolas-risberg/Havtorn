@@ -29,8 +29,11 @@ namespace Havtorn
 		{
 			I64 transformCompIndex = cameraComponents[0]->Entity->GetComponentIndex(EComponentType::TransformComponent);
 			auto& transformComp = transformComponents[transformCompIndex];
-			
-			SRenderCommand command({ transformComp, cameraComponents[0] }, ERenderCommandType::CameraDataStorage);
+
+			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
+			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
+			components[static_cast<U8>(EComponentType::CameraComponent)] = cameraComponents[0];
+			SRenderCommand command(components, ERenderCommandType::CameraDataStorage);
 			RenderManager->PushRenderCommand(command);
 		}
 		else
@@ -44,7 +47,10 @@ namespace Havtorn
 			I64 transformCompIndex = renderComp->Entity->GetComponentIndex(EComponentType::TransformComponent);
 			auto& transformComp = transformComponents[transformCompIndex];
 
-			SRenderCommand command({ transformComp, renderComp }, ERenderCommandType::GBufferData);
+			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
+			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
+			components[static_cast<U8>(EComponentType::RenderComponent)] = renderComp;
+			SRenderCommand command(components, ERenderCommandType::GBufferData);
 			RenderManager->PushRenderCommand(command);
 		}
 	}

@@ -1,9 +1,11 @@
 #pragma once
-#include <initializer_list>
+//#include <initializer_list>
 #include "ECS/Component.h"
 
 namespace Havtorn
 {
+#define GetComponent(x) GetComponentInternal<S##x*>(EComponentType::##x)
+
 	struct SComponent;
 
 	enum class ERenderCommandType
@@ -20,14 +22,27 @@ namespace Havtorn
 
 	struct SRenderCommand
 	{
-		inline SRenderCommand(std::initializer_list<Ref<SComponent>> components, ERenderCommandType type)
+		inline SRenderCommand(std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components, ERenderCommandType type)
 			: Components(components)
 			, Type(type) 
 		{}
 
 		~SRenderCommand() = default;
 
-		std::vector<Ref<SComponent>> Components;
+		template<typename T>
+		inline T operator[](EComponentType type)
+		{
+			return dynamic_cast<T>(Components[static_cast<size_t>(type)].get());
+		}
+
+		template<typename T>
+		inline T GetComponentInternal(EComponentType type)
+		{
+			return dynamic_cast<T>(Components[static_cast<size_t>(type)].get());
+		}
+
+		std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> Components;
+		//std::vector<Ref<SComponent>> Components;
 		ERenderCommandType Type;
 	};
 }
