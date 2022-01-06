@@ -25,21 +25,14 @@ namespace Havtorn
 		: myContext(nullptr)
 		, myFrameBuffer(nullptr)
 		, myObjectBuffer(nullptr)
-		, myLightBuffer(nullptr)
-		, myPointLightBuffer(nullptr)
 		, mySkyboxTransformBuffer(nullptr)
-		, myPointLightVertexBuffer(nullptr)
 		, myFullscreenShader(nullptr)
 		, myModelVertexShader(nullptr)
 		, myInstancedModelVertexShader(nullptr)
 		, myAnimationVertexShader(nullptr)
 		, myVertexPaintModelVertexShader(nullptr)
-		, myPointLightVertexShader(nullptr)
 		, mySkyboxVertexShader(nullptr)
-		, myPointLightGeometryShader(nullptr)
-		, myEnvironmentLightShader(nullptr)
 		, myGBufferPixelShader(nullptr)
-		, myPointLightShader(nullptr)
 		, myVertexPaintPixelShader(nullptr)
 		, mySkyboxPixelShader(nullptr)
 		, mySamplerState(nullptr)
@@ -48,7 +41,6 @@ namespace Havtorn
 		, myRenderPassGBuffer(nullptr)
 		, myCurrentRenderPassShader(nullptr)
 		, myVertexPaintInputLayout(nullptr)
-		, myPointLightInputLayout(nullptr)
 		, myRenderPassIndex(9)
 		, myBoneBuffer(nullptr)
 		, myBoneBufferData()
@@ -89,32 +81,11 @@ namespace Havtorn
 		bufferDescription.ByteWidth = sizeof(SObjectBufferData);
 		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &myObjectBuffer), "Object Buffer could not be created.");
 
-		bufferDescription.ByteWidth = sizeof(SLightBufferData);
-		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &myLightBuffer), "Light Buffer could not be created.");
-
-		bufferDescription.ByteWidth = sizeof(SPointLightBufferData);
-		ENGINE_HR_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &myPointLightBuffer), "Point Light Buffer could not be created.");
-
 		bufferDescription.ByteWidth = static_cast<UINT>(sizeof(SBoneBufferData) + (16 - (sizeof(SBoneBufferData) % 16)));
 		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &myBoneBuffer), "Bone Buffer could not be created.");
 
 		bufferDescription.ByteWidth = sizeof(SSkyboxTransformData);
 		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &mySkyboxTransformBuffer), "Skybox Transform Buffer could not be created.");
-
-		struct PointLightVertex
-		{
-			float x, y, z, w;
-		} vertex[1] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-		D3D11_BUFFER_DESC vertexBufferDesc = { 0 };
-		vertexBufferDesc.ByteWidth = sizeof(SVector4);
-		vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-		D3D11_SUBRESOURCE_DATA subVertexResourceData = { 0 };
-		subVertexResourceData.pSysMem = vertex;
-
-		ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateBuffer(&vertexBufferDesc, &subVertexResourceData, &myPointLightVertexBuffer), "Point Light Vertex Buffer could not be created.");
 
 		std::string vsData;
 		UGraphicsUtils::CreateVertexShader("Shaders/DeferredVertexShader.cso", framework, &myFullscreenShader, vsData);
@@ -123,8 +94,6 @@ namespace Havtorn
 		UGraphicsUtils::CreateVertexShader("Shaders/DeferredInstancedModelVertexShader.cso", framework, &myInstancedModelVertexShader, vsData);
 
 		UGraphicsUtils::CreatePixelShader("Shaders/GBufferPixelShader.cso", framework, &myGBufferPixelShader);
-		UGraphicsUtils::CreatePixelShader("Shaders/DeferredLightEnvironmentShader.cso", framework, &myEnvironmentLightShader);
-		UGraphicsUtils::CreatePixelShader("Shaders/DeferredLightPointShader.cso", framework, &myPointLightShader);
 
 		LoadRenderPassPixelShaders(framework/*->GetDevice()*/);
 
@@ -141,16 +110,6 @@ namespace Havtorn
 			{"COLOR"	,	0, DXGI_FORMAT_R32G32B32_FLOAT	 , 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 		ENGINE_HR_MESSAGE(framework->GetDevice()->CreateInputLayout(layout, sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC), vsData.data(), vsData.size(), &myVertexPaintInputLayout), "Vertex Paint Input Layout could not be created.");
-
-		// Point light 
-		UGraphicsUtils::CreateGeometryShader("Shaders/PointLightGeometryShader.cso", framework, &myPointLightGeometryShader);
-		UGraphicsUtils::CreateVertexShader("Shaders/PointLightVertexShader.cso", framework, &myPointLightVertexShader, vsData);
-		D3D11_INPUT_ELEMENT_DESC pointLightLayout[] =
-		{
-			{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			//{"RANGE"	,	0, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		};
-		ENGINE_HR_MESSAGE(framework->GetDevice()->CreateInputLayout(pointLightLayout, sizeof(pointLightLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC), vsData.data(), vsData.size(), &myPointLightInputLayout), "Point Light Input Layout could not be created.");
 
 		D3D11_SAMPLER_DESC samplerDesc = {};
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;

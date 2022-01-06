@@ -77,6 +77,7 @@ namespace Havtorn
 		inline void Backward(const SVector& v);
 		inline void Translation(const SVector& v);
 		inline void Translation(const SVector4& v);
+		inline void Rotate(const SMatrix& rotationMatrix);
 
 		inline bool operator==(const SMatrix& matrix) const;
 
@@ -126,8 +127,7 @@ namespace Havtorn
 		return M[row][column];
 	}
 
-
-	SMatrix SMatrix::CreateRotationAroundX(F32 angleInRadians)
+	inline SMatrix SMatrix::CreateRotationAroundX(F32 angleInRadians)
 	{
 		SMatrix matrix = SMatrix();
 		matrix(1, 1) = UMath::Cos(angleInRadians);
@@ -137,8 +137,7 @@ namespace Havtorn
 		return matrix;
 	}
 
-
-	SMatrix SMatrix::CreateRotationAroundY(F32 angleInRadians)
+	inline SMatrix SMatrix::CreateRotationAroundY(F32 angleInRadians)
 	{
 		SMatrix matrix = SMatrix();
 		matrix(0, 0) = UMath::Cos(angleInRadians);
@@ -148,8 +147,7 @@ namespace Havtorn
 		return matrix;
 	}
 
-
-	SMatrix SMatrix::CreateRotationAroundZ(F32 angleInRadians)
+	inline SMatrix SMatrix::CreateRotationAroundZ(F32 angleInRadians)
 	{
 		SMatrix matrix = SMatrix();
 		matrix(0, 0) = UMath::Cos(angleInRadians);
@@ -507,6 +505,11 @@ namespace Havtorn
 		M[3][1] = v.Y;
 		M[3][2] = v.Z;
 		M[3][3] = v.W;
+	}
+
+	inline void SMatrix::Rotate(const SMatrix& rotationMatrix)
+	{
+		(*this) *= rotationMatrix;
 	}
 
 	// Static function for creating a transpose of a matrix.

@@ -63,23 +63,6 @@ namespace Havtorn
 		//static_assert((sizeof(SObjectBufferData) % 16) == 0, "CB size not padded correctly");
 		HV_ASSERT_BUFFER(SObjectBufferData)
 
-		struct SLightBufferData
-		{
-			SMatrix myDirectionalLightTransform;
-			SMatrix myDirectionalLightView;
-			SVector4 myDirectionalLightPosition;
-			SVector4 myDirectionalLightDirection;
-			SVector4 myDirectionalLightColor;
-		} myLightBufferData;
-		HV_ASSERT_BUFFER(SLightBufferData)
-
-		struct SPointLightBufferData
-		{
-			SVector4 myColorAndIntensity;
-			SVector4 myPositionAndRange;
-		} myPointLightBufferData;
-		HV_ASSERT_BUFFER(SPointLightBufferData)
-
 		struct SBoneBufferData 
 		{
 			SMatrix myBones[64];
@@ -97,32 +80,26 @@ namespace Havtorn
 
 		ID3D11DeviceContext* myContext;
 		CMaterialHandler* myMaterialHandler;
+		
 		// Buffers;
 		ID3D11Buffer* myFrameBuffer;
 		ID3D11Buffer* myObjectBuffer;
-		ID3D11Buffer* myLightBuffer;
-		ID3D11Buffer* myPointLightBuffer;
 		ID3D11Buffer* myBoneBuffer;
-		ID3D11Buffer* myPointLightVertexBuffer;
 		ID3D11Buffer* mySkyboxTransformBuffer;
 
 		ID3D11InputLayout* myVertexPaintInputLayout;
-		ID3D11InputLayout* myPointLightInputLayout;
+
 		// Vertex shaders.
 		ID3D11VertexShader* myFullscreenShader;
 		ID3D11VertexShader* myModelVertexShader;
 		ID3D11VertexShader* myAnimationVertexShader;
 		ID3D11VertexShader* myVertexPaintModelVertexShader;
 		ID3D11VertexShader* myInstancedModelVertexShader;
-		ID3D11VertexShader* myPointLightVertexShader;
 		ID3D11VertexShader* mySkyboxVertexShader;
-		// Geometry shaders.
-		ID3D11GeometryShader* myPointLightGeometryShader;
+
 		// Pixel shaders.
 		ID3D11PixelShader* myGBufferPixelShader;
 		ID3D11PixelShader* myVertexPaintPixelShader;
-		ID3D11PixelShader* myEnvironmentLightShader;
-		ID3D11PixelShader* myPointLightShader;
 		ID3D11PixelShader* mySkyboxPixelShader;
 		// Samplers.
 		ID3D11SamplerState* mySamplerState;

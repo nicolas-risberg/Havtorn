@@ -32,6 +32,11 @@ namespace Havtorn
 		
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(cubeEntity, EComponentType::TransformComponent));
 		cubeEntity->AddComponent(EComponentType::TransformComponent, 1);
+		TransformComponents.back()->Transform.Translation({0.0f, 1.0f, 2.0f});
+		SMatrix rotation = SMatrix::CreateRotationAroundY(UMath::DegToRad(45.0f));
+		TransformComponents.back()->Transform.SetRotation(rotation);
+		rotation = SMatrix::CreateRotationAroundX(UMath::DegToRad(27.0f));
+		TransformComponents.back()->Transform.Rotate(rotation);
 
 		CameraComponents.emplace_back(std::make_shared<SCameraComponent>(cameraEntity, EComponentType::CameraComponent));
 		cameraEntity->AddComponent(EComponentType::CameraComponent, 0);

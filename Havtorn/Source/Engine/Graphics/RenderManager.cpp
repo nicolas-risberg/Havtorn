@@ -1,6 +1,7 @@
 #include "hvpch.h"
 #include "RenderManager.h"
 #include "GraphicsFramework.h"
+#include "GraphicsUtilities.h"
 #include "RenderCommand.h"
 //#include "Scene.h"
 //#include "LineInstance.h"
@@ -33,6 +34,19 @@ namespace Havtorn
 		, UseBrokenScreenPass(false)
 		, ClearColor(0.5f, 0.5f, 0.5f, 1.0f)
 		, RenderPassIndex(0)
+		, Context(nullptr)
+		, FrameBuffer(nullptr)
+		, ObjectBuffer(nullptr)
+		, DemoVertexShader(nullptr)
+		, DemoPixelShader(nullptr)
+		, SamplerState(nullptr)
+		, DemoVertexBuffer(nullptr)
+		, DemoIndexBuffer(nullptr)
+		, DemoInputLayout(nullptr)
+		, DemoNumberOfVertices(0)
+		, DemoNumberOfIndices(0)
+		, DemoStride(0)
+		, DemoOffset(0)
 	{
 	}
 
@@ -54,6 +68,9 @@ namespace Havtorn
 		bufferDescription.ByteWidth = sizeof(SFrameBufferData);
 		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &FrameBuffer), "Frame Buffer could not be created.");
 
+		bufferDescription.ByteWidth = sizeof(SObjectBufferData);
+		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &ObjectBuffer), "Object Buffer could not be created.");
+
 		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myDeferredRenderer.Init(aFramework, &CMainSingleton::MaterialHandler()), "Failed to Init Deferred Renderer.");
@@ -73,6 +90,109 @@ namespace Havtorn
 		//RenderedScene = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(windowHandler);
+
+#pragma region Demo Resources
+		std::string vsData;
+		UGraphicsUtils::CreateVertexShader("Shaders/Demo_VS.cso", framework, &DemoVertexShader, vsData);
+		UGraphicsUtils::CreatePixelShader("Shaders/Demo_PS.cso", framework, &DemoPixelShader);
+
+		D3D11_SAMPLER_DESC samplerDesc = {};
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = 10;
+		ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateSamplerState(&samplerDesc, &SamplerState), "Sampler could not be created.");
+
+		struct DemoVertex
+		{
+			F32 x, y, z, w;
+			F32 nx, ny, nz, nw;
+			F32 tx, ty, tz, tw;
+			F32 bx, by, bz, bw;
+			F32 u, v;
+		} vertices[24] =
+		{
+			// X      Y      Z      W,    nX, nY, nZ, nW,   tX, tY, tZ, tW,    bX, bY, bZ, bW,    UV	
+			{ -0.5f, -0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 },
+			{  0.5f, -0.5f, -0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 0 },
+			{ -0.5f,  0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 1 },
+			{  0.5f,  0.5f, -0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 1 },
+			{ -0.5f, -0.5f,  0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 },
+			{  0.5f, -0.5f,  0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 0 },
+			{ -0.5f,  0.5f,  0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 1 },
+			{  0.5f,  0.5f,  0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 1 },
+			// X      Y      Z      W,    nX, nY, nZ, nW,   nX, nY, nZ, nW,    nX, nY, nZ, nW,    UV
+			{ -0.5f, -0.5f, -0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 0 },
+			{ -0.5f,  0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     1, 0 },
+			{ -0.5f, -0.5f,  0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 1 },
+			{ -0.5f,  0.5f,  0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 1 },
+			{  0.5f, -0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     0, 0 },
+			{  0.5f,  0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     1, 0 },
+			{  0.5f, -0.5f,  0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 1 },
+			{  0.5f,  0.5f,  0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 1 },
+			// X      Y      Z      W,    nX, nY, nZ, nW,   nX, nY, nZ, nW,    nX, nY, nZ, nW,    UV
+			{ -0.5f, -0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     0, 0 },
+			{  0.5f, -0.5f, -0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     1, 0 },
+			{ -0.5f, -0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     0, 1 },
+			{  0.5f, -0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     1, 1 },
+			{ -0.5f,  0.5f, -0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     0, 0 },
+			{  0.5f,  0.5f, -0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 0 },
+			{ -0.5f,  0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     0, 1 },
+			{  0.5f,  0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     1, 1 }
+		};
+		U32 indices[36] =
+		{
+			0,2,1,
+			2,3,1,
+			4,5,7,
+			4,7,6,
+			8,10,9,
+			10,11,9,
+			12,13,15,
+			12,15,14,
+			16,17,18,
+			18,17,19,
+			20,23,21,
+			20,22,23
+		};
+
+		D3D11_BUFFER_DESC demoVertexBufferDesc = { 0 };
+		demoVertexBufferDesc.ByteWidth = sizeof(vertices);
+		demoVertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		demoVertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA demoSubVertexResourceData = { 0 };
+		demoSubVertexResourceData.pSysMem = vertices;
+
+		ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateBuffer(&demoVertexBufferDesc, &demoSubVertexResourceData, &DemoVertexBuffer), "Demo Vertex Buffer could not be created.");
+
+		D3D11_BUFFER_DESC demoIndexBufferDesc = { 0 };
+		demoIndexBufferDesc.ByteWidth = sizeof(indices);
+		demoIndexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		demoIndexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA demoIndexSubresourceData = { 0 };
+		demoIndexSubresourceData.pSysMem = indices;
+
+		ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateBuffer(&demoIndexBufferDesc, &demoIndexSubresourceData, &DemoIndexBuffer), "Demo Index Buffer could not be created.");
+
+		DemoNumberOfVertices = static_cast<U32>(sizeof(vertices) / sizeof(DemoVertex));
+		DemoNumberOfIndices = static_cast<U32>(sizeof(indices) / sizeof(U32));
+		DemoStride = sizeof(DemoVertex);
+		DemoOffset = 0;
+
+		D3D11_INPUT_ELEMENT_DESC demoLayout[] =
+		{
+			{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"NORMAL"   ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TANGENT"  ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"BITANGENT",   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	   0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		};
+		ENGINE_HR_MESSAGE(framework->GetDevice()->CreateInputLayout(demoLayout, sizeof(demoLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC), vsData.data(), vsData.size(), &DemoInputLayout), "Demo Input Layout could not be created.");
+#pragma endregion Demo Resources
 
 		return true;
 	}
@@ -126,6 +246,9 @@ namespace Havtorn
 	void CRenderManager::Render()
 	{
 		CRenderManager::NumberOfDrawCallsThisFrame = 0;
+		RenderStateManager.SetAllDefault();
+		RenderedScene.ClearTexture(ClearColor);
+		RenderedScene.SetAsActiveTarget();
 
 		for (U16 i = 0; i < RenderCommands.size(); ++i)
 		{
@@ -134,29 +257,48 @@ namespace Havtorn
 			{
 			case ERenderCommandType::CameraDataStorage:
 			{
-				//auto transformComp = currentCommand.operator[]<STransformComponent*>(EComponentType::TransformComponent);
 				auto transformComp = currentCommand.GetComponent(TransformComponent);
-				//auto cameraComp = currentCommand.operator[]<SCameraComponent*>(EComponentType::CameraComponent);
 				auto cameraComp = currentCommand.GetComponent(CameraComponent);
-				auto otherInverse = transformComp->Transform.Inverse();
-				FrameBufferData.CameraPosition = transformComp->Transform.Translation4();
+
 				FrameBufferData.ToCameraFromWorld = transformComp->Transform.FastInverse();
 				FrameBufferData.ToWorldFromCamera = transformComp->Transform;
 				FrameBufferData.ToProjectionFromCamera = cameraComp->ProjectionMatrix;
 				FrameBufferData.ToCameraFromProjection = cameraComp->ProjectionMatrix.Inverse();
+				FrameBufferData.CameraPosition = transformComp->Transform.Translation4();
 				BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
+
+				Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+				Context->PSSetConstantBuffers(0, 1, &FrameBuffer);
 			}
-				break;
+			break;
+			case ERenderCommandType::GBufferData:
+			{
+				auto transformComp = currentCommand.GetComponent(TransformComponent);
+				//auto renderComp = currentCommand.GetComponent(RenderComponent);
+
+				ObjectBufferData.ToWorldFromObject = transformComp->Transform;
+				BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
+
+				Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
+				Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				Context->IASetInputLayout(DemoInputLayout);
+				Context->IASetVertexBuffers(0, 1, &DemoVertexBuffer, &DemoStride, &DemoOffset);
+				Context->IASetIndexBuffer(DemoIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+				Context->VSSetShader(DemoVertexShader, nullptr, 0);
+				Context->PSSetShader(DemoPixelShader, nullptr, 0);
+
+				Context->PSSetSamplers(0, 1, &SamplerState);
+
+				Context->DrawIndexed(DemoNumberOfIndices, 0, 0);
+				CRenderManager::NumberOfDrawCallsThisFrame++;
+			}
+			break;
 			default:
 				break;
 			}
 			RenderCommands.pop();
 		}
-
-		CRenderManager::NumberOfDrawCallsThisFrame = 0;
-		RenderStateManager.SetAllDefault();
-		RenderedScene.ClearTexture(ClearColor);
-		RenderedScene.SetAsActiveTarget();
 
 		Backbuffer.SetAsActiveTarget();
 		RenderedScene.SetAsResourceOnSlot(0);
@@ -178,368 +320,368 @@ namespace Havtorn
 //
 		RenderStateManager.SetAllDefault();
 		Backbuffer.ClearTexture(ClearColor);
-//		myIntermediateTexture.ClearTexture(ClearColor);
-//		myIntermediateDepth.ClearDepth();
-//		myEnvironmentShadowDepth.ClearDepth();
-//		myGBuffer.ClearTextures(ClearColor);
-//		myDeferredLightingTexture.ClearTexture();
-//		myVolumetricAccumulationBuffer.ClearTexture();
-//		mySSAOBuffer.ClearTexture();
-//
-//		CEnvironmentLight* environmentlight = aScene.EnvironmentLight();
-//		CCameraComponent* maincamera = aScene.MainCamera();
-//
-//		if (maincamera == nullptr)
-//			return;
-//
-//		std::vector<CGameObject*> gameObjects /*= aScene.CullGameObjects(maincamera)*/;
-//		std::vector<CGameObject*> instancedGameObjects;
-//		std::vector<CGameObject*> instancedGameObjectsWithAlpha;
-//		std::vector<CGameObject*> gameObjectsWithAlpha;
-//		std::vector<int> indicesOfOutlineModels;
-//		std::vector<int> indicesOfAlphaGameObjects;
-//
-//		aScene.CullGameObjects(maincamera, gameObjects, instancedGameObjects);
-//
-//		//for (unsigned int i = 0; i < gameObjects.size(); ++i)
-//		//{
-//		//	auto instance = gameObjects[i];
-//		//	//for (auto gameObjectToOutline : aScene.ModelsToOutline()) {
-//		//	//	if (instance == gameObjectToOutline) {
-//		//	//		indicesOfOutlineModels.emplace_back(i);
-//		//	//	}
-//		//	//}
-//
-//		//	if (instance->GetComponent<CInstancedModelComponent>()) 
-//		//	{
-//		//		//if (instance->GetComponent<CInstancedModelComponent>()->RenderWithAlpha())
-//		//		//{
-//		//		//	instancedGameObjectsWithAlpha.emplace_back(instance);
-//		//		//	indicesOfAlphaGameObjects.emplace_back(i);
-//		//		//	continue;
-//		//		//}
-//		//		instancedGameObjects.emplace_back(instance);
-//		//		std::swap(gameObjects[i], gameObjects.back());
-//		//		gameObjects.pop_back();
-//		//	}
-//
-//		//	// All relevant objects are run in deferred now
-//		//	//else if (instance->GetComponent<CModelComponent>()) 
-//		//	//{
-//		//	//	//if (instance->GetComponent<CModelComponent>()->RenderWithAlpha())
-//		//	//	//{
-//		//	//	//	gameObjectsWithAlpha.emplace_back(instance);
-//		//	//	//	indicesOfAlphaGameObjects.emplace_back(i);
-//		//	//	//	continue;
-//		//	//	//}
-//		//	//}
-//		//}
-//
-//		std::sort(indicesOfAlphaGameObjects.begin(), indicesOfAlphaGameObjects.end(), [](UINT a, UINT b) { return a > b; });
-//		for (auto index : indicesOfAlphaGameObjects)
-//		{
-//			std::swap(gameObjects[index], gameObjects.back());
-//			gameObjects.pop_back();
-//		}
-//
-//		// GBuffer
-//		myGBuffer.SetAsActiveTarget(&myIntermediateDepth);
-//		myDeferredRenderer.GenerateGBuffer(maincamera, gameObjects, instancedGameObjects);
-//
-//		// Shadows
-//		myEnvironmentShadowDepth.SetAsDepthTarget(&myIntermediateTexture);
-//
-//		// If no shadowmap, don't do this
-//		//myShadowRenderer.Render(environmentlight, gameObjects, instancedGameObjects);
-//
-//		// All relevant objects are run in deferred now
-//		//myShadowRenderer.Render(environmentlight, gameObjectsWithAlpha, instancedGameObjectsWithAlpha);
-//
-//		// Decals
-//		myDepthCopy.SetAsActiveTarget();
-//		myIntermediateDepth.SetAsResourceOnSlot(0);
-//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::CopyDepth);
-//
-//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
-//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
-//		myGBuffer.SetAsActiveTarget(&myIntermediateDepth);
-//		myDepthCopy.SetAsResourceOnSlot(21);
-//		myDecalRenderer.Render(maincamera, gameObjects);
-//
-//		// SSAO
-//		mySSAOBuffer.SetAsActiveTarget();
-//		myGBuffer.SetAsResourceOnSlot(CGBuffer::EGBufferTextures::NORMAL, 2);
-//		myIntermediateDepth.SetAsResourceOnSlot(21);
-//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::SSAO);
-//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-//
-//		mySSAOBlurTexture.SetAsActiveTarget();
-//		mySSAOBuffer.SetAsResourceOnSlot(0);
-//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::SSAOBlur);
-//
-//		// Lighting
-//		myDeferredLightingTexture.SetAsActiveTarget();
-//		myGBuffer.SetAllAsResources();
-//		myDepthCopy.SetAsResourceOnSlot(21);
-//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
-//		std::vector<CPointLight*> onlyPointLights;
-//		onlyPointLights = aScene.CullPointLights(gameObjects);
-//		std::vector<CSpotLight*> onlySpotLights;
-//		onlySpotLights = aScene.CullSpotLights(gameObjects);
-//		std::vector<CBoxLight*> onlyBoxLights;
-//		//onlyBoxLights = aScene.CullBoxLights(&maincamera->GameObject());
-//		std::vector<CEnvironmentLight*> onlySecondaryEnvironmentLights;
-//		onlySecondaryEnvironmentLights = aScene.CullSecondaryEnvironmentLights(&maincamera->GameObject());
-//
-//		if (RenderPassIndex == 0)
-//		{
-//			myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
-//			mySSAOBlurTexture.SetAsResourceOnSlot(23);
-//			myLightRenderer.Render(maincamera, environmentlight);
-//
-//			RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
-//
-//			myLightRenderer.Render(maincamera, onlySpotLights);
-//			myLightRenderer.Render(maincamera, onlyPointLights);
-//			//myLightRenderer.Render(maincamera, onlyBoxLights);
-//		}
-//
-//#pragma region Deferred Render Passes
-//		switch (RenderPassIndex)
-//		{
-//		case 1:
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredAlbedo);
-//			break;
-//		case 2:
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredNormals);
-//			break;
-//		case 3:
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredRoughness);
-//			break;
-//		case 4:
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredMetalness);
-//			break;
-//		case 5:
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredAmbientOcclusion);
-//			break;
-//		case 6:
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredEmissive);
-//			break;
-//		default:
-//			break;
-//		}
-//#pragma endregion
-//
-//		// Skybox
-//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-//		myDeferredLightingTexture.SetAsActiveTarget(&myIntermediateDepth);
-//
-//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEPTHFIRST);
-//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
-//		myDeferredRenderer.RenderSkybox(maincamera, environmentlight);
-//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
-//
-//		// Render Lines
-//		const std::vector<CLineInstance*>& lineInstances = aScene.CullLineInstances();
-//		const std::vector<SLineTime>& lines = aScene.CullLines();
-//		ForwardRenderer.RenderLines(maincamera, lines);
-//		ForwardRenderer.RenderLineInstances(maincamera, lineInstances);
-//
-//		// All relevant objects are moved to deferred now
-//
-//		//// Alpha stage for objects in World 3D space
-//		////RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
-//		//RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE); // Alpha clipped
-//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-//		////RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
-//
-//		//std::vector<LightPair> pointlights;
-//		//std::vector<LightPair> pointLightsInstanced;
-//
-//		//for (unsigned int i = 0; i < instancedGameObjectsWithAlpha.size(); ++i)
-//		//{
-//		//	pointLightsInstanced.emplace_back(aScene.CullLightInstanced(instancedGameObjectsWithAlpha[i]->GetComponent<CInstancedModelComponent>()));
-//		//}
-//		//for (unsigned int i = 0; i < gameObjectsWithAlpha.size(); ++i)
-//		//{
-//		//	pointlights.emplace_back(aScene.CullLights(gameObjectsWithAlpha[i]));
-//		//}
-//
-//		//myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
-//		//ForwardRenderer.InstancedRender(environmentlight, pointLightsInstanced, maincamera, instancedGameObjectsWithAlpha);
-//		//ForwardRenderer.Render(environmentlight, pointlights, maincamera, gameObjectsWithAlpha);
-//
-//	//#pragma region Volumetric Lighting
-//	//	if (RenderPassIndex == 0 || RenderPassIndex == 7)
-//	//	{
-//	//		// Depth Copy
-//	//		myDepthCopy.SetAsActiveTarget();
-//	//		myIntermediateDepth.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::CopyDepth);
-//	//
-//	//		// Volumetric Lighting
-//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
-//	//		myDepthCopy.SetAsResourceOnSlot(21);
-//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
-//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
-//	//
-//	//		myLightRenderer.RenderVolumetric(maincamera, onlyPointLights);
-//	//		myLightRenderer.RenderVolumetric(maincamera, onlySpotLights);
-//	//		myBoxLightShadowDepth.SetAsResourceOnSlot(22);
-//	//		myLightRenderer.RenderVolumetric(maincamera, onlyBoxLights);
-//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
-//	//		myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
-//	//		myLightRenderer.RenderVolumetric(maincamera, environmentlight);
-//	//		myLightRenderer.RenderVolumetric(maincamera, onlySecondaryEnvironmentLights);
-//	//
-//	//		// Downsampling and Blur
-//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-//	//		myDownsampledDepth.SetAsActiveTarget();
-//	//		myIntermediateDepth.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DownsampleDepth);
-//	//
-//	//		// Blur
-//	//		myVolumetricBlurTexture.SetAsActiveTarget();
-//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralHorizontal);
-//	//
-//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
-//	//		myVolumetricBlurTexture.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
-//	//
-//	//		myVolumetricBlurTexture.SetAsActiveTarget();
-//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralHorizontal);
-//	//
-//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
-//	//		myVolumetricBlurTexture.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
-//	//
-//	//		myVolumetricBlurTexture.SetAsActiveTarget();
-//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralHorizontal);
-//	//
-//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
-//	//		myVolumetricBlurTexture.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
-//	//
-//	//		myVolumetricBlurTexture.SetAsActiveTarget();
-//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralHorizontal);
-//	//
-//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
-//	//		myVolumetricBlurTexture.SetAsResourceOnSlot(0);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
-//	//
-//	//		// Upsampling
-//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
-//	//		myDeferredLightingTexture.SetAsActiveTarget();
-//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
-//	//		myDownsampledDepth.SetAsResourceOnSlot(1);
-//	//		myIntermediateDepth.SetAsResourceOnSlot(2);
-//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DepthAwareUpsampling);
-//	//	}
-//	//#pragma endregion
-//
-//		//VFX
-//		myDeferredLightingTexture.SetAsActiveTarget(&myIntermediateDepth);
-//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
-//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
-//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
-//		myVFXRenderer.Render(maincamera, gameObjects);
-//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
-//
-//		myParticleRenderer.Render(maincamera, gameObjects);
-//
-//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-//
-//		// Bloom
-//		RenderBloom();
-//
-//		// Tonemapping
-//		myTonemappedTexture.SetAsActiveTarget();
-//		myDeferredLightingTexture.SetAsResourceOnSlot(0);
-//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Tonemap);
-//
-//		// Anti-aliasing
-//		myAntiAliasedTexture.SetAsActiveTarget();
-//		myTonemappedTexture.SetAsResourceOnSlot(0);
-//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::FXAA);
-//
-//		// Broken Screen
-//		if (UseBrokenScreenPass)
-//		{
-//			myAntiAliasedTexture.SetAsActiveTarget();
-//			myTonemappedTexture.SetAsResourceOnSlot(0);
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BrokenScreenEffect);
-//			Backbuffer.SetAsActiveTarget();
-//			myAntiAliasedTexture.SetAsResourceOnSlot(0);
-//		}
-//
-//		// Gamma correction
-//		myVignetteTexture.SetAsActiveTarget(); // For vignetting
-//		myAntiAliasedTexture.SetAsResourceOnSlot(0);
-//
-//		if (RenderPassIndex == 7)
-//		{
-//			myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
-//		}
-//
-//		if (RenderPassIndex == 8)
-//		{
-//			mySSAOBlurTexture.SetAsResourceOnSlot(0);
-//			//mySSAOBuffer.SetAsResourceOnSlot(0);
-//		}
-//
-//		if (RenderPassIndex < 2)
-//		{
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GammaCorrection);
-//		}
-//		else
-//		{
-//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GammaCorrectionRenderPass);
-//		}
-//
-//		// Vignette
-//		Backbuffer.SetAsActiveTarget();
-//		myVignetteTexture.SetAsResourceOnSlot(0);
-//		myVignetteOverlayTexture.SetAsResourceOnSlot(1);
-//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Vignette);
-//
-//		//Backbuffer.SetAsActiveTarget();
-//
-//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
-//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
-//
-//		std::vector<CSpriteInstance*> sprites;
-//		std::vector<CSpriteInstance*> animatedUIFrames;
-//		std::vector<CTextInstance*> textsToRender;
-//		std::vector<CAnimatedUIElement*> animatedUIElements;
-//
-//		const CCanvas* canvas = aScene.Canvas();
-//		if (canvas)
-//		{
-//			canvas->EmplaceSprites(sprites);
-//			animatedUIElements = canvas->EmplaceAnimatedUI(animatedUIFrames);
-//			canvas->EmplaceTexts(textsToRender);
-//		}
-//
-//		// Sprites
-//		CMainSingleton::PopupTextService().EmplaceSprites(sprites);
-//		CMainSingleton::DialogueSystem().EmplaceSprites(sprites);
-//		CEngine::GetInstance()->GetActiveScene().MainCamera()->EmplaceSprites(animatedUIFrames);
-//		mySpriteRenderer.Render(sprites);
-//		mySpriteRenderer.Render(animatedUIElements);
-//		mySpriteRenderer.Render(animatedUIFrames);
-//
-//		// Text
-//		CMainSingleton::PopupTextService().EmplaceTexts(textsToRender);
-//		CMainSingleton::DialogueSystem().EmplaceTexts(textsToRender);
-//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-//		myTextRenderer.Render(textsToRender);
+		//		myIntermediateTexture.ClearTexture(ClearColor);
+		//		myIntermediateDepth.ClearDepth();
+		//		myEnvironmentShadowDepth.ClearDepth();
+		//		myGBuffer.ClearTextures(ClearColor);
+		//		myDeferredLightingTexture.ClearTexture();
+		//		myVolumetricAccumulationBuffer.ClearTexture();
+		//		mySSAOBuffer.ClearTexture();
+		//
+		//		CEnvironmentLight* environmentlight = aScene.EnvironmentLight();
+		//		CCameraComponent* maincamera = aScene.MainCamera();
+		//
+		//		if (maincamera == nullptr)
+		//			return;
+		//
+		//		std::vector<CGameObject*> gameObjects /*= aScene.CullGameObjects(maincamera)*/;
+		//		std::vector<CGameObject*> instancedGameObjects;
+		//		std::vector<CGameObject*> instancedGameObjectsWithAlpha;
+		//		std::vector<CGameObject*> gameObjectsWithAlpha;
+		//		std::vector<int> indicesOfOutlineModels;
+		//		std::vector<int> indicesOfAlphaGameObjects;
+		//
+		//		aScene.CullGameObjects(maincamera, gameObjects, instancedGameObjects);
+		//
+		//		//for (unsigned int i = 0; i < gameObjects.size(); ++i)
+		//		//{
+		//		//	auto instance = gameObjects[i];
+		//		//	//for (auto gameObjectToOutline : aScene.ModelsToOutline()) {
+		//		//	//	if (instance == gameObjectToOutline) {
+		//		//	//		indicesOfOutlineModels.emplace_back(i);
+		//		//	//	}
+		//		//	//}
+		//
+		//		//	if (instance->GetComponent<CInstancedModelComponent>()) 
+		//		//	{
+		//		//		//if (instance->GetComponent<CInstancedModelComponent>()->RenderWithAlpha())
+		//		//		//{
+		//		//		//	instancedGameObjectsWithAlpha.emplace_back(instance);
+		//		//		//	indicesOfAlphaGameObjects.emplace_back(i);
+		//		//		//	continue;
+		//		//		//}
+		//		//		instancedGameObjects.emplace_back(instance);
+		//		//		std::swap(gameObjects[i], gameObjects.back());
+		//		//		gameObjects.pop_back();
+		//		//	}
+		//
+		//		//	// All relevant objects are run in deferred now
+		//		//	//else if (instance->GetComponent<CModelComponent>()) 
+		//		//	//{
+		//		//	//	//if (instance->GetComponent<CModelComponent>()->RenderWithAlpha())
+		//		//	//	//{
+		//		//	//	//	gameObjectsWithAlpha.emplace_back(instance);
+		//		//	//	//	indicesOfAlphaGameObjects.emplace_back(i);
+		//		//	//	//	continue;
+		//		//	//	//}
+		//		//	//}
+		//		//}
+		//
+		//		std::sort(indicesOfAlphaGameObjects.begin(), indicesOfAlphaGameObjects.end(), [](UINT a, UINT b) { return a > b; });
+		//		for (auto index : indicesOfAlphaGameObjects)
+		//		{
+		//			std::swap(gameObjects[index], gameObjects.back());
+		//			gameObjects.pop_back();
+		//		}
+		//
+		//		// GBuffer
+		//		myGBuffer.SetAsActiveTarget(&myIntermediateDepth);
+		//		myDeferredRenderer.GenerateGBuffer(maincamera, gameObjects, instancedGameObjects);
+		//
+		//		// Shadows
+		//		myEnvironmentShadowDepth.SetAsDepthTarget(&myIntermediateTexture);
+		//
+		//		// If no shadowmap, don't do this
+		//		//myShadowRenderer.Render(environmentlight, gameObjects, instancedGameObjects);
+		//
+		//		// All relevant objects are run in deferred now
+		//		//myShadowRenderer.Render(environmentlight, gameObjectsWithAlpha, instancedGameObjectsWithAlpha);
+		//
+		//		// Decals
+		//		myDepthCopy.SetAsActiveTarget();
+		//		myIntermediateDepth.SetAsResourceOnSlot(0);
+		//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::CopyDepth);
+		//
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
+		//		myGBuffer.SetAsActiveTarget(&myIntermediateDepth);
+		//		myDepthCopy.SetAsResourceOnSlot(21);
+		//		myDecalRenderer.Render(maincamera, gameObjects);
+		//
+		//		// SSAO
+		//		mySSAOBuffer.SetAsActiveTarget();
+		//		myGBuffer.SetAsResourceOnSlot(CGBuffer::EGBufferTextures::NORMAL, 2);
+		//		myIntermediateDepth.SetAsResourceOnSlot(21);
+		//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::SSAO);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+		//
+		//		mySSAOBlurTexture.SetAsActiveTarget();
+		//		mySSAOBuffer.SetAsResourceOnSlot(0);
+		//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::SSAOBlur);
+		//
+		//		// Lighting
+		//		myDeferredLightingTexture.SetAsActiveTarget();
+		//		myGBuffer.SetAllAsResources();
+		//		myDepthCopy.SetAsResourceOnSlot(21);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+		//		std::vector<CPointLight*> onlyPointLights;
+		//		onlyPointLights = aScene.CullPointLights(gameObjects);
+		//		std::vector<CSpotLight*> onlySpotLights;
+		//		onlySpotLights = aScene.CullSpotLights(gameObjects);
+		//		std::vector<CBoxLight*> onlyBoxLights;
+		//		//onlyBoxLights = aScene.CullBoxLights(&maincamera->GameObject());
+		//		std::vector<CEnvironmentLight*> onlySecondaryEnvironmentLights;
+		//		onlySecondaryEnvironmentLights = aScene.CullSecondaryEnvironmentLights(&maincamera->GameObject());
+		//
+		//		if (RenderPassIndex == 0)
+		//		{
+		//			myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
+		//			mySSAOBlurTexture.SetAsResourceOnSlot(23);
+		//			myLightRenderer.Render(maincamera, environmentlight);
+		//
+		//			RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
+		//
+		//			myLightRenderer.Render(maincamera, onlySpotLights);
+		//			myLightRenderer.Render(maincamera, onlyPointLights);
+		//			//myLightRenderer.Render(maincamera, onlyBoxLights);
+		//		}
+		//
+		//#pragma region Deferred Render Passes
+		//		switch (RenderPassIndex)
+		//		{
+		//		case 1:
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredAlbedo);
+		//			break;
+		//		case 2:
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredNormals);
+		//			break;
+		//		case 3:
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredRoughness);
+		//			break;
+		//		case 4:
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredMetalness);
+		//			break;
+		//		case 5:
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredAmbientOcclusion);
+		//			break;
+		//		case 6:
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DeferredEmissive);
+		//			break;
+		//		default:
+		//			break;
+		//		}
+		//#pragma endregion
+		//
+		//		// Skybox
+		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+		//		myDeferredLightingTexture.SetAsActiveTarget(&myIntermediateDepth);
+		//
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEPTHFIRST);
+		//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
+		//		myDeferredRenderer.RenderSkybox(maincamera, environmentlight);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+		//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+		//
+		//		// Render Lines
+		//		const std::vector<CLineInstance*>& lineInstances = aScene.CullLineInstances();
+		//		const std::vector<SLineTime>& lines = aScene.CullLines();
+		//		ForwardRenderer.RenderLines(maincamera, lines);
+		//		ForwardRenderer.RenderLineInstances(maincamera, lineInstances);
+		//
+		//		// All relevant objects are moved to deferred now
+		//
+		//		//// Alpha stage for objects in World 3D space
+		//		////RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
+		//		//RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE); // Alpha clipped
+		//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+		//		////RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+		//
+		//		//std::vector<LightPair> pointlights;
+		//		//std::vector<LightPair> pointLightsInstanced;
+		//
+		//		//for (unsigned int i = 0; i < instancedGameObjectsWithAlpha.size(); ++i)
+		//		//{
+		//		//	pointLightsInstanced.emplace_back(aScene.CullLightInstanced(instancedGameObjectsWithAlpha[i]->GetComponent<CInstancedModelComponent>()));
+		//		//}
+		//		//for (unsigned int i = 0; i < gameObjectsWithAlpha.size(); ++i)
+		//		//{
+		//		//	pointlights.emplace_back(aScene.CullLights(gameObjectsWithAlpha[i]));
+		//		//}
+		//
+		//		//myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
+		//		//ForwardRenderer.InstancedRender(environmentlight, pointLightsInstanced, maincamera, instancedGameObjectsWithAlpha);
+		//		//ForwardRenderer.Render(environmentlight, pointlights, maincamera, gameObjectsWithAlpha);
+		//
+		//	//#pragma region Volumetric Lighting
+		//	//	if (RenderPassIndex == 0 || RenderPassIndex == 7)
+		//	//	{
+		//	//		// Depth Copy
+		//	//		myDepthCopy.SetAsActiveTarget();
+		//	//		myIntermediateDepth.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::CopyDepth);
+		//	//
+		//	//		// Volumetric Lighting
+		//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
+		//	//		myDepthCopy.SetAsResourceOnSlot(21);
+		//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+		//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
+		//	//
+		//	//		myLightRenderer.RenderVolumetric(maincamera, onlyPointLights);
+		//	//		myLightRenderer.RenderVolumetric(maincamera, onlySpotLights);
+		//	//		myBoxLightShadowDepth.SetAsResourceOnSlot(22);
+		//	//		myLightRenderer.RenderVolumetric(maincamera, onlyBoxLights);
+		//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+		//	//		myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
+		//	//		myLightRenderer.RenderVolumetric(maincamera, environmentlight);
+		//	//		myLightRenderer.RenderVolumetric(maincamera, onlySecondaryEnvironmentLights);
+		//	//
+		//	//		// Downsampling and Blur
+		//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+		//	//		myDownsampledDepth.SetAsActiveTarget();
+		//	//		myIntermediateDepth.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DownsampleDepth);
+		//	//
+		//	//		// Blur
+		//	//		myVolumetricBlurTexture.SetAsActiveTarget();
+		//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralHorizontal);
+		//	//
+		//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
+		//	//		myVolumetricBlurTexture.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
+		//	//
+		//	//		myVolumetricBlurTexture.SetAsActiveTarget();
+		//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralHorizontal);
+		//	//
+		//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
+		//	//		myVolumetricBlurTexture.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
+		//	//
+		//	//		myVolumetricBlurTexture.SetAsActiveTarget();
+		//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralHorizontal);
+		//	//
+		//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
+		//	//		myVolumetricBlurTexture.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
+		//	//
+		//	//		myVolumetricBlurTexture.SetAsActiveTarget();
+		//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralHorizontal);
+		//	//
+		//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
+		//	//		myVolumetricBlurTexture.SetAsResourceOnSlot(0);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
+		//	//
+		//	//		// Upsampling
+		//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+		//	//		myDeferredLightingTexture.SetAsActiveTarget();
+		//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
+		//	//		myDownsampledDepth.SetAsResourceOnSlot(1);
+		//	//		myIntermediateDepth.SetAsResourceOnSlot(2);
+		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DepthAwareUpsampling);
+		//	//	}
+		//	//#pragma endregion
+		//
+		//		//VFX
+		//		myDeferredLightingTexture.SetAsActiveTarget(&myIntermediateDepth);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+		//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
+		//		myVFXRenderer.Render(maincamera, gameObjects);
+		//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+		//
+		//		myParticleRenderer.Render(maincamera, gameObjects);
+		//
+		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+		//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+		//
+		//		// Bloom
+		//		RenderBloom();
+		//
+		//		// Tonemapping
+		//		myTonemappedTexture.SetAsActiveTarget();
+		//		myDeferredLightingTexture.SetAsResourceOnSlot(0);
+		//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Tonemap);
+		//
+		//		// Anti-aliasing
+		//		myAntiAliasedTexture.SetAsActiveTarget();
+		//		myTonemappedTexture.SetAsResourceOnSlot(0);
+		//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::FXAA);
+		//
+		//		// Broken Screen
+		//		if (UseBrokenScreenPass)
+		//		{
+		//			myAntiAliasedTexture.SetAsActiveTarget();
+		//			myTonemappedTexture.SetAsResourceOnSlot(0);
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BrokenScreenEffect);
+		//			Backbuffer.SetAsActiveTarget();
+		//			myAntiAliasedTexture.SetAsResourceOnSlot(0);
+		//		}
+		//
+		//		// Gamma correction
+		//		myVignetteTexture.SetAsActiveTarget(); // For vignetting
+		//		myAntiAliasedTexture.SetAsResourceOnSlot(0);
+		//
+		//		if (RenderPassIndex == 7)
+		//		{
+		//			myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
+		//		}
+		//
+		//		if (RenderPassIndex == 8)
+		//		{
+		//			mySSAOBlurTexture.SetAsResourceOnSlot(0);
+		//			//mySSAOBuffer.SetAsResourceOnSlot(0);
+		//		}
+		//
+		//		if (RenderPassIndex < 2)
+		//		{
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GammaCorrection);
+		//		}
+		//		else
+		//		{
+		//			myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GammaCorrectionRenderPass);
+		//		}
+		//
+		//		// Vignette
+		//		Backbuffer.SetAsActiveTarget();
+		//		myVignetteTexture.SetAsResourceOnSlot(0);
+		//		myVignetteOverlayTexture.SetAsResourceOnSlot(1);
+		//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Vignette);
+		//
+		//		//Backbuffer.SetAsActiveTarget();
+		//
+		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+		//
+		//		std::vector<CSpriteInstance*> sprites;
+		//		std::vector<CSpriteInstance*> animatedUIFrames;
+		//		std::vector<CTextInstance*> textsToRender;
+		//		std::vector<CAnimatedUIElement*> animatedUIElements;
+		//
+		//		const CCanvas* canvas = aScene.Canvas();
+		//		if (canvas)
+		//		{
+		//			canvas->EmplaceSprites(sprites);
+		//			animatedUIElements = canvas->EmplaceAnimatedUI(animatedUIFrames);
+		//			canvas->EmplaceTexts(textsToRender);
+		//		}
+		//
+		//		// Sprites
+		//		CMainSingleton::PopupTextService().EmplaceSprites(sprites);
+		//		CMainSingleton::DialogueSystem().EmplaceSprites(sprites);
+		//		CEngine::GetInstance()->GetActiveScene().MainCamera()->EmplaceSprites(animatedUIFrames);
+		//		mySpriteRenderer.Render(sprites);
+		//		mySpriteRenderer.Render(animatedUIElements);
+		//		mySpriteRenderer.Render(animatedUIFrames);
+		//
+		//		// Text
+		//		CMainSingleton::PopupTextService().EmplaceTexts(textsToRender);
+		//		CMainSingleton::DialogueSystem().EmplaceTexts(textsToRender);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+		//		myTextRenderer.Render(textsToRender);
 	}
 
 	void CRenderManager::Release()
@@ -678,7 +820,7 @@ namespace Havtorn
 			RenderPassIndex = 0;
 		}
 	}
-	
+
 	bool SRenderCommandComparer::operator()(const SRenderCommand& a, const SRenderCommand& b)
 	{
 		return 	static_cast<U16>(a.Type) > static_cast<U16>(b.Type);

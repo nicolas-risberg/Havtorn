@@ -82,9 +82,16 @@ namespace Havtorn
 		} FrameBufferData;
 		HV_ASSERT_BUFFER(SFrameBufferData)
 
+		struct SObjectBufferData
+		{
+			SMatrix ToWorldFromObject;
+		} ObjectBufferData;
+		HV_ASSERT_BUFFER(SObjectBufferData)
+
 	private:
 		ID3D11DeviceContext* Context;
 		ID3D11Buffer* FrameBuffer;
+		ID3D11Buffer* ObjectBuffer;
 		CRenderStateManager RenderStateManager;
 		//CForwardRenderer ForwardRenderer;
 		//CDeferredRenderer myDeferredRenderer;
@@ -132,6 +139,15 @@ namespace Havtorn
 		bool UseAntiAliasing;
 		bool UseBrokenScreenPass;
 
-
+		ID3D11VertexShader* DemoVertexShader;
+		ID3D11PixelShader* DemoPixelShader;
+		ID3D11SamplerState* SamplerState;
+		ID3D11Buffer* DemoVertexBuffer;
+		ID3D11Buffer* DemoIndexBuffer;
+		ID3D11InputLayout* DemoInputLayout;
+		U32 DemoNumberOfVertices;
+		U32 DemoNumberOfIndices;
+		U32 DemoStride;
+		U32 DemoOffset;
 	};
 }
