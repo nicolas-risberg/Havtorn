@@ -3,7 +3,7 @@ struct VertexInput
     float4 Position     : POSITION;
     float4 Normal       : NORMAL;
     float4 Tangent      : TANGENT;
-    float4 Bitangent    : BITANGENT;
+    float4 Bitangent    : BINORMAL;
     float2 UV           : UV;
 };
 
@@ -12,7 +12,7 @@ struct VertexToPixel
     float4 Position     : SV_POSITION;
     float4 Normal       : NORMAL;
     float4 Tangent      : TANGENT;
-    float4 Bitangent    : BITANGENT;
+    float4 Bitangent    : BINORMAL;
     float2 UV           : UV;
 };
 

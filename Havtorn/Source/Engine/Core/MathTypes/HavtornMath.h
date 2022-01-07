@@ -8,13 +8,20 @@
 
 namespace Havtorn
 {
-	SMatrix SMatrix::CreateRotationFromEuler(F32 pitch, F32 yaw, F32 roll)
+	SVector4 SVector4::operator*=(const SMatrix& other)
+	{
+		SVector4 temp = other * (*this);
+		(*this) = temp;
+		return temp;
+	}
+
+	inline SMatrix SMatrix::CreateRotationFromEuler(F32 pitch, F32 yaw, F32 roll)
 	{
 		SQuaternion quaternion = SQuaternion(pitch, yaw, roll);
 		return CreateRotationFromQuaternion(quaternion);
 	}
 
-	SMatrix SMatrix::CreateRotationFromQuaternion(SQuaternion quaternion)
+	inline SMatrix SMatrix::CreateRotationFromQuaternion(SQuaternion quaternion)
 	{
 		SMatrix result;
 		F32 xx2 = 2.0f * quaternion.X * quaternion.X;

@@ -108,7 +108,7 @@ namespace Havtorn
 		CFullscreenTexture RenderedScene;
 		CFullscreenTexture Backbuffer;
 		//CFullscreenTexture myIntermediateTexture;
-		//CFullscreenTexture myIntermediateDepth;
+		CFullscreenTexture IntermediateDepth;
 		//CFullscreenTexture myEnvironmentShadowDepth;
 		//CFullscreenTexture myBoxLightShadowDepth;
 		//CFullscreenTexture myDepthCopy;

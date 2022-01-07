@@ -23,32 +23,18 @@ namespace Havtorn
 		// Create entities
 		Entities.emplace_back(std::make_shared<SEntity>(1, "Camera"));
 		auto cameraEntity = Entities[0];
-		Entities.emplace_back(std::make_shared<SEntity>(2, "Cube"));
-		auto cubeEntity = Entities.back();
 
 		// Setup entities (create components)
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(cameraEntity, EComponentType::TransformComponent));
 		cameraEntity->AddComponent(EComponentType::TransformComponent, 0);
-		
-		TransformComponents.emplace_back(std::make_shared<STransformComponent>(cubeEntity, EComponentType::TransformComponent));
-		cubeEntity->AddComponent(EComponentType::TransformComponent, 1);
-		TransformComponents.back()->Transform.Translation({0.0f, 1.0f, 2.0f});
-		SMatrix rotation = SMatrix::CreateRotationAroundY(UMath::DegToRad(45.0f));
-		TransformComponents.back()->Transform.SetRotation(rotation);
-		rotation = SMatrix::CreateRotationAroundX(UMath::DegToRad(27.0f));
-		TransformComponents.back()->Transform.Rotate(rotation);
+		TransformComponents.back()->Transform.Translation({ 0.0f, 0.0f, -5.0f });
 
 		CameraComponents.emplace_back(std::make_shared<SCameraComponent>(cameraEntity, EComponentType::CameraComponent));
 		cameraEntity->AddComponent(EComponentType::CameraComponent, 0);
 		CameraComponents.back()->ProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(70.0f), (16.0f / 9.0f), 0.1f, 1000.0f);
 		CameraComponents.back()->ViewMatrix = SMatrix::LookAtLH(SVector::Zero, SVector::Forward, SVector::Up);
 
-		RenderComponents.emplace_back(std::make_shared<SRenderComponent>(cubeEntity, EComponentType::RenderComponent));
-		cubeEntity->AddComponent(EComponentType::RenderComponent, 0);
-		RenderComponents.back()->MaterialRef = 0;
-	
-		auto id = CameraComponents[0]->Entity->ID;
-		id = 1;
+		InitDemoScene();
 
 		return true;
 	}
@@ -58,6 +44,33 @@ namespace Havtorn
 		for (auto& system : Systems)
 		{
 			system->Update(this);
+		}
+	}
+
+	// TODO.NR: Make primitive class containing verts (static getters for bindables?)
+	void CScene::InitDemoScene()
+	{
+		constexpr U8 cubeNumber = 20;
+
+		const SVector minTranslation = { -4.0f, -4.0f, -4.0f };
+		const SVector maxTranslation = { 4.0f, 4.0f, 4.0f };
+		const SVector minEulerRotation = { UMath::DegToRad(-90.0f), UMath::DegToRad(-90.0f), UMath::DegToRad(-90.0f) };
+		const SVector maxEulerRotation = { UMath::DegToRad(90.0f), UMath::DegToRad(90.0f), UMath::DegToRad(90.0f) };
+
+		for (U8 i = 0; i <= cubeNumber; ++i)
+		{
+			Entities.emplace_back(std::make_shared<SEntity>(i + 1, "Cube"));
+			auto cubeEntity = Entities.back();
+
+			TransformComponents.emplace_back(std::make_shared<STransformComponent>(cubeEntity, EComponentType::TransformComponent));
+			cubeEntity->AddComponent(EComponentType::TransformComponent, i + 1);
+			auto& transform = TransformComponents.back()->Transform;
+			transform.Translation(SVector::Random(minTranslation, maxTranslation));
+			transform.Rotate(SVector::Random(minEulerRotation, maxEulerRotation));
+
+			RenderComponents.emplace_back(std::make_shared<SRenderComponent>(cubeEntity, EComponentType::RenderComponent));
+			cubeEntity->AddComponent(EComponentType::RenderComponent, i);
+			RenderComponents.back()->MaterialRef = 0;
 		}
 	}
 }

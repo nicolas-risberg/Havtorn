@@ -7,6 +7,7 @@ namespace Havtorn
 	{
 		SRenderComponent(Ref<SEntity> entity, EComponentType type)
 			: SComponent(entity, type) 
+			, MaterialRef(0)
 		{}
 
 		U64 MaterialRef;

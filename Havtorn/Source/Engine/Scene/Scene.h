@@ -18,6 +18,8 @@ namespace Havtorn
 		bool Init(CRenderManager* renderManager);
 		void Update();
 
+		void InitDemoScene();
+
 		std::vector<Ref<STransformComponent>>& GetTransformComponents() { return TransformComponents; }
 		std::vector<Ref<SRenderComponent>>& GetRenderComponents() { return RenderComponents; }
 		std::vector<Ref<SCameraComponent>>& GetCameraComponents() { return CameraComponents; }

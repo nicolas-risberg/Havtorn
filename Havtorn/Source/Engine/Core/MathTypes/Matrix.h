@@ -29,6 +29,7 @@ namespace Havtorn
 		static SMatrix CreateRotationAroundX(F32 angleInRadians);
 		static SMatrix CreateRotationAroundY(F32 angleInRadians);
 		static SMatrix CreateRotationAroundZ(F32 angleInRadians);
+		static SMatrix CreateRotationAroundAxis(F32 angleInRadians, SVector axis);
 		static SMatrix CreateRotationFromEuler(F32 pitch, F32 yaw, F32 roll);
 		static SMatrix CreateRotationFromQuaternion(SQuaternion quaternion);
 		// Static function for creating a transpose of a matrix.
@@ -78,6 +79,11 @@ namespace Havtorn
 		inline void Translation(const SVector& v);
 		inline void Translation(const SVector4& v);
 		inline void Rotate(const SMatrix& rotationMatrix);
+		inline void Rotate(const SVector& eulerAngles);
+		inline void Translate(const SVector& v);
+		inline void Translate(const SVector4& v);
+		inline void Orbit(const SVector& point, const SMatrix& rotation);
+		inline void Orbit(const SVector4& point, const SMatrix& rotation);
 
 		inline bool operator==(const SMatrix& matrix) const;
 
@@ -157,6 +163,32 @@ namespace Havtorn
 		return matrix;
 	}
 
+	inline SMatrix SMatrix::CreateRotationAroundAxis(F32 angleInRadians, SVector axis)
+	{
+		F32 cosTerm = UMath::Cos(angleInRadians);
+		F32 sinTerm = UMath::Sin(angleInRadians);
+		F32 oneMinusCos = 1.0f - cosTerm;
+		F32 x2 = axis.X * axis.X;
+		F32 y2 = axis.Y * axis.Y;
+		F32 z2 = axis.Z * axis.Z;
+		F32 xy = axis.X * axis.Y;
+		F32 xz = axis.X * axis.Z;
+		F32 yz = axis.Y * axis.Z;
+
+		SMatrix matrix;
+		matrix(0, 0) = cosTerm + (x2 * oneMinusCos);
+		matrix(0, 1) = (xy * oneMinusCos) - (axis.Z * sinTerm);
+		matrix(0, 2) = (xz * oneMinusCos) + (axis.Y * sinTerm);
+		matrix(1, 0) = (xy * oneMinusCos) + (axis.Z * sinTerm);
+		matrix(1, 1) = cosTerm + (y2 * oneMinusCos);
+		matrix(1, 2) = (yz * oneMinusCos) - (axis.X * sinTerm);
+		matrix(2, 0) = (xz * oneMinusCos) - (axis.Y * sinTerm);
+		matrix(2, 1) = (yz * oneMinusCos) + (axis.X * sinTerm);
+		matrix(2, 2) = cosTerm + (z2 * oneMinusCos);
+		return matrix;
+	}
+
+	// Only use this on matrices representing a 3x3 rotation and 3x1 translation
 	SMatrix SMatrix::FastInverse() const
 	{
 		SMatrix rotation = Transpose(this->GetRotationMatrix());
@@ -507,9 +539,79 @@ namespace Havtorn
 		M[3][3] = v.W;
 	}
 
+	// TODO.NR: Fix this
 	inline void SMatrix::Rotate(const SMatrix& rotationMatrix)
 	{
-		(*this) *= rotationMatrix;
+		SMatrix copy = rotationMatrix;
+		copy *= GetRotationMatrix();
+		SetRotation(GetRotationMatrix() * copy);
+	}
+
+	inline void SMatrix::Rotate(const SVector& eulerAngles)
+	{
+		if (eulerAngles.IsEqual(SVector::Zero))
+			return;
+
+		SMatrix rightRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.X, Right());
+		SMatrix upRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.Y, Up());
+		SMatrix forwardRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.Z, Forward());
+		SMatrix finalRotation = GetRotationMatrix();
+		finalRotation *= rightRotation;
+		finalRotation *= upRotation;
+		finalRotation *= forwardRotation;
+		SetRotation(finalRotation);
+	}
+	
+	inline void SMatrix::Translate(const SVector& v)
+	{
+		SVector localMove = Right() * v.X;
+		M[3][0] += localMove.X;
+		M[3][1] += localMove.Y;
+		M[3][2] += localMove.Z;
+		localMove = Up() * v.Y;
+		M[3][0] += localMove.X;
+		M[3][1] += localMove.Y;
+		M[3][2] += localMove.Z;
+		localMove = Forward() * v.Z;
+		M[3][0] += localMove.X;
+		M[3][1] += localMove.Y;
+		M[3][2] += localMove.Z;
+	}
+	
+	inline void SMatrix::Translate(const SVector4& v)
+	{
+		SVector localMove = Right() * v.X;
+		M[3][0] += localMove.X;
+		M[3][1] += localMove.Y;
+		M[3][2] += localMove.Z;
+		localMove = Up() * v.Y;
+		M[3][0] += localMove.X;
+		M[3][1] += localMove.Y;
+		M[3][2] += localMove.Z;
+		localMove = Forward() * v.Z;
+		M[3][0] += localMove.X;
+		M[3][1] += localMove.Y;
+		M[3][2] += localMove.Z;
+	}
+
+	// TODO.NR: Make transform struct which can store local transform data and make parent from point argument
+	inline void SMatrix::Orbit(const SVector& /*point*/, const SMatrix& rotation)
+	{
+		SMatrix finalRotation = rotation;
+		//finalRotation.Translation(point);
+		//SMatrix parentTransform = SMatrix();
+		//parentTransform.Translation(point);
+		//Translate(-point);
+		(*this) *= finalRotation;
+		//(*this) *= parentTransform;
+		//Translate(point);
+	}
+
+	inline void SMatrix::Orbit(const SVector4& /*point*/, const SMatrix& rotation)
+	{
+		SMatrix finalRotation = rotation;
+		//finalRotation.Translation(point);
+		(*this) *= finalRotation;
 	}
 
 	// Static function for creating a transpose of a matrix.

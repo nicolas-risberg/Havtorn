@@ -115,47 +115,47 @@ namespace Havtorn
 		} vertices[24] =
 		{
 			// X      Y      Z      W,    nX, nY, nZ, nW,   tX, tY, tZ, tW,    bX, bY, bZ, bW,    UV	
-			{ -0.5f, -0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 },
-			{  0.5f, -0.5f, -0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 0 },
-			{ -0.5f,  0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 1 },
-			{  0.5f,  0.5f, -0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 1 },
-			{ -0.5f, -0.5f,  0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 },
-			{  0.5f, -0.5f,  0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 0 },
-			{ -0.5f,  0.5f,  0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 1 },
-			{  0.5f,  0.5f,  0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 1 },
-			// X      Y      Z      W,    nX, nY, nZ, nW,   nX, nY, nZ, nW,    nX, nY, nZ, nW,    UV
-			{ -0.5f, -0.5f, -0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 0 },
-			{ -0.5f,  0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     1, 0 },
-			{ -0.5f, -0.5f,  0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 1 },
-			{ -0.5f,  0.5f,  0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 1 },
-			{  0.5f, -0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     0, 0 },
-			{  0.5f,  0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     1, 0 },
-			{  0.5f, -0.5f,  0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 1 },
-			{  0.5f,  0.5f,  0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 1 },
-			// X      Y      Z      W,    nX, nY, nZ, nW,   nX, nY, nZ, nW,    nX, nY, nZ, nW,    UV
-			{ -0.5f, -0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     0, 0 },
-			{  0.5f, -0.5f, -0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     1, 0 },
-			{ -0.5f, -0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     0, 1 },
-			{  0.5f, -0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     1, 1 },
-			{ -0.5f,  0.5f, -0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     0, 0 },
-			{  0.5f,  0.5f, -0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 0 },
-			{ -0.5f,  0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     0, 1 },
-			{  0.5f,  0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     1, 1 }
+			{ -0.5f, -0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 }, // 0
+			{  0.5f, -0.5f, -0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 0 }, // 1
+			{ -0.5f,  0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 1 }, // 2
+			{  0.5f,  0.5f, -0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 1 }, // 3
+			{ -0.5f, -0.5f,  0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 }, // 4
+			{  0.5f, -0.5f,  0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 0 }, // 5
+			{ -0.5f,  0.5f,  0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 1 }, // 6
+			{  0.5f,  0.5f,  0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 1 }, // 7
+			// X      Y      Z      W,    nX, nY, nZ, nW,   nX, nY, nZ, nW,    nX, nY, nZ, nW,    UV	  
+			{ -0.5f, -0.5f, -0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 0 }, // 8  // 0
+			{  0.5f, -0.5f, -0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     1, 0 }, // 9	// 1
+			{ -0.5f,  0.5f, -0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     0, 0 }, // 10	// 2
+			{  0.5f,  0.5f, -0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 0 }, // 11	// 3
+			{ -0.5f, -0.5f,  0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 1 }, // 12	// 4
+			{  0.5f, -0.5f,  0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 1 }, // 13	// 5
+			{ -0.5f,  0.5f,  0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 1 }, // 14	// 6
+			{  0.5f,  0.5f,  0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 1 }, // 15	// 7
+			// X      Y      Z      W,    nX, nY, nZ, nW,   nX, nY, nZ, nW,    nX, nY, nZ, nW,    UV	  
+			{ -0.5f, -0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     0, 0 }, // 16 // 0
+			{  0.5f, -0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     0, 0 }, // 17	// 1
+			{ -0.5f,  0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     1, 0 }, // 18	// 2
+			{  0.5f,  0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     1, 0 }, // 19	// 3
+			{ -0.5f, -0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     0, 1 }, // 20	// 4
+			{  0.5f, -0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     1, 1 }, // 21	// 5
+			{ -0.5f,  0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     0, 1 }, // 22	// 6
+			{  0.5f,  0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     1, 1 }  // 23	// 7
 		};
 		U32 indices[36] =
 		{
-			0,2,1,
-			2,3,1,
-			4,5,7,
-			4,7,6,
-			8,10,9,
-			10,11,9,
-			12,13,15,
-			12,15,14,
-			16,17,18,
-			18,17,19,
-			20,23,21,
-			20,22,23
+			0,4,2,
+			4,6,2,
+			1,3,5,
+			3,7,5,
+			8,9,12,
+			9,13,12,
+			10,14,11,
+			14,15,11,
+			16,18,17,
+			18,19,17,
+			20,21,22,
+			21,23,22
 		};
 
 		D3D11_BUFFER_DESC demoVertexBufferDesc = { 0 };
@@ -188,7 +188,7 @@ namespace Havtorn
 			{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"NORMAL"   ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"TANGENT"  ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"BITANGENT",   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"BINORMAL" ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 			{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	   0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 		ENGINE_HR_MESSAGE(framework->GetDevice()->CreateInputLayout(demoLayout, sizeof(demoLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC), vsData.data(), vsData.size(), &DemoInputLayout), "Demo Input Layout could not be created.");
@@ -204,7 +204,6 @@ namespace Havtorn
 		ID3D11Texture2D* backbufferTexture = framework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
-		//RenderedScene = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(windowHandler);
 
@@ -214,7 +213,7 @@ namespace Havtorn
 	void CRenderManager::InitRenderTextures(CWindowHandler* windowHandler)
 	{
 		RenderedScene = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myIntermediateDepth = FullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R24G8_TYPELESS);
+		IntermediateDepth = FullscreenTextureFactory.CreateDepth(windowHandler->GetResolution(), DXGI_FORMAT_R24G8_TYPELESS);
 		//myEnvironmentShadowDepth = FullscreenTextureFactory.CreateDepth({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R32_TYPELESS);
 		//myBoxLightShadowDepth = FullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_TYPELESS);
 		//myDepthCopy = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_FLOAT);
@@ -247,8 +246,10 @@ namespace Havtorn
 	{
 		CRenderManager::NumberOfDrawCallsThisFrame = 0;
 		RenderStateManager.SetAllDefault();
+		
 		RenderedScene.ClearTexture(ClearColor);
-		RenderedScene.SetAsActiveTarget();
+		IntermediateDepth.ClearDepth();
+		RenderedScene.SetAsActiveTarget(&IntermediateDepth);
 
 		for (U16 i = 0; i < RenderCommands.size(); ++i)
 		{
@@ -318,8 +319,7 @@ namespace Havtorn
 //		}
 //#endif
 //
-		RenderStateManager.SetAllDefault();
-		Backbuffer.ClearTexture(ClearColor);
+		//Backbuffer.ClearTexture(ClearColor);
 		//		myIntermediateTexture.ClearTexture(ClearColor);
 		//		myIntermediateDepth.ClearDepth();
 		//		myEnvironmentShadowDepth.ClearDepth();

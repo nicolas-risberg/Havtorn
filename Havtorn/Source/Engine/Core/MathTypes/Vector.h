@@ -752,6 +752,8 @@ namespace Havtorn
 		inline SVector4 operator*=(const SVector4& other);
 		inline SVector4 operator/=(const SVector4& other);
 
+		inline SVector4 operator*=(const struct SMatrix& other);
+
 		inline bool operator==(const SVector4& other) const;
 		inline bool operator!=(const SVector4& other) const;
 
@@ -824,14 +826,16 @@ namespace Havtorn
 		return SVector4(X * scale, Y * scale, Z * scale, W);
 	}
 
+	// Never add two points (W=1, positions) together
 	inline SVector4 SVector4::operator+(const SVector4& other) const
 	{
-		return SVector4(X + other.X, Y + other.Y, Z + other.Z, W);
+		return SVector4(X + other.X, Y + other.Y, Z + other.Z, W + other.W);
 	}
 
+	// Should become a direction (W=0) when taking one position minus another
 	inline SVector4 SVector4::operator-(const SVector4& other) const
 	{
-		return SVector4(X - other.X, Y - other.Y, Z - other.Z, W);
+		return SVector4(X - other.X, Y - other.Y, Z - other.Z, W - other.W);
 	}
 
 	// Hadamard multiplication
@@ -878,15 +882,17 @@ namespace Havtorn
 		return *this;
 	}
 
+	// Never add two points (W=1, positions) together
 	inline SVector4 SVector4::operator+=(const SVector4& other)
 	{
-		X += other.X; Y += other.Y; Z += other.Z;
+		X += other.X; Y += other.Y; Z += other.Z; W += other.W;
 		return *this;
 	}
 
+	// Should become a direction (W=0) when taking one position minus another
 	inline SVector4 SVector4::operator-=(const SVector4& other)
 	{
-		X -= other.X; Y -= other.Y; Z -= other.Z;
+		X -= other.X; Y -= other.Y; Z -= other.Z; W -= other.W;
 		return *this;
 	}
 
