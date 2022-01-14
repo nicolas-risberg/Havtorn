@@ -67,7 +67,7 @@ namespace Havtorn
 		ImGui::DestroyContext();
 	}
 
-	bool CImguiManager::Init(CDirectXFramework* framework, CWindowHandler* windowHandler, const CRenderManager* renderManager)
+	bool CImguiManager::Init(CDirectXFramework* framework, CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene)
 	{
 		bool success = true;
 
@@ -87,7 +87,7 @@ namespace Havtorn
 
 		Windows.emplace_back(std::make_unique<ImGui::CViewportWindow>("Viewport", this));
 		Windows.emplace_back(std::make_unique<ImGui::CAssetBrowserWindow>("Asset Browser", this));
-		Windows.emplace_back(std::make_unique<ImGui::CHierarchyWindow>("Hierarchy", this));
+		Windows.emplace_back(std::make_unique<ImGui::CHierarchyWindow>("Hierarchy", scene, this));
 		Windows.emplace_back(std::make_unique<ImGui::CInspectorWindow>("Inspector", this));
 		//myWindows.emplace_back(std::make_unique <ImGui::CLoadScene>("Load Scene", true));
 		//myWindows.emplace_back(std::make_unique <ImGui::CCameraSetting>("Camera Settings"));

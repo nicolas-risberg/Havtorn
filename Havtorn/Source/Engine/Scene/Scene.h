@@ -23,6 +23,9 @@ namespace Havtorn
 		std::vector<Ref<STransformComponent>>& GetTransformComponents() { return TransformComponents; }
 		std::vector<Ref<SRenderComponent>>& GetRenderComponents() { return RenderComponents; }
 		std::vector<Ref<SCameraComponent>>& GetCameraComponents() { return CameraComponents; }
+
+		std::vector<Ref<SEntity>>& GetEntities() { return Entities; }
+
 	private:
 		std::vector<Ref<SEntity>> Entities;
 		std::vector<Ref<STransformComponent>> TransformComponents;
