@@ -40,6 +40,6 @@ PixelOutput main(VertexToPixel input)
     PixelOutput output;
     output.color.rgb = (ambientLight + diffuseLight) * albedo;
     output.color.a = 1.0f;
-    //output.color = abs(input.Normal);
+    //output.color.rgb = abs(normal);
     return output;
 }

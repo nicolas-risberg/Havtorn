@@ -80,7 +80,7 @@ namespace Havtorn
 			if (GetAsyncKeyState('L'))
 				transformComp->Transform.Rotate({ 0.0f, 0.0f, UMath::DegToRad(90.0f) * dt });
 
-			transformComp->Transform.Orbit({ 0.0f, 0.0f, 0.0f }, SMatrix::CreateRotationAroundY(UMath::DegToRad(90.0f) * dt));
+			//transformComp->Transform.Orbit({ 0.0f, 0.0f, 0.0f }, SMatrix::CreateRotationAroundY(UMath::DegToRad(90.0f) * dt));
 
 			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
 			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
