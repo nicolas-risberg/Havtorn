@@ -21,7 +21,6 @@ namespace Havtorn
 		Systems.emplace_back(std::make_unique<CCameraSystem>());
 		Systems.emplace_back(std::make_unique<CRenderSystem>(renderManager));
 
-		
 		// Create entities
 		Entities.emplace_back(std::make_shared<SEntity>(1, "Camera"));
 		auto cameraEntity = Entities[0];

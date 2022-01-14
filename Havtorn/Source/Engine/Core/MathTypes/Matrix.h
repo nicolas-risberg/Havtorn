@@ -10,8 +10,8 @@ namespace Havtorn
 	struct SQuaternion;
 
 	// Left-handed row-major
-	struct SMatrix {
-		
+	struct SMatrix 
+	{	
 		union { __declspec(align(16)) F32 M[4][4]; F32 data[16]; };
 
 		static const SMatrix Identity;

@@ -18,7 +18,7 @@ namespace Havtorn
 
 	bool CThreadManager::Init(CRenderManager* /*renderManager*/)
 	{
-		//RenderThread = std::thread(&CRenderManager::sRender, renderManager);
+		//RenderThread = std::thread(&CRenderManager::Render, renderManager);
 
 		for (U8 i = 0; i < NumberOfThreads; ++i)
 		{
