@@ -18,6 +18,7 @@ namespace Havtorn
 	class CDirectXFramework;
 	class CWindowHandler;
 	class CRenderManager;
+	class CScene;
 
 	enum class EEditorColorTheme
 	{
@@ -64,7 +65,7 @@ namespace Havtorn
 		CImguiManager();
 		~CImguiManager();
 
-		bool Init(CDirectXFramework* framework, CWindowHandler* windowHandler, const CRenderManager* renderManager);
+		bool Init(CDirectXFramework* framework, CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
 		void BeginFrame();
 		void Update();
 		void EndFrame();

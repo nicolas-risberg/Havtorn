@@ -5,6 +5,7 @@
 #include "ECS/System.h"
 
 #include "ECS/Systems/RenderSystem.h"
+#include "ECS/Systems/CameraSystem.h"
 
 #include "ECS/Components/TransformComponent.h"
 #include "ECS/Components/RenderComponent.h"

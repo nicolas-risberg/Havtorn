@@ -18,7 +18,9 @@ namespace Havtorn
 	bool CScene::Init(CRenderManager* renderManager)
 	{
 		// Setup systems
+		Systems.emplace_back(std::make_unique<CCameraSystem>());
 		Systems.emplace_back(std::make_unique<CRenderSystem>(renderManager));
+
 		
 		// Create entities
 		Entities.emplace_back(std::make_shared<SEntity>(1, "Camera"));
@@ -59,7 +61,8 @@ namespace Havtorn
 
 		for (U8 i = 0; i <= cubeNumber; ++i)
 		{
-			Entities.emplace_back(std::make_shared<SEntity>(i + 1, "Cube"));
+			U64 newID = Entities.back()->ID + 1;
+			Entities.emplace_back(std::make_shared<SEntity>(newID, "Cube"));
 			auto cubeEntity = Entities.back();
 
 			TransformComponents.emplace_back(std::make_shared<STransformComponent>(cubeEntity, EComponentType::TransformComponent));
