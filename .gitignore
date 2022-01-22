@@ -40,9 +40,11 @@
 *.idb
 *.vcxproj
 *.vcxproj.filters
+*.user
 
-# Tests
+# Folders
 *premakeTest/
+*Havtorn/Source/_ReSharper.Caches
 
 # Other/Intermediate
 *.ilk
