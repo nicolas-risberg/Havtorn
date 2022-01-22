@@ -25,7 +25,7 @@ namespace ImGui
 
         if (ImGui::BeginPopup("my_file_popup"))
         {
-            ImGui::MenuItem("(demo menu)", NULL, false, false);
+            ImGui::MenuItem("(demo menu)", nullptr, false, false);
             if (ImGui::MenuItem("New")) {}
             if (ImGui::MenuItem("Open", "Ctrl+O")) {}
             if (ImGui::BeginMenu("Open Recent"))
@@ -66,7 +66,7 @@ namespace ImGui
 
             if (ImGui::BeginMenu("Colors"))
             {
-                float sz = ImGui::GetTextLineHeight();
+                const float sz = ImGui::GetTextLineHeight();
                 for (int i = 0; i < ImGuiCol_COUNT; i++)
                 {
                     const char* name = ImGui::GetStyleColorName((ImGuiCol)i);
@@ -94,10 +94,8 @@ namespace ImGui
             {
                 IM_ASSERT(0);
             }
-            if (ImGui::MenuItem("Checked", NULL, true)) {}
+            if (ImGui::MenuItem("Checked", nullptr, true)) {}
             if (ImGui::MenuItem("Quit", "Alt+F4")) {}
-
-
 
             ImGui::EndPopup();
         }
