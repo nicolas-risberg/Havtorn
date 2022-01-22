@@ -2,7 +2,6 @@
 
 #pragma once
 #include "Core/WindowsInclude.h"
-#include <array>
 
 struct IDXGISwapChain;
 struct ID3D11Device;
@@ -26,8 +25,6 @@ namespace Havtorn
 		bool Init(CWindowHandler* windowHandler);
 
 		void ToggleFullscreenState(bool setFullscreen);
-
-		bool ResizeBackBufferTexture();
 
 		ID3D11Device* GetDevice() const;
 		ID3D11DeviceContext* GetContext() const;

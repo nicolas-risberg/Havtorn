@@ -41,49 +41,31 @@ namespace Havtorn
 			return false;
 		}
 
+		D3D11_CREATE_DEVICE_FLAG createFlag = static_cast<D3D11_CREATE_DEVICE_FLAG>(0);
 #if _DEBUG
-		DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
-		swapchainDesc.BufferCount = 1;
-		swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapchainDesc.OutputWindow = windowHandler->GetWindowHandle();
-		swapchainDesc.SampleDesc.Count = 1;
-		swapchainDesc.Windowed = true;
-		ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
-			nullptr,
-			D3D_DRIVER_TYPE_HARDWARE,
-			nullptr,
-			D3D11_CREATE_DEVICE_DEBUG,
-			nullptr,
-			0,
-			D3D11_SDK_VERSION,
-			&swapchainDesc,
-			&SwapChain,
-			&Device,
-			nullptr,
-			&Context), "Failed to created Device and Swap Chain.");
-#else
-		DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
-		swapchainDesc.BufferCount = 1;
-		swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapchainDesc.OutputWindow = windowHandler->GetWindowHandle();
-		swapchainDesc.SampleDesc.Count = 1;
-		swapchainDesc.Windowed = true;
-		ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
-			nullptr,
-			D3D_DRIVER_TYPE_HARDWARE,
-			nullptr,
-			0,
-			nullptr,
-			0,
-			D3D11_SDK_VERSION,
-			&swapchainDesc,
-			&SwapChain,
-			&Device,
-			nullptr,
-			&Context), "Failed to created Device and Swap Chain.");
+		createFlag = D3D11_CREATE_DEVICE_DEBUG;
 #endif
+
+		DXGI_SWAP_CHAIN_DESC swapchainDesc = {};
+		swapchainDesc.BufferCount = 1;
+		swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		swapchainDesc.OutputWindow = windowHandler->GetWindowHandle();
+		swapchainDesc.SampleDesc.Count = 1;
+		swapchainDesc.Windowed = true;
+		ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
+			nullptr,
+			D3D_DRIVER_TYPE_HARDWARE,
+			nullptr,
+			createFlag,
+			nullptr,
+			0,
+			D3D11_SDK_VERSION,
+			&swapchainDesc,
+			&SwapChain,
+			&Device,
+			nullptr,
+			&Context), "Failed to created Device and Swap Chain.");
 
 		return true;
 	}
@@ -91,31 +73,6 @@ namespace Havtorn
 	void CDirectXFramework::ToggleFullscreenState(bool setFullscreen)
 	{
 		SwapChain->SetFullscreenState(setFullscreen, NULL);
-	}
-
-	bool CDirectXFramework::ResizeBackBufferTexture()
-	{
-		//HRESULT result;
-		//ID3D11Texture2D* backbufferTexture;
-		//result = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture);
-		//if (FAILED(result))
-		//{
-		//	return false;
-		//}
-		//return true;
-
-		//ENGINE_HR_BOOL_MESSAGE(SwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Could not resize buffers!");
-
-		//ID3D11Texture2D* pBuffer = nullptr;
-		//ENGINE_HR_BOOL_MESSAGE(SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer), "Could not resize buffers!");
-
-		//if (!pBuffer)
-		//	return false;
-
-		//ENGINE_HR_BOOL_MESSAGE(Device->CreateRenderTargetView(pBuffer, NULL, &BackBuffer), "Could not resize buffers!");
-
-		//pBuffer->Release();
-		return true;
 	}
 
 	ID3D11Device* CDirectXFramework::GetDevice() const
