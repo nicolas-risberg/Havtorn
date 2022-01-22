@@ -4,3 +4,6 @@
 [submodule "Havtorn/External/FastNoise2"]
 	path = Havtorn/External/FastNoise2
 	url = https://github.com/Auburn/FastNoise2.git
+[submodule "Havtorn/External/imgui-node-editor"]
+	path = Havtorn/External/imgui-node-editor
+	url = https://github.com/thedmd/imgui-node-editor.git

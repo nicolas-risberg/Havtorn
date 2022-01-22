@@ -46,7 +46,8 @@ project "Engine"
 		"External/spdlog/include",
 		"External/FastNoise2/include",
 		"External/rapidjson",
-		"External/imgui"
+		"External/imgui",
+		"External/imgui-node-editor"
 	}
 
 	libdirs {  }
