@@ -1,6 +1,7 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #pragma once
 #include "Core/WindowsInclude.h"
-#include <array>
 
 struct IDXGISwapChain;
 struct ID3D11Device;
@@ -21,11 +22,9 @@ namespace Havtorn
 
 		void EndFrame();
 
-		bool Init(CWindowHandler* aWindowHandler);
+		bool Init(CWindowHandler* windowHandler);
 
-		void ToggleFullscreenState(bool aSetFullscreen);
-
-		bool ResizeBackBufferTexture();
+		void ToggleFullscreenState(bool setFullscreen);
 
 		ID3D11Device* GetDevice() const;
 		ID3D11DeviceContext* GetContext() const;

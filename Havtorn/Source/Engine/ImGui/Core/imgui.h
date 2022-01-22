@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 // dear imgui, v1.86 WIP
 // (headers)
 

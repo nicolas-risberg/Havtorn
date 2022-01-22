@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #include "hvpch.h"
 #include "ImguiManager.h"
 
@@ -18,41 +20,12 @@
 
 namespace Havtorn
 {
-	//static ImFont* ImGui_LoadFont(ImFontAtlas& atlas, const char* name, float size, const ImVec2 & /*displayOffset*/ = ImVec2(0, 0))
-	//{
-	//	char* windir = nullptr;
-	//	if (_dupenv_s(&windir, nullptr, "WINDIR") || windir == nullptr)
-	//		return nullptr;
-
-	//	static const ImWchar ranges[] =
-	//	{
-	//		0x0020, 0x00FF, // Basic Latin + Latin Supplement
-	//		0x0104, 0x017C, // Polish characters and more
-	//		0,
-	//	};
-
-	//	ImFontConfig config;
-	//	config.OversampleH = 4;
-	//	config.OversampleV = 4;
-	//	config.PixelSnapH = false;
-
-	//	auto path = std::string(windir) + "\\Fonts\\" + name;
-	//	auto font = atlas.AddFontFromFileTTF(path.c_str(), size, &config, ranges);
-	//	//if (font)
-	//	//font->DisplayOffset = displayOffset;
-
-	//	free(windir);
-
-	//	return font;
-	//}
-	ImFontAtlas myFontAtlas;
-
 	CImguiManager::CImguiManager()
 		: RenderManager(nullptr)
 		, ViewportPadding(0.2f)
 		, IsEnabled(true)
 		, IsDebugInfoOpen(new bool(true))
-		, IsDemoOpen(new bool(true))
+		, IsDemoOpen(new bool(false))
 	{
 	}
 
@@ -73,15 +46,13 @@ namespace Havtorn
 		ImGui::DebugCheckVersionAndDataLayout("1.86 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
 		ImGui::CreateContext();
 		SetEditorTheme(EEditorColorTheme::HavtornDark, EEditorStyleTheme::Havtorn);
-		//ImGui_LoadFont(myFontAtlas, "segoeui.ttf", 22.0f); // Doesn't really set the font
-		myFontAtlas.Build();
 		//ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\verdana.ttf", 14.0f);
 		ImGui::GetIO().Fonts->AddFontFromFileTTF("../External/imgui/misc/fonts/Roboto-Medium.ttf", 15.0f);
-		ImGui::CreateContext(&myFontAtlas);
+		ImGui::CreateContext();
 
 		MenuElements.emplace_back(std::make_unique<ImGui::CFileMenu>("File", this));
-		MenuElements.emplace_back(std::make_unique<ImGui::CViewMenu>("View", this));
 		MenuElements.emplace_back(std::make_unique<ImGui::CEditMenu>("Edit", this));
+		MenuElements.emplace_back(std::make_unique<ImGui::CViewMenu>("View", this));
 		MenuElements.emplace_back(std::make_unique<ImGui::CWindowMenu>("Window", this));
 		MenuElements.emplace_back(std::make_unique<ImGui::CHelpMenu>("Help", this));
 
@@ -290,12 +261,8 @@ namespace Havtorn
 
 	void CImguiManager::SetViewportPadding(const F32 padding)
 	{
-		//flööting pöint cömpare? :0
-		if (ViewportPadding != padding)
-		{
-			ViewportPadding = padding;
-			InitEditorLayout();
-		}
+		ViewportPadding = padding;
+		InitEditorLayout();
 	}
 
 	const CRenderManager* CImguiManager::GetRenderManager() const

@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #include "Includes/FullscreenShaderStructs.hlsli"
 
 PixelOutput main(VertexToPixel input)

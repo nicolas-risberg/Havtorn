@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #pragma once
 #include "hvpch.h"
 
@@ -100,24 +102,18 @@ namespace Havtorn
 		void SetIsMenu(bool menuIsOpen);
 
 	private:
-		//void AllScenesToInactive();
-
-		// More or less a temp fix for SP7. Aki 2021 04 15
-		//void CheckIfMenuState(const CStateStack::EState& aState);
-
-	private:
 		static CEngine* Instance;
 		CWindowHandler* WindowHandler;
 		CThreadManager* ThreadManager;
 		CDirectXFramework* Framework;
-		CForwardRenderer* ForwardRenderer;
+		//CForwardRenderer* ForwardRenderer;
 #ifdef _DEBUG
 		CImguiManager* ImguiManager;
 #endif
 		CRenderManager* RenderManager;
 		CTimer* Timer;
-		CDebug* Debug;
-		CPhysXWrapper* PhysxWrapper;
+		//CDebug* Debug;
+		//CPhysXWrapper* PhysxWrapper;
 
 		//unsigned int myActiveScene;
 		//CStateStack::EState myActiveState;
@@ -125,19 +121,19 @@ namespace Havtorn
 		//std::vector<CScene*> myScenes;
 		//std::unordered_map<CStateStack::EState, CScene*> mySceneMap;
 
-		CModelFactory* ModelFactory;
-		CCameraFactory* CameraFactory;
-		CLightFactory* LightFactory;
-		CParticleEmitterFactory* ParticleFactory;
-		CVFXMeshFactory* VFXFactory;
-		CLineFactory* LineFactory;
-		CSpriteFactory* SpriteFactory;
-		CTextFactory* TextFactory;
-		CDecalFactory* DecalFactory;
-		CInputMapper* InputMapper;
-		CMainSingleton* MainSingleton;
-		CAudioManager* AudioManager;
-		CSceneFactory* SceneFactory;
+		//CModelFactory* ModelFactory;
+		//CCameraFactory* CameraFactory;
+		//CLightFactory* LightFactory;
+		//CParticleEmitterFactory* ParticleFactory;
+		//CVFXMeshFactory* VFXFactory;
+		//CLineFactory* LineFactory;
+		//CSpriteFactory* SpriteFactory;
+		//CTextFactory* TextFactory;
+		//CDecalFactory* DecalFactory;
+		//CInputMapper* InputMapper;
+		//CMainSingleton* MainSingleton;
+		//CAudioManager* AudioManager;
+		//CSceneFactory* SceneFactory;
 
 		bool RenderSceneActive = false;
 	};

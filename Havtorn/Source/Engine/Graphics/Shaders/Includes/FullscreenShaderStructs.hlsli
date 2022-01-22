@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 struct VertexInput {
     unsigned int myIndex : SV_VERTEXID;
 };

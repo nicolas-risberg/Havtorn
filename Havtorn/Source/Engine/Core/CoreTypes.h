@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #pragma once
 
 #include <cstdint>
@@ -17,7 +19,7 @@ namespace Havtorn
 
 	using F32 = float;
 
-	using CString = std::string;
+	using String = std::string;
 
 	template<typename T>
 	using Ptr = std::unique_ptr<T>;

@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #pragma once
 
 #ifdef HV_PLATFORM_WINDOWS
@@ -6,6 +8,11 @@
 	#else
 		#define HAVTORN_API __declspec(dllimport)
 	#endif
+
+#ifndef HV_DIRECTX_11
+	#define HV_DIRECTX_11
+#endif
+
 #else
 	#error Havtorn currently only supports 64 bit Windows
 #endif

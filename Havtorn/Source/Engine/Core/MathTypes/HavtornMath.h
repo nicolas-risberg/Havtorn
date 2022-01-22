@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 // Use this for Math involving more than one MathType
 #pragma once
 

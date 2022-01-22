@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #include "ShaderStructs.hlsli"
 #include "MathHelpers.hlsli"
 #include "DetailNormalHelpers.hlsli"

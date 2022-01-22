@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 static float PI = 3.14159265;
 
 float3 Diffuse(float3 pAlbedo)
@@ -97,7 +99,7 @@ float3 EvaluatePointLight(float3 albedoColor, float3 specularColor, float3 norma
     return saturate(lightColor * lightIntensity * lambert * linearAttenuation * physicalAttenuation * ((cDiff * (1.0f - cSpec) + cSpec) * PI));
 }
 
-float3 EvaluatePointLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float3 lightRange, float3 toLight, float3 lightDistance, float3 toEye)
+float3 EvaluatePointLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float lightRange, float3 toLight, float lightDistance, float3 toEye)
 {
     float NdL = saturate(dot(normal, toLight));
     float lambert = NdL;
@@ -120,7 +122,7 @@ float3 EvaluatePointLight(float3 diffuseColor, float3 specularColor, float3 norm
     return saturate(intensityScaledColor * attenuation * ((cDiff * (1.0f - cSpec) + cSpec) * PI));
 }
 
-float3 EvaluateSpotLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float3 lightRange, float3 toLight, float3 lightDistance, float3 toEye, float3 lightDir, float angleExponent, float2 innerOuterAngle)
+float3 EvaluateSpotLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float lightRange, float3 toLight, float lightDistance, float3 toEye, float3 lightDir, float angleExponent, float2 innerOuterAngle)
 {
     float NdL = saturate(dot(normal, toLight));
     float lambert = NdL;
@@ -153,7 +155,7 @@ float3 EvaluateSpotLight(float3 diffuseColor, float3 specularColor, float3 norma
     return finalColor;
 }
 
-float3 EvaluateBoxLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float3 lightRange, float3 toLight, float3 lightDistance, float3 toEye, float3 lightDir)
+float3 EvaluateBoxLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float lightRange, float3 toLight, float lightDistance, float3 toEye, float3 lightDir)
 {
     float NdL = saturate(dot(normal, toLight));
     float lambert = NdL;
