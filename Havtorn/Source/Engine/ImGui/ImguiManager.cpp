@@ -67,6 +67,10 @@ namespace Havtorn
 		ImGui_ImplWin32_Shutdown();
 		ImGui_ImplDX11_Shutdown();
 		ImGui::DestroyContext();
+		delete IsDebugInfoOpen;
+		IsDebugInfoOpen = nullptr;
+		delete IsDemoOpen;
+		IsDemoOpen = nullptr;
 	}
 
 	bool CImguiManager::Init(const CDirectXFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene)
