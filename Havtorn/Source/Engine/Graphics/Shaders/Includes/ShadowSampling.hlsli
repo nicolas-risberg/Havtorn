@@ -11,7 +11,7 @@ float SampleShadowPos(float3 projectionPos, Texture2D shadowDepthTexture, sample
     uvCoords *= float2(0.5f, -0.5f);
     uvCoords += float2(0.5f, 0.5f);
 
-    float nonLinearDepth = shadowDepthTexture.Sample(shadowSampler, uvCoords).r;
+    float nonLinearDepth = shadowDepthTexture.SampleLevel(shadowSampler, uvCoords, 0).r;
     float oob = 1.0f;
     if (projectionPos.x > 1.0f || projectionPos.x < -1.0f || projectionPos.y > 1.0f || projectionPos.y < -1.0f)
     {
@@ -37,7 +37,8 @@ float SampleShadowPos(float3 projectionPos, Texture2D shadowDepthTexture, sample
 float3 ShadowFactor(float3 worldPosition, float3 lightPosition, float4x4 lightViewMatrix, float4x4 lightProjectionMatrix, Texture2D shadowDepthTexture, sampler shadowSampler, float2 shadowMapResolution)
 {
     worldPosition -= lightPosition.xyz;
-    float4 viewPos = mul(lightViewMatrix, worldPosition);
+    float4x3 viewMatrix = float4x3(lightViewMatrix._11_12_13, lightViewMatrix._21_22_23, lightViewMatrix._31_32_33, lightViewMatrix._41_42_43);
+    float4 viewPos = mul(viewMatrix, worldPosition);
     float4 projectionPos = mul(lightProjectionMatrix, viewPos);
     float3 viewCoords = projectionPos.xyz;
 

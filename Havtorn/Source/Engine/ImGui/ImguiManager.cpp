@@ -356,12 +356,8 @@ namespace Havtorn
 
 	void CImguiManager::SetViewportPadding(const F32 padding)
 	{
-		//flööting pöint cömpare? :0
-		if (ViewportPadding != padding)
-		{
-			ViewportPadding = padding;
-			InitEditorLayout();
-		}
+		ViewportPadding = padding;
+		InitEditorLayout();
 	}
 
 	const CRenderManager* CImguiManager::GetRenderManager() const

@@ -53,7 +53,7 @@ namespace Havtorn
 			nullptr,
 			D3D_DRIVER_TYPE_HARDWARE,
 			nullptr,
-			0, //D3D11_CREATE_DEVICE_DEBUG ,
+			D3D11_CREATE_DEVICE_DEBUG,
 			nullptr,
 			0,
 			D3D11_SDK_VERSION,
@@ -130,7 +130,7 @@ namespace Havtorn
 
 	ID3D11Texture2D* CDirectXFramework::GetBackbufferTexture() const
 	{
-		ID3D11Texture2D* backbufferTexture;
+		ID3D11Texture2D* backbufferTexture = nullptr;
 		ENGINE_HR_MESSAGE(SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture), "Failed to Get Buffer");
 		return backbufferTexture;
 	}

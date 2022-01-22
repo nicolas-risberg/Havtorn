@@ -118,7 +118,7 @@ PixelOutPut main(VertexToPixel input)
         pointLights += EvaluatePointLight(color, specularcolor, normal, perceptualroughness, currentLight.myColorAndRange.rgb, currentLight.myPositionAndIntensity.w, currentLight.myColorAndRange.a, currentLight.myPositionAndIntensity.xyz, toEye, input.myWorldPosition.xyz);
     }
     
-    float3 emissive = albedo * emissivedata; // Maybe add cool multiplier?? // Aki 2021
+    float3 emissive = albedo.rgb * emissivedata; // Maybe add cool multiplier?? // Aki 2021
     float3 radiance = ambience + directionallight * (1.0f - ShadowFactor(input.myWorldPosition.xyz, directionalLightPosition.xyz, toDirectionalLightView, toDirectionalLightProjection, shadowDepthTexture, shadowSampler, directionalLightShadowMapResolution)) + pointLights + emissive;
    
     output.myColor.rgb = /*LinearToGamma(*/radiance/*)*/;
