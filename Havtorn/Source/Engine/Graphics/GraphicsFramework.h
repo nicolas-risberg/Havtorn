@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #pragma once
 #include "Core/WindowsInclude.h"
 #include <array>
@@ -21,9 +23,9 @@ namespace Havtorn
 
 		void EndFrame();
 
-		bool Init(CWindowHandler* aWindowHandler);
+		bool Init(CWindowHandler* windowHandler);
 
-		void ToggleFullscreenState(bool aSetFullscreen);
+		void ToggleFullscreenState(bool setFullscreen);
 
 		bool ResizeBackBufferTexture();
 

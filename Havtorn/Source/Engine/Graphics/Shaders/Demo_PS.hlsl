@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 struct VertexToPixel
 {
     float4 Position : SV_POSITION;

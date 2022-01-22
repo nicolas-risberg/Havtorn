@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #include "Includes/FullscreenShaderStructs.hlsli"
 
 float3 Uncharted2Tonemap(float3 x)

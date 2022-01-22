@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 float InverseLerp(float a, float b, float c)
 {
     return (c - a) / (b - a);

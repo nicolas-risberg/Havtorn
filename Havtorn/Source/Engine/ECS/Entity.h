@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #pragma once
 
 namespace Havtorn
@@ -15,6 +17,6 @@ namespace Havtorn
 		const I64 GetComponentIndex(EComponentType type) const;
 
 	private:
-		 mutable std::array<I64, static_cast<size_t>(EComponentType::Count)> ComponentIndices = { -1 };
+		 mutable std::array<I64, static_cast<size_t>(EComponentType::Count)> ComponentIndices = {};
 	};
 }

@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 struct PointLightVertexInput
 {
     float4 myPosition : POSITION;

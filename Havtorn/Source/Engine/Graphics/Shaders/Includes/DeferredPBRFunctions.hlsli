@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 static float PI = 3.14159265;
 
 float3 Diffuse(float3 pAlbedo)

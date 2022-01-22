@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #include "Includes/PBRAmbience.hlsli"
 #include "Includes/PBRDirectionalLight.hlsli"
 

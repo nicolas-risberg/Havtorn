@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #include "hvpch.h"
 #include "CameraSystem.h"
 #include "Scene/Scene.h"

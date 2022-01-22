@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #include "hvpch.h"
 #include "GraphicsFramework.h"
 #include "Application/WindowHandler.h"
@@ -32,9 +34,9 @@ namespace Havtorn
 		SwapChain->Present(0, 0);
 	}
 
-	bool CDirectXFramework::Init(Havtorn::CWindowHandler* aWindowHandler)
+	bool CDirectXFramework::Init(Havtorn::CWindowHandler* windowHandler)
 	{
-		if (!aWindowHandler)
+		if (!windowHandler)
 		{
 			return false;
 		}
@@ -44,7 +46,7 @@ namespace Havtorn
 		swapchainDesc.BufferCount = 1;
 		swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapchainDesc.OutputWindow = aWindowHandler->GetWindowHandle();
+		swapchainDesc.OutputWindow = windowHandler->GetWindowHandle();
 		swapchainDesc.SampleDesc.Count = 1;
 		swapchainDesc.Windowed = true;
 		ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
@@ -65,7 +67,7 @@ namespace Havtorn
 		swapchainDesc.BufferCount = 1;
 		swapchainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapchainDesc.OutputWindow = aWindowHandler->GetWindowHandle();
+		swapchainDesc.OutputWindow = windowHandler->GetWindowHandle();
 		swapchainDesc.SampleDesc.Count = 1;
 		swapchainDesc.Windowed = true;
 		ENGINE_HR_MESSAGE(D3D11CreateDeviceAndSwapChain(
@@ -86,31 +88,31 @@ namespace Havtorn
 		return true;
 	}
 
-	void CDirectXFramework::ToggleFullscreenState(bool aSetFullscreen)
+	void CDirectXFramework::ToggleFullscreenState(bool setFullscreen)
 	{
-		SwapChain->SetFullscreenState(aSetFullscreen, NULL);
+		SwapChain->SetFullscreenState(setFullscreen, NULL);
 	}
 
 	bool CDirectXFramework::ResizeBackBufferTexture()
 	{
 		//HRESULT result;
 		//ID3D11Texture2D* backbufferTexture;
-		//result = mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture);
+		//result = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture);
 		//if (FAILED(result))
 		//{
 		//	return false;
 		//}
 		//return true;
 
-		//ENGINE_HR_BOOL_MESSAGE(mySwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Could not resize buffers!");
+		//ENGINE_HR_BOOL_MESSAGE(SwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0), "Could not resize buffers!");
 
 		//ID3D11Texture2D* pBuffer = nullptr;
-		//ENGINE_HR_BOOL_MESSAGE(mySwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer), "Could not resize buffers!");
+		//ENGINE_HR_BOOL_MESSAGE(SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBuffer), "Could not resize buffers!");
 
 		//if (!pBuffer)
 		//	return false;
 
-		//ENGINE_HR_BOOL_MESSAGE(myDevice->CreateRenderTargetView(pBuffer, NULL, &myBackBuffer), "Could not resize buffers!");
+		//ENGINE_HR_BOOL_MESSAGE(Device->CreateRenderTargetView(pBuffer, NULL, &BackBuffer), "Could not resize buffers!");
 
 		//pBuffer->Release();
 		return true;

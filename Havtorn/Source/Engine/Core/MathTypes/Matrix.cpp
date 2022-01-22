@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #include "Matrix.h"
 #include "Vector.h"
 #include "Quaternion.h"

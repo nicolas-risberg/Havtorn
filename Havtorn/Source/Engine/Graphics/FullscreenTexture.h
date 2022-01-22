@@ -1,3 +1,5 @@
+// Copyright 2022 Team Havtorn. All Rights Reserved.
+
 #pragma once
 
 struct ID3D11DeviceContext;
