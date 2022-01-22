@@ -69,7 +69,7 @@ namespace Havtorn
 
 		bool Init(const CDirectXFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
 		void BeginFrame();
-		void Update() const;
+		void Update();
 		void EndFrame();
 		void DebugWindow();
 
@@ -85,8 +85,8 @@ namespace Havtorn
 	
 		[[nodiscard]] const CRenderManager* GetRenderManager() const;
 
-		void ToggleDebugInfo() const;
-		void ToggleDemo() const;
+		void ToggleDebugInfo();
+		void ToggleDemo();
 
 	private:
 		void InitEditorLayout(); 

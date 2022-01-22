@@ -4,7 +4,6 @@
 
 #include "Core/Core.h"
 #include <cstdarg>
-#include <ctime>
 
 namespace Havtorn
 {
@@ -26,7 +25,8 @@ namespace Havtorn
 
 		static void Print(const EConsoleColor& color, const char* category, const char* message, ...);
 
-		static std::string StringVsprintf(const char* format, std::va_list args)
+		// TODO.NR: Figure out another place for this. This is the exact same as the one used in EngineException.h
+		static std::string StringVsprintf(const char* format, const std::va_list args)
 		{
 			va_list tmpArgs; //unfortunately you cannot consume a va_list twice
 			va_copy(tmpArgs, args); //so we have to copy it

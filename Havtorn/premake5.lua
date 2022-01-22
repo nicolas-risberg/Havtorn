@@ -43,7 +43,6 @@ project "Engine"
 	includedirs
 	{
 		"Source/%{prj.name}",
-		"External/spdlog/include",
 		"External/FastNoise2/include",
 		"External/rapidjson",
 		"External/imgui"
@@ -153,7 +152,6 @@ project "Launcher"
 	includedirs
 	{
 		"Source/%{prj.name}",
-		"External/spdlog/include",
 		"Source/Engine"
 	}
 
