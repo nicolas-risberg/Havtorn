@@ -71,7 +71,7 @@ namespace Havtorn
 		void BeginFrame();
 		void Update() const;
 		void EndFrame();
-		void DebugWindow() const;
+		void DebugWindow();
 
 	public://Inherited
 	//void Receive(const SMessage& aMessage) override;
@@ -107,7 +107,7 @@ namespace Havtorn
 
 		F32 ViewportPadding;
 		bool IsEnabled;
-		bool* IsDebugInfoOpen;
-		bool* IsDemoOpen;
+		bool IsDebugInfoOpen;
+		bool IsDemoOpen;
 	};
 }

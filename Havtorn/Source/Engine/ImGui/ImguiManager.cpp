@@ -24,8 +24,8 @@ namespace Havtorn
 		: RenderManager(nullptr)
 		, ViewportPadding(0.2f)
 		, IsEnabled(true)
-		, IsDebugInfoOpen(new bool(true))
-		, IsDemoOpen(new bool(false))
+		, IsDebugInfoOpen(true)
+		, IsDemoOpen(false)
 	{
 	}
 
@@ -35,10 +35,6 @@ namespace Havtorn
 		ImGui_ImplWin32_Shutdown();
 		ImGui_ImplDX11_Shutdown();
 		ImGui::DestroyContext();
-		delete IsDebugInfoOpen;
-		IsDebugInfoOpen = nullptr;
-		delete IsDemoOpen;
-		IsDemoOpen = nullptr;
 	}
 
 	bool CImguiManager::Init(const CDirectXFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene)
@@ -83,7 +79,7 @@ namespace Havtorn
 		ImGui::NewFrame();
 	}
 
-	void CImguiManager::Update() const
+	void CImguiManager::Update()
 	{
 		// Main Menu bar
 		if (IsEnabled)
@@ -109,16 +105,16 @@ namespace Havtorn
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
-	void CImguiManager::DebugWindow() const
+	void CImguiManager::DebugWindow()
 	{
-		if (*IsDemoOpen)
+		if (IsDemoOpen)
 		{
-			ImGui::ShowDemoWindow(IsDemoOpen);
+			ImGui::ShowDemoWindow(&IsDemoOpen);
 		}
 
-		if (*IsDebugInfoOpen)
+		if (IsDebugInfoOpen)
 		{
-			if (ImGui::Begin("Debug info", IsDebugInfoOpen))
+			if (ImGui::Begin("Debug info", &IsDebugInfoOpen))
 			{
 				ImGui::Text(GetFrameRate().c_str());
 				ImGui::Text(GetSystemMemory().c_str());
@@ -270,14 +266,14 @@ namespace Havtorn
 		return RenderManager;
 	}
 
-	void CImguiManager::ToggleDebugInfo() const
+	void CImguiManager::ToggleDebugInfo()
 	{
-		*IsDebugInfoOpen = !*IsDebugInfoOpen;
+		IsDebugInfoOpen = !IsDebugInfoOpen;
 	}
 
-	void CImguiManager::ToggleDemo() const
+	void CImguiManager::ToggleDemo()
 	{
-		*IsDemoOpen = !*IsDemoOpen;
+		IsDemoOpen = !IsDemoOpen;
 	}
 
 	void CImguiManager::InitEditorLayout()
