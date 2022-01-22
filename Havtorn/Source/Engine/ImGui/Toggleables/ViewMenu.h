@@ -3,11 +3,11 @@
 
 namespace ImGui
 {
-	class CWindowMenu : public CToggleable
+	class CViewMenu final : public CToggleable
 	{
 	public:
-		CWindowMenu(const char* aName, Havtorn::CImguiManager* manager);
-		~CWindowMenu() override = default;
+		CViewMenu(const char* aName, Havtorn::CImguiManager* manager);
+		~CViewMenu() override = default;
 		void OnEnable() override;
 		void OnInspectorGUI() override;
 		void OnDisable() override;

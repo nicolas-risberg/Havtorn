@@ -10,10 +10,6 @@ namespace ImGui
 	{
 	}
 
-	CWindowMenu::~CWindowMenu()
-	{
-	}
-
 	void CWindowMenu::OnEnable()
 	{
 	}

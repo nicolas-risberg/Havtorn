@@ -65,31 +65,34 @@ namespace Havtorn
 		CImguiManager();
 		~CImguiManager();
 
-		bool Init(CDirectXFramework* framework, CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
+		bool Init(const CDirectXFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
 		void BeginFrame();
-		void Update();
+		void Update() const;
 		void EndFrame();
-		void DebugWindow();
+		void DebugWindow() const;
 
 	public://Inherited
 	//void Receive(const SMessage& aMessage) override;
 		void SetEditorTheme(EEditorColorTheme colorTheme = EEditorColorTheme::HavtornDark, EEditorStyleTheme styleTheme = EEditorStyleTheme::Havtorn);
-		std::string GetEditorColorThemeName(EEditorColorTheme colorTheme);
-		::ImVec4 GetEditorColorThemeRepColor(EEditorColorTheme colorTheme);
-		const SEditorLayout& GetEditorLayout() const;
+		std::string GetEditorColorThemeName(const EEditorColorTheme colorTheme);
+		ImVec4 GetEditorColorThemeRepColor(const EEditorColorTheme colorTheme);
+		[[nodiscard]] const SEditorLayout& GetEditorLayout() const;
 
-		F32 GetViewportPadding() const;
-		void SetViewportPadding(F32 padding);
+		[[nodiscard]]  F32 GetViewportPadding() const;
+		void SetViewportPadding(const F32 padding);
 	
-		const CRenderManager* GetRenderManager() const;
+		[[nodiscard]] const CRenderManager* GetRenderManager() const;
+
+		void ToggleDebugInfo() const;
+		void ToggleDemo() const;
 
 	private:
 		void InitEditorLayout(); 
 		void SetEditorColorProfile(const SEditorColorProfile& colorProfile);
 
-		const std::string GetFrameRate();
-		const std::string GetSystemMemory();
-		const std::string GetDrawCalls();
+		[[nodiscard]] std::string GetFrameRate() const;
+		[[nodiscard]] std::string GetSystemMemory() const;
+		[[nodiscard]] std::string GetDrawCalls() const;
 
 	private:
 		const CRenderManager* RenderManager;
@@ -102,5 +105,7 @@ namespace Havtorn
 
 		F32 ViewportPadding;
 		bool IsEnabled;
+		bool* IsDebugInfoOpen;
+		bool* IsDemoOpen;
 	};
 }

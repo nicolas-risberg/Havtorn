@@ -4,8 +4,8 @@
 #include "ImguiManager.h"
 
 ImGui::CToggleable::CToggleable(const char* displayName, Havtorn::CImguiManager* manager)
-	: DisplayName(displayName)
-	, Manager(manager)
+	: Manager(manager)
+	, DisplayName(displayName)
 	, IsEnabled(false)
 {
 }
