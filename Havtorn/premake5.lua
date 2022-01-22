@@ -61,7 +61,7 @@ project "Engine"
 
 	shadermodel("5.0")
 	-- Warnings as errors
-	-- shaderoptions({"/WX"})
+	shaderoptions({"/WX"})
 	shaderobjectfileoutput(shaderTarget .. "%%(Filename).cso")
 
 	files

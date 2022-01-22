@@ -6,23 +6,18 @@ VertexModelToPixel main(VertexModelInput input)
 {
     VertexModelToPixel returnValue;
      
-    returnValue.myPosition = input.myPosition;
+    //returnValue.myPosition = input.myPosition;
 
     float4 vWeights = input.myBoneWeight;
     uint4 vBones = uint4((uint) input.myBoneID.x, (uint) input.myBoneID.y, (uint) input.myBoneID.z, (uint) input.myBoneID.w);
-    returnValue.myPosition = mul(returnValue.myPosition, toWorld);
+    //returnValue.myPosition = mul(returnValue.myPosition, toWorld);
     
     float4 skinnedPos = 0;
-    uint iBone = 0;
-    float fWeight = 0;
-    
-    iBone = 0;
-    fWeight = vWeights.x;
-    
+
     /// Bone 0
-    iBone = vBones.x;
-    fWeight = vWeights.x;
-    float4 pos = input.myPosition;
+    uint iBone = vBones.x;
+    float fWeight = vWeights.x;
+    const float4 pos = input.myPosition;
     skinnedPos += fWeight * mul(pos, myBones[iBone]);
     
     /// Bone 1
@@ -44,13 +39,13 @@ VertexModelToPixel main(VertexModelInput input)
     input.myPosition.y = skinnedPos.y;
     input.myPosition.z = skinnedPos.z;
     input.myPosition.w = skinnedPos.w;
-    
-    float4 vertexObjectPos = input.myPosition.xyzw;
-    float4 vertexWorldPos = mul(toWorld, vertexObjectPos);
-    float4 vertexViewPos = mul(toCameraSpace, vertexWorldPos);
-    float4 vertexProjectionPos = mul(toProjectionSpace, vertexViewPos);
-    
-    float3x3 toWorldRotation = (float3x3) toWorld;
+
+    const float4 vertexObjectPos = input.myPosition.xyzw;
+    const float4 vertexWorldPos = mul(toWorld, vertexObjectPos);
+    const float4 vertexViewPos = mul(toCameraSpace, vertexWorldPos);
+    const float4 vertexProjectionPos = mul(toProjectionSpace, vertexViewPos);
+
+    const float3x3 toWorldRotation = (float3x3) toWorld;
     float3 vertexWorldNormal = mul(toWorldRotation, input.myNormal.xyz);
     float3 vertexWorldTangent = mul(toWorldRotation, input.myTangent.xyz);
     float3 vertexWorldBinormal = mul(toWorldRotation, input.myBiTangent.xyz);

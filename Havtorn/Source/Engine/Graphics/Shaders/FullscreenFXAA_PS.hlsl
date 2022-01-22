@@ -1,7 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #include "Includes/FullscreenShaderStructs.hlsli"
-#include "Includes/MathHelpers.hlsli"
+#pragma warning( disable : 4000 )
 
 // Tutorial:
 // https://catlikecoding.com/unity/tutorials/advanced-rendering/fxaa/
@@ -55,7 +55,7 @@ float LinearRGBToLuminance(float3 linearRgb)
 
 float4 Sample(float2 uv)
 {
-    return fullscreenTexture1.Sample(defaultSampler, uv);
+    return fullscreenTexture1.SampleLevel(defaultSampler, uv, 0);
 }
 
 float SampleLuminance(float2 uv, float uOffset, float vOffset)
@@ -89,7 +89,7 @@ LuminanceData SampleLuminanceNeighborhood(float2 uv)
 
 bool ShouldSkipPixel(LuminanceData l)
 {
-    float threshold = max(contrastThreshold, relativeThreshold * l.highest);
+	const float threshold = max(contrastThreshold, relativeThreshold * l.highest);
     return l.contrast < threshold;
 }
 
@@ -171,9 +171,9 @@ float DetermineEdgeBlendFactor(LuminanceData l, EdgeData e, float2 uv)
     float pLuminanceDelta = SampleLuminance(puv, 0, 0) - edgeLuminance;
     bool pAtEnd = abs(pLuminanceDelta) >= gradientThreshold;
 	
-    for (int i = 1; i < edgeStepCount && !pAtEnd; i++)
+    for (int posSampleIndex = 1; posSampleIndex < edgeStepCount && !pAtEnd; posSampleIndex++)
     {
-        puv += edgeStep * edgeSteps[i];
+        puv += edgeStep * edgeSteps[posSampleIndex];
         pLuminanceDelta = SampleLuminance(puv, 0, 0) - edgeLuminance;
         pAtEnd = abs(pLuminanceDelta) >= gradientThreshold;
     }
@@ -187,9 +187,9 @@ float DetermineEdgeBlendFactor(LuminanceData l, EdgeData e, float2 uv)
     float nLuminanceDelta = SampleLuminance(nuv, 0, 0) - edgeLuminance;
     bool nAtEnd = abs(nLuminanceDelta) >= gradientThreshold;
 
-    for (int i = 1; i < edgeStepCount && !nAtEnd; i++)
+    for (int negSampleIndex = 1; negSampleIndex < edgeStepCount && !nAtEnd; negSampleIndex++)
     {
-        nuv -= edgeStep * edgeSteps[i];
+        nuv -= edgeStep * edgeSteps[negSampleIndex];
         nLuminanceDelta = SampleLuminance(nuv, 0, 0) - edgeLuminance;
         nAtEnd = abs(nLuminanceDelta) >= gradientThreshold;
     }
@@ -232,15 +232,17 @@ float DetermineEdgeBlendFactor(LuminanceData l, EdgeData e, float2 uv)
 
 float4 ApplyFXAA(VertexToPixel input)
 {
+    float4 returnValue;
     float2 uv = input.myUV.xy;
     LuminanceData l = SampleLuminanceNeighborhood(uv);
     if (ShouldSkipPixel(l))
     {
-        return Sample(input.myUV.xy);
+        returnValue = Sample(input.myUV.xy);
+        return returnValue;
     }
 
     const float pixelBlend = DeterminePixelBlendFactor(l);
-    EdgeData e = DetermineEdge(l);
+    const EdgeData e = DetermineEdge(l);
     const float edgeBlend = DetermineEdgeBlendFactor(l, e, uv);
     const float finalBlend = max(pixelBlend, edgeBlend);
 
@@ -252,7 +254,8 @@ float4 ApplyFXAA(VertexToPixel input)
     {
         uv.x += e.pixelStep * finalBlend;
     }
-    return float4(Sample(uv).rgb, l.m);
+    returnValue = float4(Sample(uv).rgb, l.m);
+    return returnValue;
 }
 
 PixelOutput main(VertexToPixel input)

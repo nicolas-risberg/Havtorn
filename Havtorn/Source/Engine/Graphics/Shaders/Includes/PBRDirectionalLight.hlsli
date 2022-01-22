@@ -8,8 +8,8 @@ float3 Diffuse(float3 pAlbedo)
 
 float NormalDistribution_GGX(float a, float NdH)
 {
-    float a2 = a * a;
-    float NdH2 = NdH * NdH;
+	const float a2 = a * a;
+	const float NdH2 = NdH * NdH;
 
     float denominator = NdH2 * (a2 - 1.0f) + 1.0f;
     denominator *= denominator;
@@ -25,9 +25,9 @@ float Specular_D(float a, float NdH)
 
 float Geometric_Smith_Schlick_GGX(float a, float NdV, float NdL)
 {
-    float k = a * 0.5f;
-    float GV = NdV / (NdV * (1 - k) + k);
-    float GL = NdL / (NdL * (1 - k) + k);
+	const float k = a * 0.5f;
+	const float GV = NdV / (NdV * (1 - k) + k);
+	const float GL = NdL / (NdL * (1 - k) + k);
     return GV * GL;
 }
 
@@ -53,17 +53,17 @@ float3 Specular(float3 specularColor, float3 h, float3 v, float3 l, float a, flo
 
 float3 EvaluateDirectionalLight(float3 albedoColor, float3 specularColor, float3 normal, float roughness, float3 lightColor, float3 lightDir, float3 viewDir)
 {
-    float NdL = saturate(dot(normal, lightDir));
-    float lambert = NdL;
-    float NdV = saturate(dot(normal, viewDir));
-    float3 h = normalize(lightDir + viewDir);
-    float NdH = saturate(dot(normal, h));
-    float VdH = saturate(dot(viewDir, h));
-    float LdV = saturate(dot(lightDir, viewDir));
-    float a = max(0.001f, roughness * roughness);
+	const float NdL = saturate(dot(normal, lightDir));
+	const float lambert = NdL;
+	const float NdV = saturate(dot(normal, viewDir));
+	const float3 h = normalize(lightDir + viewDir);
+	const float NdH = saturate(dot(normal, h));
+	const float VdH = saturate(dot(viewDir, h));
+	const float LdV = saturate(dot(lightDir, viewDir));
+	const float a = max(0.001f, roughness * roughness);
 
-    float3 cDiff = Diffuse(albedoColor);
-    float3 cSpec = Specular(specularColor, h, viewDir, lightDir, a, NdL, NdV, NdH, VdH, LdV);
+	const float3 cDiff = Diffuse(albedoColor);
+	const float3 cSpec = Specular(specularColor, h, viewDir, lightDir, a, NdL, NdV, NdH, VdH, LdV);
 
     return saturate(lightColor * lambert * (cDiff * (1.0f - cSpec) + cSpec) * PI);
 }

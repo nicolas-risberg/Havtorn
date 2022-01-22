@@ -5,8 +5,9 @@
 PixelOutput main(VertexToPixel input)
 {
     PixelOutput returnValue;
-    float resource = fullscreenTexture1.Sample(defaultSampler, input.myUV.xy).r;
+    const float resource = fullscreenTexture1.Sample(defaultSampler, input.myUV.xy).r;
     returnValue.myColor.r = resource;
+    returnValue.myColor.gb = 0.0f;
     returnValue.myColor.a = 1.0f;
     return returnValue;
 }

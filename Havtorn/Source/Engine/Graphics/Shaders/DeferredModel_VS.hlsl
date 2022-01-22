@@ -6,12 +6,12 @@ VertexModelToPixel main(VertexModelInput input)
 {
     VertexModelToPixel returnValue;
 
-    float4 vertexObjectPos      = input.myPosition.xyzw;
-    float4 vertexWorldPos       = mul(toWorld, vertexObjectPos);
-    float4 vertexViewPos        = mul(toCameraSpace, vertexWorldPos);
-    float4 vertexProjectionPos  = mul(toProjectionSpace, vertexViewPos);
-    
-    float3x3 toWorldRotation    = (float3x3) toWorld;
+    const float4 vertexObjectPos      = input.myPosition.xyzw;
+    const float4 vertexWorldPos       = mul(toWorld, vertexObjectPos);
+    const float4 vertexViewPos        = mul(toCameraSpace, vertexWorldPos);
+    const float4 vertexProjectionPos  = mul(toProjectionSpace, vertexViewPos);
+
+    const float3x3 toWorldRotation    = (float3x3) toWorld;
     float3 vertexWorldNormal    = mul(toWorldRotation, input.myNormal.xyz);
     float3 vertexWorldTangent   = mul(toWorldRotation, input.myTangent.xyz);
     float3 vertexWorldBinormal = mul(toWorldRotation, input.myBiTangent.xyz);

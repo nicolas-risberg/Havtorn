@@ -3,7 +3,7 @@
 #include "ShaderStructs.hlsli"
 #include "MathHelpers.hlsli"
 #include "DetailNormalHelpers.hlsli"
-#include "ShadowSampling.hlsli"
+//#include "ShadowSampling.hlsli"
 
 static float emissiveStrength = 20.0f;
 
@@ -19,13 +19,13 @@ PixelOutPut PixelShader_Color(VertexToPixel input)
 
 float PixelShader_DetailNormalStrength(VertexToPixel input)
 {
-    float output = materialTexture.Sample(defaultSampler, input.myUV.xy).a;
+	const float output = materialTexture.Sample(defaultSampler, input.myUV.xy).a;
     return output;
 }
 
 PixelOutPut PixelShader_DetailNormal(VertexToPixel input, int index)
 {
-    float tilingModifier = DETAILNORMAL_TILING; // eq to scale
+	const float tilingModifier = DETAILNORMAL_TILING; // eq to scale
    
     float3 normal;
     normal.xy = detailNormals[index].Sample(defaultSampler, input.myUV.xy * tilingModifier).ag;

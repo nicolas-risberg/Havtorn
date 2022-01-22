@@ -2,16 +2,16 @@
 
 #include "Includes/FullscreenShaderStructs.hlsli"
 
-float3 Uncharted2Tonemap(float3 x)
+float3 Uncharted2Tonemap(const float3 x)
 {
-    float A = 0.15f;
-    float B = 0.5f;
-    float C = 0.1f;
-    float D = 0.2f;
-    float E = 0.02f;
-    float F = 0.3f;
+	const float a = 0.15f;
+	const float b = 0.5f;
+	const float c = 0.1f;
+	const float d = 0.2f;
+	const float e = 0.02f;
+	const float f = 0.3f;
     
-    return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
+    return ((x * (a * x + c * b) + d * e) / (x * (a * x + b) + d * f)) - e / f;
 }
 
 // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
@@ -32,8 +32,8 @@ static const float3x3 ACESOutputMat =
 
 float3 RRTAndODTFit(float3 v)
 {
-    float3 a = v * (v + 0.0245786f) - 0.000090537f;
-    float3 b = v * (0.983729f * v + 0.4329510f) + 0.238081f;
+	const float3 a = v * (v + 0.0245786f) - 0.000090537f;
+	const float3 b = v * (0.983729f * v + 0.4329510f) + 0.238081f;
     return a / b;
 }
 
@@ -52,20 +52,21 @@ float3 ACESFitted(float3 color)
     return color;
 }
 
-float3 ACESApprox(float3 x)
+float3 ACESApprox(const float3 x)
 {
-    float a = 2.51f;
-    float b = 0.03f;
-    float c = 2.43f;
-    float d = 0.59f;
-    float e = 0.14f;
+	const float a = 2.51f;
+	const float b = 0.03f;
+	const float c = 2.43f;
+	const float d = 0.59f;
+	const float e = 0.14f;
     return saturate((x * (a * x + b)) / (x * (c * x + d) + e));
 }
 
 PixelOutput main(VertexToPixel input)
 {
     PixelOutput returnValue;
-    float3 resource = fullscreenTexture1.Sample(defaultSampler, input.myUV.xy).rgb;
+    returnValue.myColor.rgba = 1.0f;
+    const float3 resource = fullscreenTexture1.Sample(defaultSampler, input.myUV.xy).rgb;
 	
 	// No Tonemapping
 	//{
@@ -83,8 +84,8 @@ PixelOutput main(VertexToPixel input)
 	// Uncharted 2
     if (myIsUncharted)
     {
-        float3 whitePoint = myWhitePointColor * myWhitePointIntensity; //10.0f;
-        float exposure = myExposure; //3.0f;
+	    const float3 whitePoint = (float3)myWhitePointColor * myWhitePointIntensity; //10.0f;
+	    const float exposure = myExposure; //3.0f;
         returnValue.myColor.rgb = Uncharted2Tonemap(resource * exposure) / Uncharted2Tonemap(whitePoint);
     }
 	// Uncharted 2
@@ -92,8 +93,8 @@ PixelOutput main(VertexToPixel input)
     // ACES
     if (myIsACES)
     {
-        float3 whitePoint = myWhitePointColor * myWhitePointIntensity; //10.0f;
-        float exposure = myExposure; //3.0f;
+	    const float3 whitePoint = (float3)myWhitePointColor * myWhitePointIntensity; //10.0f;
+	    const float exposure = myExposure; //3.0f;
         returnValue.myColor.rgb = ACESFitted(resource * exposure) / ACESFitted(whitePoint);
     }
     // ACES

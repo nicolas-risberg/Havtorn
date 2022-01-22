@@ -1,9 +1,9 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #include "DeferredShaderStructs.hlsli"
-#include "MathHelpers.hlsli"
+//#include "MathHelpers.hlsli"
 #include "DetailNormalHelpers.hlsli"
-#include "ShadowSampling.hlsli"
+//#include "ShadowSampling.hlsli"
 
 //static float emissiveStrength = 20.0f;
 
@@ -16,7 +16,7 @@ float4 PixelShader_WorldPosition(float2 uv)
     float z = depthTexture.Sample(defaultSampler, uv).r;
     float x = uv.x * 2.0f - 1;
     float y = (1 - uv.y) * 2.0f - 1;
-    float4 projectedPos = float4(x, y, z, 1.0f);
+    const float4 projectedPos = float4(x, y, z, 1.0f);
     float4 viewSpacePos = mul(toCameraFromProjection, projectedPos);
     viewSpacePos /= viewSpacePos.w;
     float4 worldPos = mul(toWorldFromCamera, viewSpacePos);
@@ -31,7 +31,7 @@ float4 PixelShader_Exists(float2 uv)
     //float4 worldPos = PixelShader_WorldPosition(input).myColor.rgba;
     //output.myColor.rgba = worldPos;
     //return output;
-    PixelOutput output;
+    //PixelOutput output;
     float depth = depthTexture.Sample(defaultSampler, uv).r;
 
     return float4(depth, 0.0f, 0.0f, 0.0f);
@@ -93,12 +93,12 @@ float4 PixelShader_Normal(Texture2D aNormalTexture, float2 uv)
 
 float PixelShader_DetailNormalStrength(float2 uv)
 {
-    float output = materialTexture.Sample(defaultSampler, uv).a;
+	const float output = materialTexture.Sample(defaultSampler, uv).a;
     return output;
 }
 float4 PixelShader_DetailNormal(float2 uv, int index)
 {
-    float tilingModifier = DETAILNORMAL_TILING; // eq to scale
+	const float tilingModifier = DETAILNORMAL_TILING; // eq to scale
    
     float3 normal;
     
@@ -125,55 +125,55 @@ float4 PixelShader_Material(Texture2D aMaterialTexture, float2 uv)
 
 float PixelShader_AmbientOcclusion(float2 uv)
 {
-    float ao = normalTexture.Sample(defaultSampler, uv).b;
+	const float ao = normalTexture.Sample(defaultSampler, uv).b;
     return ao;
 }
 
 float PixelShader_AmbientOcclusion(Texture2D aNormalTexture, float2 uv)
 {
-    float ao = aNormalTexture.Sample(defaultSampler, uv).b;
+	const float ao = aNormalTexture.Sample(defaultSampler, uv).b;
     return ao;
 }
 
 float PixelShader_Metalness(float2 uv)
 {
-    float metalness = PixelShader_Material(uv).r;
+	const float metalness = PixelShader_Material(uv).r;
     return metalness;
 }
 
 float PixelShader_Metalness(Texture2D aMaterialTexture, float2 uv)
 {
-    float metalness = PixelShader_Material(aMaterialTexture, uv).r;
+	const float metalness = PixelShader_Material(aMaterialTexture, uv).r;
     return metalness;
 }
 
 float PixelShader_PerceptualRoughness(float2 uv)
 {
-    float roughness = PixelShader_Material(uv).g;
+	const float roughness = PixelShader_Material(uv).g;
     return roughness;
 }
 
 float PixelShader_PerceptualRoughness(Texture2D aMaterialTexture, float2 uv)
 {
-    float roughness = PixelShader_Material(aMaterialTexture, uv).g;
+	const float roughness = PixelShader_Material(aMaterialTexture, uv).g;
     return roughness;
 }
 
 float PixelShader_Emissive(float2 uv)
 {
-    float emissive = PixelShader_Material(uv).b;
+	const float emissive = PixelShader_Material(uv).b;
     return emissive;
 }
 
 float PixelShader_Emissive(Texture2D aMaterialTexture, float2 uv)
 {
-    float emissive = PixelShader_Material(aMaterialTexture, uv).b;
+	const float emissive = PixelShader_Material(aMaterialTexture, uv).b;
     return emissive;
 }
 
 float PixelShader_SSAO(float2 uv)
 {
-    float ssao = SSAOTexture.Sample(defaultSampler, uv).r;
+	const float ssao = SSAOTexture.Sample(defaultSampler, uv).r;
     return ssao;
 }
 
@@ -220,25 +220,25 @@ float4 GBuffer_VertexNormal(float2 uv)
 
 float GBuffer_AmbientOcclusion(float2 uv)
 {
-    float ao = materialTextureGBuffer.Sample(defaultSampler, uv).a;
+	const float ao = materialTextureGBuffer.Sample(defaultSampler, uv).a;
     return ao;
 }
 
 float GBuffer_Metalness(float2 uv)
 {
-    float metalness = materialTextureGBuffer.Sample(defaultSampler, uv).r;
+	const float metalness = materialTextureGBuffer.Sample(defaultSampler, uv).r;
     return metalness;
 }
 
 float GBuffer_PerceptualRoughness(float2 uv)
 {
-    float roughness = materialTextureGBuffer.Sample(defaultSampler, uv).g;
+	const float roughness = materialTextureGBuffer.Sample(defaultSampler, uv).g;
     return roughness;
 }
 
 float GBuffer_Emissive(float2 uv)
-{   
-    float emissive = materialTextureGBuffer.Sample(defaultSampler, uv).b;
+{
+	const float emissive = materialTextureGBuffer.Sample(defaultSampler, uv).b;
     return emissive * myEmissiveStrength;
 }
 

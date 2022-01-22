@@ -2,30 +2,31 @@
 
 #include "Includes/PBRAmbience.hlsli"
 #include "Includes/PBRDirectionalLight.hlsli"
+#include "Includes/ShadowSampling.hlsli"
 
 float3 EvaluatePointLight(float3 albedoColor, float3 specularColor, float3 normal, float roughness, float3 lightColor, float lightIntensity, float lightRange, float3 lightPos, float3 toEye, float3 pixelPos)
 {
     float3 toLight = lightPos.xyz - pixelPos.xyz;
-    float lightDistance = length(toLight);
+    const float lightDistance = length(toLight);
     toLight = normalize(toLight);
-    float NdL = saturate(dot(normal, toLight));
-    
-    float lambert = NdL;
-    float NdV = saturate(dot(normal, toEye));
-    float3 h = normalize(toLight + toEye);
-    float NdH = saturate(dot(normal, h));
-    float VdH = saturate(dot(toEye, h));
-    float LdV = saturate(dot(toLight, toEye));
-    float a = max(0.001f, roughness * roughness);
-    
-    float3 cDiff = Diffuse(albedoColor);
-    float3 cSPec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
+    const float NdL = saturate(dot(normal, toLight));
+
+    const float lambert = NdL;
+    const float NdV = saturate(dot(normal, toEye));
+    const float3 h = normalize(toLight + toEye);
+    const float NdH = saturate(dot(normal, h));
+    const float VdH = saturate(dot(toEye, h));
+    const float LdV = saturate(dot(toLight, toEye));
+    const float a = max(0.001f, roughness * roughness);
+
+    const float3 cDiff = Diffuse(albedoColor);
+    const float3 cSPec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
     
     float linearAttenuation = lightDistance / lightRange;
     linearAttenuation = 1.0f - linearAttenuation;
     linearAttenuation = saturate(linearAttenuation);
-    float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
-    float attenuation = lambert * linearAttenuation * physicalAttenuation;
+    const float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
+    //float attenuation = lambert * linearAttenuation * physicalAttenuation;
     
     return saturate(lightColor * lightIntensity * lambert * linearAttenuation * physicalAttenuation * ((cDiff * (1.0f - cSPec) + cSPec) * PI));
 }
@@ -45,7 +46,7 @@ PixelOutPut main(VertexToPixel input)
     if (myNumberOfDetailNormals > 0)
     { // get from ModelData when rendering
         float detailNormalStrength = PixelShader_DetailNormalStrength(input);
-        float strengthMultiplier = DetailStrengthDistanceMultiplier(cameraPosition.xyz, input.myWorldPosition.xyz); // should change based on distance to camera
+        const float strengthMultiplier = DetailStrengthDistanceMultiplier(cameraPosition.xyz, input.myWorldPosition.xyz); // should change based on distance to camera
         float3 detailNormal;
         
         // Blend based on detail normal strength
@@ -93,21 +94,21 @@ PixelOutPut main(VertexToPixel input)
         //    normal = BlendRNM(normal, detailNormal);
         //}
     } // End of if
-    
-    float3x3 tangentSpaceMatrix = float3x3(normalize(input.myTangent.xyz), normalize(input.myBiNormal.xyz), normalize(input.myNormal.xyz));
+
+    const float3x3 tangentSpaceMatrix = float3x3(normalize(input.myTangent.xyz), normalize(input.myBiNormal.xyz), normalize(input.myNormal.xyz));
     normal = mul(normal.xyz, tangentSpaceMatrix);
     normal = normalize(normal);
-   
-    float ambientocclusion = PixelShader_AmbientOcclusion(input).myColor.b;
-    float metalness = PixelShader_Metalness(input).myColor.r;
+
+    const float ambientocclusion = PixelShader_AmbientOcclusion(input).myColor.b;
+    const float metalness = PixelShader_Metalness(input).myColor.r;
     float perceptualroughness = PixelShader_PerceptualRoughness(input).myColor.g;
     perceptualroughness = pow(abs(perceptualroughness), 1.0f / 1.1f); // from tga modelviewer // To mimic substance painters more blury roughness
-    float emissivedata = PixelShader_Emissive(input).myColor.b;
-    
-    float3 specularcolor = lerp((float3) 0.04, albedo.rgb, metalness);
-    float3 color = lerp((float3) 0.00, albedo.rgb, 1 - metalness);
-    
-    float3 ambience = EvaluateAmbience(environmentTexture, normal, normalize(input.myNormal.xyz), toEye, perceptualroughness, ambientocclusion, color, specularcolor);
+    const float emissivedata = PixelShader_Emissive(input).myColor.b;
+
+    const float3 specularcolor = lerp((float3) 0.04, albedo.rgb, metalness);
+    const float3 color = lerp((float3) 0.00, albedo.rgb, 1 - metalness);
+
+    const float3 ambience = EvaluateAmbience(environmentTexture, normal, normalize(input.myNormal.xyz), toEye, perceptualroughness, ambientocclusion, color, specularcolor);
     float3 directionallight = EvaluateDirectionalLight(color, specularcolor, normal, perceptualroughness, directionalLightColor.xyz, toDirectionalLight.xyz, toEye.xyz);
     directionallight *= directionalLightColor.w;
  
@@ -117,9 +118,9 @@ PixelOutPut main(VertexToPixel input)
         PointLight currentLight = myPointLights[index];
         pointLights += EvaluatePointLight(color, specularcolor, normal, perceptualroughness, currentLight.myColorAndRange.rgb, currentLight.myPositionAndIntensity.w, currentLight.myColorAndRange.a, currentLight.myPositionAndIntensity.xyz, toEye, input.myWorldPosition.xyz);
     }
-    
-    float3 emissive = albedo.rgb * emissivedata; // Maybe add cool multiplier?? // Aki 2021
-    float3 radiance = ambience + directionallight * (1.0f - ShadowFactor(input.myWorldPosition.xyz, directionalLightPosition.xyz, toDirectionalLightView, toDirectionalLightProjection, shadowDepthTexture, shadowSampler, directionalLightShadowMapResolution)) + pointLights + emissive;
+
+    const float3 emissive = albedo.rgb * emissivedata; // Maybe add cool multiplier?? // Aki 2021
+    const float3 radiance = ambience + directionallight * (1.0f - ShadowFactor(input.myWorldPosition.xyz, directionalLightPosition.xyz, toDirectionalLightView, toDirectionalLightProjection, shadowDepthTexture, shadowSampler, directionalLightShadowMapResolution)) + pointLights + emissive;
    
     output.myColor.rgb = /*LinearToGamma(*/radiance/*)*/;
     output.myColor.a = albedo.w;

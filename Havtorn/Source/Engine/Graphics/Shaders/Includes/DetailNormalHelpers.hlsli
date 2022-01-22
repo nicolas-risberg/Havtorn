@@ -32,16 +32,15 @@ float3 SetDetailNormalStrength(float3 detailNormal, float detailNormalStrength, 
 float3 BlendRNM(float3 normal1, float3 normal2)
 {
     float3 t = normal1 * float3(2, 2, 2) + float3(-1, -1, 0);
-    float3 u = normal2.xyz * float3(-2, -2, 2) + float3(1, 1, -1);
-    float3 r = t * dot(t, u) - u * t.z;
+    const float3 u = normal2.xyz * float3(-2, -2, 2) + float3(1, 1, -1);
+    const float3 r = t * dot(t, u) - u * t.z;
     return normalize(r);
 }
 
 float DetailStrengthDistanceMultiplier(float3 eyePos, float3 vertWorldPos)
 {
-    float multiplier = 0.0f;
-    float dist = distance(eyePos, vertWorldPos);
-    multiplier = clamp((1.0f / (dist * dist)), 0.0f, DETAILNORMAL_DISTANCE_MAX);
+	const float dist = distance(eyePos, vertWorldPos);
+	const float multiplier = clamp((1.0f / (dist * dist)), 0.0f, DETAILNORMAL_DISTANCE_MAX);
     return multiplier;
 }
 #endif

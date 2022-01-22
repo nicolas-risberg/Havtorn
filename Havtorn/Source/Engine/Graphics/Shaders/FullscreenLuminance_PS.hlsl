@@ -4,11 +4,11 @@
 
 PixelOutput main(VertexToPixel input) {
 	PixelOutput returnValue;
-	float3 resource = fullscreenTexture1.Sample(defaultSampler, input.myUV.xy).rgb;
+	const float3 resource = fullscreenTexture1.Sample(defaultSampler, input.myUV.xy).rgb;
 	
 	//Snippet 1
 	{
-        float luminance = dot(resource, float3(0.2126f, 0.7152f, 0.0722f));
+		const float luminance = dot(resource, float3(0.2126f, 0.7152f, 0.0722f));
         returnValue.myColor.rgb = resource * pow(luminance, 5);
     }
 	//Snippet 1

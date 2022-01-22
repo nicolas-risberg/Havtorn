@@ -10,8 +10,8 @@ float3 Diffuse(float3 pAlbedo)
 float NormalDistribution_GGX(float a, float NdH)
 {
     // Isotropic ggx
-    float a2 = a * a;
-    float NdH2 = NdH * NdH;
+    const float a2 = a * a;
+    const float NdH2 = NdH * NdH;
     
     float denominator = NdH2 * (a2 - 1.0f) + 1.0f;
     denominator *= denominator;
@@ -28,9 +28,9 @@ float Specular_D(float a, float NdH)
 float Geometric_Smith_Schlick_GGX(float a, float NdV, float NdL)
 {
     // Smith schlick-GGX
-    float k = a * 0.5f;
-    float GV = NdV / (NdV * (1 - k) + k);
-    float GL = NdL / (NdL * (1 - k) + k);
+    const float k = a * 0.5f;
+    const float GV = NdV / (NdV * (1 - k) + k);
+    const float GL = NdL / (NdL * (1 - k) + k);
     
     return GV * GL;
 }
@@ -58,17 +58,17 @@ float3 Specular(float3 specularColor, float3 h, float3 v, float3 l, float a, flo
 float3 EvaluateDirectionalLight(float3 albedoColor, float3 specularColor, float3 normal, float roughness, float3 lightColor, float3 lightDir, float3 viewDir)
 {
     // Compute some useful values
-    float NdL = saturate(dot(normal, lightDir));
-    float lambert = NdL; // Angle attenuation
-    float NdV = saturate(dot(normal, viewDir));
-    float3 h = normalize(lightDir + viewDir);
-    float NdH = saturate(dot(normal, h));
-    float VdH = saturate(dot(viewDir, h));
-    float LdV = saturate(dot(lightDir, viewDir));
-    float a = max(0.001f, roughness * roughness);
-    
-    float3 cDiff = Diffuse(albedoColor);
-    float3 cSpec = Specular(specularColor, h, viewDir, lightDir, a, NdL, NdV, NdH, VdH, LdV);
+    const float NdL = saturate(dot(normal, lightDir));
+    const float lambert = NdL; // Angle attenuation
+    const float NdV = saturate(dot(normal, viewDir));
+    const float3 h = normalize(lightDir + viewDir);
+    const float NdH = saturate(dot(normal, h));
+    const float VdH = saturate(dot(viewDir, h));
+    const float LdV = saturate(dot(lightDir, viewDir));
+    const float a = max(0.001f, roughness * roughness);
+
+    const float3 cDiff = Diffuse(albedoColor);
+    const float3 cSpec = Specular(specularColor, h, viewDir, lightDir, a, NdL, NdV, NdH, VdH, LdV);
     
     return saturate(lightColor * lambert * (cDiff * (1.0f - cSpec) + cSpec) * PI);
 }
@@ -76,71 +76,71 @@ float3 EvaluateDirectionalLight(float3 albedoColor, float3 specularColor, float3
 float3 EvaluatePointLight(float3 albedoColor, float3 specularColor, float3 normal, float roughness, float3 lightColor, float lightIntensity, float lightRange, float3 lightPos, float3 toEye, float3 pixelPos)
 {
     float3 toLight = lightPos.xyz - pixelPos.xyz;
-    float lightDistance = length(toLight);
+    const float lightDistance = length(toLight);
     toLight = normalize(toLight);
-    float NdL = saturate(dot(normal, toLight));
-    float lambert = NdL; //angle attenuation
-    float NdV = saturate(dot(normal, toEye));
-    float3 h = normalize(toLight + toEye);
-    float NdH = saturate(dot(normal, h));
-    float VdH = saturate(dot(toEye, h));
-    float LdV = saturate(dot(toLight, toEye));
-    float a = max(0.001f, roughness * roughness);
-    
-    float3 cDiff = Diffuse(albedoColor);
-    float3 cSpec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
+    const float NdL = saturate(dot(normal, toLight));
+    const float lambert = NdL; //angle attenuation
+    const float NdV = saturate(dot(normal, toEye));
+    const float3 h = normalize(toLight + toEye);
+    const float NdH = saturate(dot(normal, h));
+    const float VdH = saturate(dot(toEye, h));
+    const float LdV = saturate(dot(toLight, toEye));
+    const float a = max(0.001f, roughness * roughness);
+
+    const float3 cDiff = Diffuse(albedoColor);
+    const float3 cSpec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
     
     float linearAttenuation = lightDistance / lightRange;
     linearAttenuation = 1.0f - linearAttenuation;
     linearAttenuation = saturate(linearAttenuation);
-    float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
-    float attenuation = lambert * linearAttenuation * physicalAttenuation;
+    const float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
+    //float attenuation = lambert * linearAttenuation * physicalAttenuation;
     
     return saturate(lightColor * lightIntensity * lambert * linearAttenuation * physicalAttenuation * ((cDiff * (1.0f - cSpec) + cSpec) * PI));
 }
 
 float3 EvaluatePointLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float lightRange, float3 toLight, float lightDistance, float3 toEye)
 {
-    float NdL = saturate(dot(normal, toLight));
-    float lambert = NdL;
-    float NdV = saturate(dot(normal, toEye));
-    float3 h = normalize(toLight + toEye);
-    float NdH = saturate(dot(normal, h));
-    float VdH = saturate(dot(toEye, h));
-    float LdV = saturate(dot(toLight, toEye));
-    float a = max(0.001f, roughness * roughness);
-    
-    float3 cDiff = Diffuse(diffuseColor);
-    float3 cSpec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
+	const float NdL = saturate(dot(normal, toLight));
+	const float lambert = NdL;
+	const float NdV = saturate(dot(normal, toEye));
+	const float3 h = normalize(toLight + toEye);
+	const float NdH = saturate(dot(normal, h));
+	const float VdH = saturate(dot(toEye, h));
+	const float LdV = saturate(dot(toLight, toEye));
+	const float a = max(0.001f, roughness * roughness);
+
+	const float3 cDiff = Diffuse(diffuseColor);
+	const float3 cSpec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
     
     float linearAttenuation = lightDistance / lightRange;
     linearAttenuation = 1.0f - linearAttenuation;
     linearAttenuation = saturate(linearAttenuation);
-    float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
-    float attenuation = lambert * linearAttenuation * physicalAttenuation;
+	const float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
+	const float attenuation = lambert * linearAttenuation * physicalAttenuation;
     
     return saturate(intensityScaledColor * attenuation * ((cDiff * (1.0f - cSpec) + cSpec) * PI));
 }
 
 float3 EvaluateSpotLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float lightRange, float3 toLight, float lightDistance, float3 toEye, float3 lightDir, float angleExponent, float2 innerOuterAngle)
 {
-    float NdL = saturate(dot(normal, toLight));
-    float lambert = NdL;
-    float NdV = saturate(dot(normal, toEye));
-    float3 h = normalize(toLight + toEye);
-    float NdH = saturate(dot(normal, h));
-    float VdH = saturate(dot(toEye, h));
-    float LdV = saturate(dot(toLight, toEye));
-    float a = max(0.001f, roughness * roughness);
-    
-    float3 cDiff = Diffuse(diffuseColor);
-    float3 cSpec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
+	const float NdL = saturate(dot(normal, toLight));
+	const float lambert = NdL;
+	const float NdV = saturate(dot(normal, toEye));
+	const float3 h = normalize(toLight + toEye);
+	const float NdH = saturate(dot(normal, h));
+	const float VdH = saturate(dot(toEye, h));
+	const float LdV = saturate(dot(toLight, toEye));
+	const float a = max(0.001f, roughness * roughness);
+
+	const float3 cDiff = Diffuse(diffuseColor);
+	const float3 cSpec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
     
     float linearAttenuation = lightDistance / lightRange;
     linearAttenuation = 1.0f - linearAttenuation;
     linearAttenuation = saturate(linearAttenuation);
-    float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
-    float attenuation = lambert * linearAttenuation * physicalAttenuation;
+	const float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
+    //float attenuation = lambert * linearAttenuation * physicalAttenuation;
     
     float3 finalColor = 0.0f;
     finalColor += intensityScaledColor * ((cDiff * (1.0f - cSpec) + cSpec) * PI);
@@ -148,8 +148,8 @@ float3 EvaluateSpotLight(float3 diffuseColor, float3 specularColor, float3 norma
     finalColor *= linearAttenuation * physicalAttenuation;
     
     //finalColor *= pow(max(dot(lightDir, -toLight), 0.0f), angleExponent);
-    float inner = sin(innerOuterAngle.x);
-    float outer = sin(innerOuterAngle.y);
+	const float inner = sin(innerOuterAngle.x);
+	const float outer = sin(innerOuterAngle.y);
     
     finalColor *= saturate((dot(lightDir, -toLight) - outer / (inner - outer)));
     return finalColor;
@@ -157,23 +157,23 @@ float3 EvaluateSpotLight(float3 diffuseColor, float3 specularColor, float3 norma
 
 float3 EvaluateBoxLight(float3 diffuseColor, float3 specularColor, float3 normal, float roughness, float3 intensityScaledColor, float lightRange, float3 toLight, float lightDistance, float3 toEye, float3 lightDir)
 {
-    float NdL = saturate(dot(normal, toLight));
-    float lambert = NdL;
-    float NdV = saturate(dot(normal, toEye));
-    float3 h = normalize(toLight + toEye);
-    float NdH = saturate(dot(normal, h));
-    float VdH = saturate(dot(toEye, h));
-    float LdV = saturate(dot(toLight, toEye));
-    float a = max(0.001f, roughness * roughness);
-    
-    float3 cDiff = Diffuse(diffuseColor);
-    float3 cSpec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
+	const float NdL = saturate(dot(normal, toLight));
+	const float lambert = NdL;
+	const float NdV = saturate(dot(normal, toEye));
+	const float3 h = normalize(toLight + toEye);
+	const float NdH = saturate(dot(normal, h));
+	const float VdH = saturate(dot(toEye, h));
+	const float LdV = saturate(dot(toLight, toEye));
+	const float a = max(0.001f, roughness * roughness);
+
+	const float3 cDiff = Diffuse(diffuseColor);
+	const float3 cSpec = Specular(specularColor, h, toEye, toLight, a, NdL, NdV, NdH, VdH, LdV);
     
     float linearAttenuation = lightDistance / lightRange;
     linearAttenuation = 1.0f - linearAttenuation;
     linearAttenuation = saturate(linearAttenuation);
-    float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
-    float attenuation = lambert * linearAttenuation * physicalAttenuation;
+	const float physicalAttenuation = saturate(1.0f / (lightDistance * lightDistance));
+    //float attenuation = lambert * linearAttenuation * physicalAttenuation;
     
     float3 finalColor = 0.0f;
     finalColor += intensityScaledColor * ((cDiff * (1.0f - cSpec) + cSpec) * PI);

@@ -39,17 +39,17 @@
 PixelOutput main(VertexToPixel input)
 {
     PixelOutput returnValue;
-    
-    int blurSize = 4;
-    float2 texelSize = 1.0 / myResolution;
+
+    const int blurSize = 4;
+    const float2 texelSize = 1.0 / myResolution;
     float result = 0.0;
-    float2 hlim = float(-blurSize) * 0.5 + 0.5;
+    const float2 hlim = float(-blurSize) * 0.5 + 0.5;
     
     for (int i = 0; i < blurSize; ++i)
     {
         for (int j = 0; j < blurSize; ++j)
         {
-            float2 offset = (hlim + float2(float(i), float(j))) * texelSize;
+	        const float2 offset = (hlim + float2(float(i), float(j))) * texelSize;
             result += fullscreenTexture1.Sample(defaultSampler, input.myUV + offset).r;
         }
     }

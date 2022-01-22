@@ -4,10 +4,10 @@
 
 struct GBufferOutput
 {
-    float4 myWorldPosition      : SV_TARGET0;
-    float4 myAlbedo             : SV_TARGET1;
-    float4 myNormal             : SV_TARGET2;
-    float4 myVertexNormal       : SV_TARGET3;
+    float4 WorldPosition      : SV_TARGET0;
+    float4 Albedo             : SV_TARGET1;
+    float4 Normal             : SV_TARGET2;
+    float4 VertexNormal       : SV_TARGET3;
     //float myMetalness           : SV_TARGET4;
     //float myRoughness           : SV_TARGET5;
     //float myAmbientOcclusion    : SV_TARGET6;
@@ -17,7 +17,7 @@ struct GBufferOutput
 GBufferOutput main(VertexModelToPixel input)
 {
     VertexToPixel vertToPixel;
-    vertToPixel.myPosition  = input.myPosition;
+    //vertToPixel.myPosition  = input.myPosition;
     vertToPixel.myUV        = input.myUV;
     
     float3 albedo = PixelShader_Albedo(vertToPixel.myUV).rgb;
@@ -26,7 +26,7 @@ GBufferOutput main(VertexModelToPixel input)
     if (myNumberOfDetailNormals > 0)
     {
         float detailNormalStrength = PixelShader_DetailNormalStrength(vertToPixel.myUV);
-        float strengthMultiplier = DetailStrengthDistanceMultiplier(cameraPosition.xyz, input.myWorldPosition.xyz);
+        const float strengthMultiplier = DetailStrengthDistanceMultiplier(cameraPosition.xyz, input.myWorldPosition.xyz);
         float3 detailNormal;
 
         // Blend based on detail normal strength
@@ -96,14 +96,14 @@ GBufferOutput main(VertexModelToPixel input)
     
     // Using 4 textures
     GBufferOutput output;
-    output.myWorldPosition  = input.myWorldPosition;
-    output.myAlbedo         = float4(albedo, 1.0f);
-    output.myNormal         = float4(normal, 1.0f);
-    output.myVertexNormal   = float4(input.myNormal.xyz, 1.0f);
+    output.WorldPosition  = input.myWorldPosition;
+    output.Albedo         = float4(albedo, 1.0f);
+    output.Normal         = float4(normal, 1.0f);
+    output.VertexNormal   = float4(input.myNormal.xyz, 1.0f);
     
-    output.myWorldPosition.w = metalness;
-    output.myAlbedo.w        = perceptualRoughness;
-    output.myNormal.w        = ambientOcclusion;
-    output.myVertexNormal.w    = emissive;
+    output.WorldPosition.w = metalness;
+    output.Albedo.w        = perceptualRoughness;
+    output.Normal.w        = ambientOcclusion;
+    output.VertexNormal.w    = emissive;
     return output;
 }
