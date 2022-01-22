@@ -48,7 +48,7 @@ namespace Havtorn
 		
 		SetVSync(false);
 
-		HV_LOG_INFO("Creating window {0} ({1}, {2})", properties.Title, properties.Width, properties.Height);
+		HV_LOG_INFO("Creating window %s (%i, %i)", properties.Title.c_str(), properties.Width, properties.Height);
 	}
 
 	void CWindowsWindow::Shutdown()

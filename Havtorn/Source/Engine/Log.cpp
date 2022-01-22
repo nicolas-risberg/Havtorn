@@ -3,16 +3,44 @@
 #include "hvpch.h"
 
 #include "Log.h"
-#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace Havtorn
 {
-	std::shared_ptr<spdlog::logger> GLog::Logger;
+	Ref<GLog> GLog::Logger;
 
 	void GLog::Init()
 	{
-		spdlog::set_level(spdlog::level::level_enum::trace);
-		spdlog::set_pattern("%^[%T] %n: %v%$");
-		Logger = spdlog::stdout_color_mt("CORE");
+		Logger = std::make_shared<GLog>();
+
+		HV_LOG_TRACE("Logger initialized.");
+	}
+
+	void GLog::Print(const EConsoleColor& color, const char* category, const char* message, ...)
+	{
+		const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		const bool isDefault = color == EConsoleColor::White;
+
+		// Set Console Color
+		if (!isDefault)
+			SetConsoleTextAttribute(hConsole, static_cast<WORD>(color));
+
+		// VA Args, combined message
+		va_list argptr;
+		va_start(argptr, message);
+		const std::string combinedMessage{ StringVsprintf(message, argptr) };
+
+		// Timestamp
+		tm newtime{};
+		const time_t now = time(nullptr);
+		localtime_s(&newtime, &now);
+		char timeStamp[16];
+		strftime(timeStamp, sizeof timeStamp, "%H:%M:%S", &newtime);
+
+		// Printout
+		std::cout << "[" << timeStamp << "]" << " " << category << ": " << combinedMessage << std::endl;
+
+		// Reset Console Color
+		if (!isDefault)
+			SetConsoleTextAttribute(hConsole, static_cast<WORD>(EConsoleColor::White));
 	}
 }
