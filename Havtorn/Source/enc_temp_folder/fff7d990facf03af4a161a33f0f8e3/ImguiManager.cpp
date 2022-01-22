@@ -354,7 +354,11 @@ namespace Havtorn
 
 	void CImguiManager::SetViewportPadding(const F32 padding)
 	{
+<<<<<<< HEAD
+		//why have a check here? floating point comparison is not very accurate :)
+=======
 		//flööting pöint cömpare? :0
+>>>>>>> main
 		if (ViewportPadding != padding)
 		{
 			ViewportPadding = padding;
