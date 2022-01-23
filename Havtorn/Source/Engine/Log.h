@@ -49,9 +49,9 @@ namespace Havtorn
 	};
 }
 
-#define HV_LOG_TRACE(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::White, "TRACE", __VA_ARGS__)
-#define HV_LOG_DEBUG(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::DarkGreen, "DEBUG", __VA_ARGS__)
-#define HV_LOG_INFO(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::DarkAqua, "INFO", __VA_ARGS__)
-#define HV_LOG_WARN(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::Yellow, "WARNING", __VA_ARGS__)
-#define HV_LOG_ERROR(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::Red, "ERROR", __VA_ARGS__)
-#define HV_LOG_FATAL(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::WhiteRedBackground, "FATAL", __VA_ARGS__)
+#define HV_LOG_TRACE(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::White, "TRACE: ", __VA_ARGS__)
+#define HV_LOG_DEBUG(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::DarkGreen, "DEBUG: ", __VA_ARGS__)
+#define HV_LOG_INFO(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::DarkAqua, "INFO:  ", __VA_ARGS__)
+#define HV_LOG_WARN(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::Yellow, "WARN:  ", __VA_ARGS__)
+#define HV_LOG_ERROR(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::Red, "ERROR: ", __VA_ARGS__)
+#define HV_LOG_FATAL(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::WhiteRedBackground, "FATAL: ", __VA_ARGS__)

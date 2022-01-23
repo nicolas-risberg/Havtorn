@@ -12,7 +12,7 @@ namespace Havtorn
 	{
 		Logger = std::make_shared<GLog>();
 
-		HV_LOG_TRACE("Logger initialized.");
+		HV_LOG_INFO("Logger initialized.");
 	}
 
 	void GLog::Print(const EConsoleColor& color, const char* category, const char* message, ...)
@@ -37,7 +37,7 @@ namespace Havtorn
 		strftime(timeStamp, sizeof timeStamp, "%H:%M:%S", &newtime);
 
 		// Printout
-		std::cout << "[" << timeStamp << "]" << " " << category << ": " << combinedMessage << std::endl;
+		std::cout << "[" << timeStamp << "]" << " " << category << combinedMessage << std::endl;
 
 		// Reset Console Color
 		if (!isDefault)
