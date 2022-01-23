@@ -54,7 +54,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	application->Run();
 	delete application;
 
-	HV_LOG_WARNING("Engine shutdown!");
+	HV_LOG_WARN("Engine shutdown!");
 
 	system("pause");
 

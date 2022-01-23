@@ -35,10 +35,10 @@ namespace Havtorn
 
 			char buff[4096];
 			memset(buff, 0, requiredLen);
+
 			if (vsnprintf_s(buff, requiredLen, format, args) < 0)
-			{
 				return "StringVsprintf encoding error";
-			}
+
 			return { buff };
 		}
 
@@ -52,6 +52,6 @@ namespace Havtorn
 #define HV_LOG_TRACE(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::White, "TRACE", __VA_ARGS__)
 #define HV_LOG_DEBUG(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::DarkGreen, "DEBUG", __VA_ARGS__)
 #define HV_LOG_INFO(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::DarkAqua, "INFO", __VA_ARGS__)
-#define HV_LOG_WARNING(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::Yellow, "WARNING", __VA_ARGS__)
+#define HV_LOG_WARN(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::Yellow, "WARNING", __VA_ARGS__)
 #define HV_LOG_ERROR(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::Red, "ERROR", __VA_ARGS__)
-#define HV_LOG_CRITICAL(...)	::Havtorn::GLog::GetLogger()->Print(EConsoleColor::WhiteRedBackground, "CRITICAL", __VA_ARGS__)
+#define HV_LOG_FATAL(...)		::Havtorn::GLog::GetLogger()->Print(EConsoleColor::WhiteRedBackground, "FATAL", __VA_ARGS__)
