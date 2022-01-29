@@ -7,6 +7,13 @@
 
 namespace Havtorn
 {
+	enum class ERenderThreadStatus
+	{
+		ReadyToRender,
+		PostRender,
+		Count
+	};
+
 	class CRenderManager;
 
 	class CThreadManager
@@ -19,6 +26,10 @@ namespace Havtorn
 		void PushJob(std::function<void()> job);
 		void Shutdown();
 
+		static std::mutex RenderMutex;
+		static std::condition_variable RenderCondition;
+		static ERenderThreadStatus RenderThreadStatus;
+
 	private:
 		std::vector<std::thread> JobThreads;
 		std::queue<std::function<void()>> JobQueue;
@@ -27,6 +38,7 @@ namespace Havtorn
 		std::mutex ThreadPoolMutex;
 		std::condition_variable Condition;
 		std::function<void()> Job;
+
 		U8 NumberOfThreads;
 		bool Terminate;
 		bool IsTerminated;

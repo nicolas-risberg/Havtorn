@@ -69,7 +69,7 @@ namespace Havtorn
 
 		bool Init(const CDirectXFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
 		void BeginFrame();
-		void Update();
+		void Render();
 		void EndFrame();
 		void DebugWindow();
 

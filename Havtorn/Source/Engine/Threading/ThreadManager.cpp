@@ -5,11 +5,15 @@
 
 namespace Havtorn
 {
+	std::mutex CThreadManager::RenderMutex;
+	std::condition_variable CThreadManager::RenderCondition;
+	ERenderThreadStatus CThreadManager::RenderThreadStatus = ERenderThreadStatus::ReadyToRender;
+
 	CThreadManager::CThreadManager()
-		: Terminate(false)
+		: NumberOfThreads(static_cast<U8>(std::thread::hardware_concurrency() - 1))
+		, Terminate(false)
 		, IsTerminated(false)
 	{
-		NumberOfThreads = static_cast<U8>(std::thread::hardware_concurrency() - 1);
 	}
 
 	CThreadManager::~CThreadManager()
@@ -18,13 +22,13 @@ namespace Havtorn
 			Shutdown();
 	}
 
-	bool CThreadManager::Init(CRenderManager* /*renderManager*/)
+	bool CThreadManager::Init(CRenderManager* renderManager)
 	{
-		//RenderThread = std::thread(&CRenderManager::Render, renderManager);
+		RenderThread = std::thread(&CRenderManager::Render, renderManager);
 
 		for (U8 i = 0; i < NumberOfThreads; ++i)
 		{
-			JobThreads.push_back(std::thread(&CThreadManager::WaitAndPerformJobs, this));
+			JobThreads.emplace_back(&CThreadManager::WaitAndPerformJobs, this);
 		}
 		return true;
 	}
@@ -37,7 +41,8 @@ namespace Havtorn
 			{
 				std::unique_lock<std::mutex> lock(QueueMutex);
 
-				Condition.wait(lock, [this]() {
+				Condition.wait(lock, [this]() 
+					{
 					return !JobQueue.empty() || Terminate;
 					});
 				Job = JobQueue.front();

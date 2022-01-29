@@ -218,6 +218,7 @@ namespace Havtorn
 		//}
 
 		Scene->Update();
+
 		//AudioManager->Update();
 		//CMainSingleton::DialogueSystem().Update();
 		//Debug->Update();
@@ -229,19 +230,29 @@ namespace Havtorn
 		if (!RenderSceneActive)
 			return;
 
-		//ThreadManager->PushJob(std::bind(&CRenderManager::Render, RenderManager));
-		RenderManager->Render();
+		//ThreadManager->PushJob(std::bind(&CRenderMa nager::Render, RenderManager));
+		//RenderManager->Render();
 #ifdef _DEBUG
-		ImguiManager->Update();
+		ImguiManager->Render();
 #endif
 	}
 
 	void CEngine::EndFrame()
 	{
+		std::unique_lock<std::mutex> uniqueLock(CThreadManager::RenderMutex);
+		CThreadManager::RenderCondition.wait(uniqueLock, []
+			{return CThreadManager::RenderThreadStatus == ERenderThreadStatus::PostRender; });
+
 #ifdef _DEBUG
 		ImguiManager->EndFrame();
 #endif
+
+		RenderManager->SwapRenderCommandBuffers();
 		Framework->EndFrame();
+
+		CThreadManager::RenderThreadStatus = ERenderThreadStatus::ReadyToRender;
+		uniqueLock.unlock();
+		CThreadManager::RenderCondition.notify_one();
 	}
 
 	CWindowHandler* CEngine::GetWindowHandler()

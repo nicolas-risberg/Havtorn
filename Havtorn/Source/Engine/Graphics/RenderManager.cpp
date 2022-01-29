@@ -25,6 +25,9 @@
 #include "ECS/ECSInclude.h"
 
 #include <algorithm>
+#include <future>
+
+#include "Threading/ThreadManager.h"
 
 namespace Havtorn
 {
@@ -50,6 +53,8 @@ namespace Havtorn
 		, DemoStride(0)
 		, DemoOffset(0)
 	{
+		PushToCommands = &RenderCommandsA;
+		PopFromCommands = &RenderCommandsB;
 	}
 
 	CRenderManager::~CRenderManager()
@@ -246,66 +251,78 @@ namespace Havtorn
 
 	void CRenderManager::Render()
 	{
-		CRenderManager::NumberOfDrawCallsThisFrame = 0;
-		RenderStateManager.SetAllDefault();
-		
-		RenderedScene.ClearTexture(ClearColor);
-		IntermediateDepth.ClearDepth();
-		RenderedScene.SetAsActiveTarget(&IntermediateDepth);
-
-		for (U16 i = 0; i < RenderCommands.size(); ++i)
+		while (true)
 		{
-			SRenderCommand currentCommand = RenderCommands.top();
-			switch (currentCommand.Type)
+			std::unique_lock<std::mutex> uniqueLock(CThreadManager::RenderMutex);
+			CThreadManager::RenderCondition.wait(uniqueLock, [] 
+				{return CThreadManager::RenderThreadStatus == ERenderThreadStatus::ReadyToRender; });
+
+			CRenderManager::NumberOfDrawCallsThisFrame = 0;
+			RenderStateManager.SetAllDefault();
+			
+			RenderedScene.ClearTexture(ClearColor);
+			IntermediateDepth.ClearDepth();
+			RenderedScene.SetAsActiveTarget(&IntermediateDepth);
+
+			for (U16 i = 0; i < PopFromCommands->size(); ++i)
 			{
-			case ERenderCommandType::CameraDataStorage:
-			{
-				auto transformComp = currentCommand.GetComponent(TransformComponent);
-				auto cameraComp = currentCommand.GetComponent(CameraComponent);
+				SRenderCommand currentCommand = PopFromCommands->top();
+				switch (currentCommand.Type)
+				{
+				case ERenderCommandType::CameraDataStorage:
+				{
+					auto transformComp = currentCommand.GetComponent(TransformComponent);
+					auto cameraComp = currentCommand.GetComponent(CameraComponent);
 
-				FrameBufferData.ToCameraFromWorld = transformComp->Transform.FastInverse();
-				FrameBufferData.ToWorldFromCamera = transformComp->Transform;
-				FrameBufferData.ToProjectionFromCamera = cameraComp->ProjectionMatrix;
-				FrameBufferData.ToCameraFromProjection = cameraComp->ProjectionMatrix.Inverse();
-				FrameBufferData.CameraPosition = transformComp->Transform.Translation4();
-				BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
+					FrameBufferData.ToCameraFromWorld = transformComp->Transform.FastInverse();
+					FrameBufferData.ToWorldFromCamera = transformComp->Transform;
+					FrameBufferData.ToProjectionFromCamera = cameraComp->ProjectionMatrix;
+					FrameBufferData.ToCameraFromProjection = cameraComp->ProjectionMatrix.Inverse();
+					FrameBufferData.CameraPosition = transformComp->Transform.Translation4();
+					BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
 
-				Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
-				Context->PSSetConstantBuffers(0, 1, &FrameBuffer);
-			}
-			break;
-			case ERenderCommandType::GBufferData:
-			{
-				auto transformComp = currentCommand.GetComponent(TransformComponent);
-				//auto renderComp = currentCommand.GetComponent(RenderComponent);
-
-				ObjectBufferData.ToWorldFromObject = transformComp->Transform;
-				BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
-
-				Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
-				Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				Context->IASetInputLayout(DemoInputLayout);
-				Context->IASetVertexBuffers(0, 1, &DemoVertexBuffer, &DemoStride, &DemoOffset);
-				Context->IASetIndexBuffer(DemoIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-				Context->VSSetShader(DemoVertexShader, nullptr, 0);
-				Context->PSSetShader(DemoPixelShader, nullptr, 0);
-
-				Context->PSSetSamplers(0, 1, &SamplerState);
-
-				Context->DrawIndexed(DemoNumberOfIndices, 0, 0);
-				CRenderManager::NumberOfDrawCallsThisFrame++;
-			}
-			break;
-			default:
+					Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+					Context->PSSetConstantBuffers(0, 1, &FrameBuffer);
+				}
 				break;
+				case ERenderCommandType::GBufferData:
+				{
+					auto transformComp = currentCommand.GetComponent(TransformComponent);
+					//auto renderComp = currentCommand.GetComponent(RenderComponent);
+
+					ObjectBufferData.ToWorldFromObject = transformComp->Transform;
+					BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
+
+					Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
+					Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+					Context->IASetInputLayout(DemoInputLayout);
+					Context->IASetVertexBuffers(0, 1, &DemoVertexBuffer, &DemoStride, &DemoOffset);
+					Context->IASetIndexBuffer(DemoIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+					Context->VSSetShader(DemoVertexShader, nullptr, 0);
+					Context->PSSetShader(DemoPixelShader, nullptr, 0);
+
+					Context->PSSetSamplers(0, 1, &SamplerState);
+
+					Context->DrawIndexed(DemoNumberOfIndices, 0, 0);
+					CRenderManager::NumberOfDrawCallsThisFrame++;
+				}
+				break;
+				default:
+					break;
+				}
+				PopFromCommands->pop();
 			}
-			RenderCommands.pop();
+
+			Backbuffer.SetAsActiveTarget();
+			RenderedScene.SetAsResourceOnSlot(0);
+			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::Copy);
+
+			CThreadManager::RenderThreadStatus = ERenderThreadStatus::PostRender;
+			uniqueLock.unlock();
+			CThreadManager::RenderCondition.notify_one();
 		}
 
-		Backbuffer.SetAsActiveTarget();
-		RenderedScene.SetAsResourceOnSlot(0);
-		FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::Copy);
 		//Backbuffer.ClearTexture(ClearColor);
 
 //#ifndef EXCELSIOR_BUILD
@@ -726,7 +743,12 @@ namespace Havtorn
 
 	void CRenderManager::PushRenderCommand(SRenderCommand& command)
 	{
-		RenderCommands.push(command);
+		PushToCommands->push(command);
+	}
+
+	void CRenderManager::SwapRenderCommandBuffers()
+	{
+		std::swap(PushToCommands, PopFromCommands);
 	}
 
 	//void CRenderManager::SetBrokenScreen(bool aShouldSetBrokenScreen)

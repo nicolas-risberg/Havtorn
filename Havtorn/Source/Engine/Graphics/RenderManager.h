@@ -29,6 +29,8 @@ namespace Havtorn
 		bool operator()(const SRenderCommand& a, const SRenderCommand& b);
 	};
 
+	using CRenderCommandHeap = std::priority_queue<SRenderCommand, std::vector<SRenderCommand>, SRenderCommandComparer>;
+
 	class CRenderManager 
 	{
 	public:
@@ -43,6 +45,7 @@ namespace Havtorn
 	public:
 		const CFullscreenTexture& GetRenderedSceneTexture() const;
 		void PushRenderCommand(SRenderCommand& command);
+		void SwapRenderCommandBuffers();
 		//void SetBrokenScreen(bool aShouldSetBrokenScreen);
 
 		//const CFullscreenRenderer::SPostProcessingBufferData& GetPostProcessingBufferData() const;
@@ -131,7 +134,12 @@ namespace Havtorn
 		//CFullscreenTexture myAntiAliasedTexture;
 		//CGBuffer myGBuffer;
 		//CGBuffer myGBufferCopy;
-		std::priority_queue<SRenderCommand, std::vector<SRenderCommand>, SRenderCommandComparer> RenderCommands;
+		CRenderCommandHeap RenderCommandsA;
+		CRenderCommandHeap RenderCommandsB;
+
+		CRenderCommandHeap* PushToCommands;
+		CRenderCommandHeap* PopFromCommands;
+
 
 		SVector4 ClearColor;
 

@@ -96,7 +96,7 @@ namespace Havtorn
 		ImGui::NewFrame();
 	}
 
-	void CImguiManager::Update()
+	void CImguiManager::Render()
 	{
 		// Main Menu bar
 		if (IsEnabled)
