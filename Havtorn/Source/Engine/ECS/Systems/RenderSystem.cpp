@@ -8,6 +8,7 @@
 #include "ECS/Components/CameraComponent.h"
 #include "Graphics/RenderManager.h"
 #include "Graphics/RenderCommand.h"
+#include "Input/Input.h"
 
 namespace Havtorn
 {
@@ -49,12 +50,12 @@ namespace Havtorn
 			I64 transformCompIndex = renderComp->Entity->GetComponentIndex(EComponentType::TransformComponent);
 			auto& transformComp = transformComponents[transformCompIndex];
 
-			F32 dt = CTimer::Dt();
-			if (GetAsyncKeyState('J'))
+			const F32 dt = CTimer::Dt();
+			if (CInput::GetInstance()->IsKeyPressed('J'))
 				transformComp->Transform.Rotate({ UMath::DegToRad(90.0f) * dt, 0.0f, 0.0f });
-			if (GetAsyncKeyState('K'))
+			if (CInput::GetInstance()->IsKeyPressed('K'))
 				transformComp->Transform.Rotate({ 0.0f, UMath::DegToRad(90.0f) * dt, 0.0f });
-			if (GetAsyncKeyState('L'))
+			if (CInput::GetInstance()->IsKeyPressed('L'))
 				transformComp->Transform.Rotate({ 0.0f, 0.0f, UMath::DegToRad(90.0f) * dt });
 
 			transformComp->Transform.Orbit({ 0.0f, 0.0f, 0.0f }, SMatrix::CreateRotationAroundY(UMath::DegToRad(90.0f) * dt));

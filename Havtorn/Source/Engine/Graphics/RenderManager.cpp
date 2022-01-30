@@ -326,12 +326,12 @@ namespace Havtorn
 		//Backbuffer.ClearTexture(ClearColor);
 
 //#ifndef EXCELSIOR_BUILD
-//		if (Input::GetInstance()->IsKeyPressed(VK_F6))
+//		if (CInput::GetInstance()->IsKeyPressed(VK_F6))
 //		{
 //			ToggleRenderPass();
 //			ForwardRenderer.ToggleRenderPass(RenderPassIndex);
 //		}
-//		if (Input::GetInstance()->IsKeyPressed(VK_F7))
+//		if (CInput::GetInstance()->IsKeyPressed(VK_F7))
 //		{
 //			ToggleRenderPass(false);
 //			ForwardRenderer.ToggleRenderPass(RenderPassIndex);

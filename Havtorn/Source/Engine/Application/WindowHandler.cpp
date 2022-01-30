@@ -3,7 +3,8 @@
 #include "hvpch.h"
 
 #include "WindowHandler.h"
-//#include "Input.h"
+
+#include "Input/Input.h"
 //#include "JsonReader.h"
 #ifdef _DEBUG
     #include "ImGui/Core/imgui_impl_win32.h"
@@ -61,7 +62,7 @@ namespace Havtorn
             break;
 
         default:
-            //Input::GetInstance()->UpdateEvents(uMsg, wParam, lParam);
+            CInput::GetInstance()->UpdateEvents(uMsg, wParam, lParam);
             break;
         }
 

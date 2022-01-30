@@ -21,9 +21,14 @@ namespace Havtorn
 	public:
 		CThreadManager();
 		~CThreadManager();
+		CThreadManager(const CThreadManager&) = delete;
+		CThreadManager(const CThreadManager&&) = delete;
+		CThreadManager operator=(const CThreadManager&) = delete;
+		CThreadManager operator=(const CThreadManager&&) = delete;
+
 		bool Init(CRenderManager* renderManager);
-		void WaitAndPerformJobs();
-		void PushJob(std::function<void()> job);
+		[[noreturn]] void WaitAndPerformJobs();
+		void PushJob(const std::function<void()>& job);
 		void Shutdown();
 
 		static std::mutex RenderMutex;

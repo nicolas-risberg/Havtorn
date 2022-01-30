@@ -41,10 +41,10 @@ namespace Havtorn
 			{
 				std::unique_lock<std::mutex> lock(QueueMutex);
 
-				Condition.wait(lock, [this]() 
-					{
+				Condition.wait(lock, [this]()
+				{
 					return !JobQueue.empty() || Terminate;
-					});
+				});
 				Job = JobQueue.front();
 				JobQueue.pop();
 			}
@@ -53,7 +53,7 @@ namespace Havtorn
 		}
 	}
 
-	void CThreadManager::PushJob(std::function<void()> job)
+	void CThreadManager::PushJob(const std::function<void()>& job)
 	{
 		{
 			std::unique_lock<std::mutex> lock(QueueMutex);

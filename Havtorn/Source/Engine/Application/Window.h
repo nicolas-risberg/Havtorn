@@ -4,8 +4,8 @@
 
 #include "hvpch.h"
 
-#include "Core\Core.h"
-#include "Event\Event.h"
+#include "Core/Core.h"
+#include "Event/Event.h"
 
 namespace Havtorn
 {

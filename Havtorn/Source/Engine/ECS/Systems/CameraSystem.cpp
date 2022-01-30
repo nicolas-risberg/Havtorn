@@ -5,6 +5,7 @@
 #include "Scene/Scene.h"
 #include "ECS/Components/TransformComponent.h"
 #include "ECS/Components/CameraComponent.h"
+#include "Input/Input.h"
 
 Havtorn::CCameraSystem::CCameraSystem()
 	: CSystem()
@@ -26,27 +27,27 @@ void Havtorn::CCameraSystem::Update(CScene* scene)
 	auto& transformComp = transformComponents[transformCompIndex];
 
 	F32 dt = CTimer::Dt();
-	if (GetAsyncKeyState('W'))
+	if (CInput::GetInstance()->IsKeyPressed('W'))
 		transformComp->Transform.Translate(SVector::Forward * dt);
-	if (GetAsyncKeyState('S'))
+	if (CInput::GetInstance()->IsKeyPressed('S'))
 		transformComp->Transform.Translate(SVector::Backward * dt);
-	if (GetAsyncKeyState('A'))
+	if (CInput::GetInstance()->IsKeyPressed('A'))
 		transformComp->Transform.Translate(SVector::Left * dt);
-	if (GetAsyncKeyState('D'))
+	if (CInput::GetInstance()->IsKeyPressed('D'))
 		transformComp->Transform.Translate(SVector::Right * dt);
-	if (GetAsyncKeyState('Q'))
+	if (CInput::GetInstance()->IsKeyPressed('Q'))
 		transformComp->Transform.Translate(SVector::Up * dt);
-	if (GetAsyncKeyState('E'))
+	if (CInput::GetInstance()->IsKeyPressed('E'))
 		transformComp->Transform.Translate(SVector::Down * dt);
 
 	F32 yaw = 0.0f, pitch = 0.0f;
-	if (GetAsyncKeyState(VK_UP))
+	if (CInput::GetInstance()->IsKeyPressed(VK_UP))
 		pitch = UMath::DegToRad(90.0f) * dt;
-	if (GetAsyncKeyState(VK_DOWN))
+	if (CInput::GetInstance()->IsKeyPressed(VK_DOWN))
 		pitch = UMath::DegToRad(-90.0f) * dt;
-	if (GetAsyncKeyState(VK_LEFT))
+	if (CInput::GetInstance()->IsKeyPressed(VK_LEFT))
 		yaw = UMath::DegToRad(90.0f) * dt;
-	if (GetAsyncKeyState(VK_RIGHT))
+	if (CInput::GetInstance()->IsKeyPressed(VK_RIGHT))
 		yaw = UMath::DegToRad(-90.0f) * dt;
 
 	transformComp->Transform.Rotate({ pitch, yaw, 0.0f });
