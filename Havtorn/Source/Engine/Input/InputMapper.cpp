@@ -19,22 +19,40 @@ namespace Havtorn
 	{
 		Instance = this;
 
-		MapEvent(IInputObserver::EInputAction::MouseLeftDown, IInputObserver::EInputEvent::Push);
-		MapEvent(IInputObserver::EInputAction::MouseRightDown, IInputObserver::EInputEvent::Pull);
-		MapEvent(IInputObserver::EInputAction::MouseMiddle, IInputObserver::EInputEvent::MiddleMouseMove);
-		MapEvent(IInputObserver::EInputAction::KeyShiftDown, IInputObserver::EInputEvent::StandStill);
-		MapEvent(IInputObserver::EInputAction::KeyShiftRelease, IInputObserver::EInputEvent::Moving);
-		MapEvent(IInputObserver::EInputAction::KeyW, IInputObserver::EInputEvent::MoveForward);
-		MapEvent(IInputObserver::EInputAction::KeyA, IInputObserver::EInputEvent::MoveLeft);
-		MapEvent(IInputObserver::EInputAction::KeyS, IInputObserver::EInputEvent::MoveBackward);
-		MapEvent(IInputObserver::EInputAction::KeyD, IInputObserver::EInputEvent::MoveRight);
-		MapEvent(IInputObserver::EInputAction::KeyEscape, IInputObserver::EInputEvent::PauseGame);
-		MapEvent(IInputObserver::EInputAction::KeySpace, IInputObserver::EInputEvent::Jump);
-		MapEvent(IInputObserver::EInputAction::CTRL, IInputObserver::EInputEvent::Crouch);
-		MapEvent(IInputObserver::EInputAction::KeyF5, IInputObserver::EInputEvent::ResetEntities);
-		MapEvent(IInputObserver::EInputAction::KeyF8, IInputObserver::EInputEvent::SetResetPointEntities);
-		MapEvent(IInputObserver::EInputAction::KeyShiftDown, IInputObserver::EInputEvent::StartSprint);
-		MapEvent(IInputObserver::EInputAction::KeyShiftRelease, IInputObserver::EInputEvent::EndSprint);
+		/// <summary>
+		/// Ideas:
+		///	Store delegates in CInputMapper
+		///	fill up buffer in CInput
+		///	use bitsets to define InputActions?
+		/// typedef static delegates, dont template
+		///	start on proper delegate system!
+		///
+		/// System -> CInputMapper->AddInputAxisDelegate<void, SVector2>("CameraTranslation", &CameraSystem::Move)
+		/// System -> CInputMapper->AddInputActionDelegate<void, float>("CameraForward", &CameraSystem::MoveForward)
+		///
+		///	CameraSystem::Move(float)
+		///	{
+		///		
+		///	}
+		/// </summary>
+		/// <returns></returns>
+
+		//MapEvent(EInputKey::MouseLeftDown, EInputActionEvent::Push);
+		//MapEvent(EInputKey::MouseRightDown, EInputActionEvent::Pull);
+		//MapEvent(EInputKey::MouseMiddle, EInputActionEvent::MiddleMouseMove);
+		//MapEvent(EInputKey::KeyShiftDown, EInputActionEvent::StandStill);
+		//MapEvent(EInputKey::KeyShiftRelease, EInputActionEvent::Moving);
+		//MapEvent(EInputKey::KeyW, EInputActionEvent::MoveForward);
+		//MapEvent(EInputKey::KeyA, EInputActionEvent::MoveLeft);
+		//MapEvent(EInputKey::KeyS, EInputActionEvent::MoveBackward);
+		//MapEvent(EInputKey::KeyD, EInputActionEvent::MoveRight);
+		//MapEvent(EInputKey::KeyEscape, EInputActionEvent::PauseGame);
+		//MapEvent(EInputKey::KeySpace, EInputActionEvent::Jump);
+		//MapEvent(EInputKey::CTRL, EInputActionEvent::Crouch);
+		//MapEvent(EInputKey::KeyF5, EInputActionEvent::ResetEntities);
+		//MapEvent(EInputKey::KeyF8, EInputActionEvent::SetResetPointEntities);
+		//MapEvent(EInputKey::KeyShiftDown, EInputActionEvent::StartSprint);
+		//MapEvent(EInputKey::KeyShiftRelease, EInputActionEvent::EndSprint);
 
 		if (this == nullptr)
 			return false;
@@ -42,7 +60,7 @@ namespace Havtorn
 		return true;
 	}
 
-	void CInputMapper::RunEvent(const IInputObserver::EInputEvent& outputEvent)
+	void CInputMapper::RunEvent(const EInputActionEvent& outputEvent)
 	{
 		for (int i = 0; i < Observers[outputEvent].size(); ++i)
 		{
@@ -50,7 +68,7 @@ namespace Havtorn
 		}
 	}
 
-	void CInputMapper::TranslateActionToEvent(const IInputObserver::EInputAction& action)
+	void CInputMapper::TranslateActionToEvent(const EInputKey& action)
 	{
 		if (const auto eventIterator = Events.find(action); eventIterator != Events.end())
 		{
@@ -60,85 +78,84 @@ namespace Havtorn
 
 	void CInputMapper::UpdateKeyboardInput()
 	{
-		if (Input->IsKeyPressed(VK_SPACE))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeySpace);
-		}
-
-		if (Input->IsKeyPressed(VK_ESCAPE))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyEscape);
-		}
-
-		if (Input->IsKeyDown(VK_SHIFT))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyShiftDown);
-		}
-
-		if (Input->IsKeyReleased(VK_SHIFT))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyShiftRelease);
-		}
-
-		if (Input->IsKeyDown('W'))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyW);
-		}
-		if (Input->IsKeyDown('A'))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyA);
-		}
-		if (Input->IsKeyDown('S'))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyS);
-		}
-		if (Input->IsKeyDown('D'))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyD);
-		}
-		if (Input->IsKeyPressed(VK_CONTROL))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::CTRL);
-		}
-#ifdef _DEBUG
-		if (Input->IsKeyPressed(VK_F5))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyF5);
-		}
-		if (Input->IsKeyPressed(VK_F8))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::KeyF8);
-		}
-#endif // DEBUG
+//		if (Input->IsKeyPressed(VK_SPACE))
+//		{
+//			TranslateActionToEvent(EInputKey::KeySpace);
+//		}
+//
+//		if (Input->IsKeyPressed(VK_ESCAPE))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyEscape);
+//		}
+//
+//		if (Input->IsKeyDown(VK_SHIFT))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyShiftDown);
+//		}
+//
+//		if (Input->IsKeyReleased(VK_SHIFT))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyShiftRelease);
+//		}
+//
+//		if (Input->IsKeyDown('W'))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyW);
+//		}
+//		if (Input->IsKeyDown('A'))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyA);
+//		}
+//		if (Input->IsKeyDown('S'))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyS);
+//		}
+//		if (Input->IsKeyDown('D'))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyD);
+//		}
+//		if (Input->IsKeyPressed(VK_CONTROL))
+//		{
+//			TranslateActionToEvent(EInputKey::CTRL);
+//		}
+//#ifdef _DEBUG
+//		if (Input->IsKeyPressed(VK_F5))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyF5);
+//		}
+//		if (Input->IsKeyPressed(VK_F8))
+//		{
+//			TranslateActionToEvent(EInputKey::KeyF8);
+//		}
+//#endif // DEBUG
 	}
 
 	void CInputMapper::UpdateMouseInput()
 	{
-
-		if (Input->IsMouseDown(CInput::EMouseButton::Middle))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::MouseMiddle);
-		}
-		if (Input->IsMousePressed(CInput::EMouseButton::Left))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::MouseLeftPressed);
-		}
-		if (Input->IsMouseDown(CInput::EMouseButton::Left))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::MouseLeftDown);
-		}
-		//else if (myInput->IsMouseDown(CInput::EMouseButton::Left))
+		//if (Input->IsMouseDown(CInput::EMouseButton::Middle))
 		//{
-		//	TranslateActionToEvent(IInputObserver::EInputAction::MouseLeft);
+		//	TranslateActionToEvent(EInputKey::MouseMiddle);
 		//}
-		//else if (myInput->IsMouseReleased(CInput::EMouseButton::Left))
+		//if (Input->IsMousePressed(CInput::EMouseButton::Left))
 		//{
-		//	TranslateActionToEvent(IInputObserver::EInputAction::MouseLeft);
+		//	TranslateActionToEvent(EInputKey::MouseLeftPressed);
 		//}
-		if (Input->IsMouseDown(CInput::EMouseButton::Right))
-		{
-			TranslateActionToEvent(IInputObserver::EInputAction::MouseRightDown);
-		}
+		//if (Input->IsMouseDown(CInput::EMouseButton::Left))
+		//{
+		//	TranslateActionToEvent(EInputKey::MouseLeftDown);
+		//}
+		////else if (myInput->IsMouseDown(CInput::EMouseButton::Left))
+		////{
+		////	TranslateActionToEvent(EInputKey::MouseLeft);
+		////}
+		////else if (myInput->IsMouseReleased(CInput::EMouseButton::Left))
+		////{
+		////	TranslateActionToEvent(EInputKey::MouseLeft);
+		////}
+		//if (Input->IsMouseDown(CInput::EMouseButton::Right))
+		//{
+		//	TranslateActionToEvent(EInputKey::MouseRightDown);
+		//}
 	}
 
 	void CInputMapper::Update()
@@ -148,12 +165,12 @@ namespace Havtorn
 		Input->Update();
 	}
 
-	void CInputMapper::MapEvent(const IInputObserver::EInputAction& inputEvent, const IInputObserver::EInputEvent& outputEvent)
+	void CInputMapper::MapEvent(const EInputKey& inputEvent, const EInputActionEvent& outputEvent)
 	{
 		Events[inputEvent] = outputEvent;
 	}
 
-	bool CInputMapper::AddObserver(const IInputObserver::EInputEvent& eventToListenFor, IInputObserver* observer)
+	bool CInputMapper::AddObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer)
 	{
 		ENGINE_ERROR_BOOL_MESSAGE(observer, "InputObsever is nullptr!");
 
@@ -163,7 +180,7 @@ namespace Havtorn
 		return true;
 	}
 
-	bool CInputMapper::RemoveObserver(const IInputObserver::EInputEvent& eventToListenFor, IInputObserver* observer)
+	bool CInputMapper::RemoveObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer)
 	{
 		ENGINE_ERROR_BOOL_MESSAGE(observer, "InputObsever is nullptr!");
 
@@ -173,13 +190,13 @@ namespace Havtorn
 		return true;
 	}
 
-	bool CInputMapper::HasObserver(const IInputObserver::EInputEvent& eventToListenFor, IInputObserver* observer)
+	bool CInputMapper::HasObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer)
 	{
 		const auto it = std::ranges::find(Observers[eventToListenFor], observer);
 		return it != Observers[eventToListenFor].end();
 	}
 
-	void CInputMapper::ClearObserverList(const IInputObserver::EInputEvent& eventToListenFor)
+	void CInputMapper::ClearObserverList(const EInputActionEvent& eventToListenFor)
 	{
 		Observers[eventToListenFor].clear();
 	}

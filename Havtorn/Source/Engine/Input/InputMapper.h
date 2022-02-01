@@ -15,15 +15,19 @@ namespace Havtorn
 		static CInputMapper* GetInstance();
 
 		void Update();
-		void MapEvent(const IInputObserver::EInputAction& inputEvent, const IInputObserver::EInputEvent& outputEvent);
-		bool AddObserver(const IInputObserver::EInputEvent& eventToListenFor, IInputObserver* observer);
-		bool RemoveObserver(const IInputObserver::EInputEvent& eventToListenFor, IInputObserver* observer);
-		bool HasObserver(const IInputObserver::EInputEvent& eventToListenFor, IInputObserver* observer);
+		void MapEvent(const EInputKey& inputEvent, const EInputActionEvent& outputEvent);
+		bool AddObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer);
+		bool RemoveObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer);
+		bool HasObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer);
 
-		void ClearObserverList(const IInputObserver::EInputEvent& eventToListenFor);
+		void ClearObserverList(const EInputActionEvent& eventToListenFor);
 
 	public:
-		~CInputMapper() = delete;
+		~CInputMapper() = default;
+		CInputMapper(const CInputMapper&) = delete;
+		CInputMapper(const CInputMapper&&) = delete;
+		CInputMapper operator=(const CInputMapper&) = delete;
+		CInputMapper operator=(const CInputMapper&&) = delete;
 
 	private:
 		static CInputMapper* Instance;
@@ -31,13 +35,13 @@ namespace Havtorn
 		CInputMapper();
 		bool Init();
 
-		void RunEvent(const IInputObserver::EInputEvent& outputEvent);
-		void TranslateActionToEvent(const IInputObserver::EInputAction& action);
+		void RunEvent(const EInputActionEvent& outputEvent);
+		void TranslateActionToEvent(const EInputKey& action);
 		void UpdateKeyboardInput();
 		void UpdateMouseInput();
 
-		std::unordered_map<IInputObserver::EInputEvent, std::vector<IInputObserver*>> Observers;
-		std::unordered_map<IInputObserver::EInputAction, IInputObserver::EInputEvent> Events;
+		std::unordered_map<EInputActionEvent, std::vector<IInputObserver*>> Observers;
+		std::unordered_map<EInputKey, EInputActionEvent> Events;
 		CInput* Input;
 	};
 }

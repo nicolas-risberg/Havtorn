@@ -28,6 +28,7 @@
 #include "Core/EngineTypes.h"
 #include "Core/MathTypes/HavtornMath.h"
 #include "Core/EngineException.h"
+#include "Core/Delegate.h"
 #include "Timer.h"
 #include "Log.h"
 #include "ECS/ECS.h"
