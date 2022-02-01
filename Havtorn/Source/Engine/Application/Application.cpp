@@ -7,8 +7,12 @@
 #include "Engine.h"
 #include "WindowHandler.h"
 
+//#include "Input/InputDelegate.h"
+
 namespace Havtorn
 {
+
+	//CInputDelegate<void> idelegate;
 
 #define BIND_EVENT_FUNCTION(x) std::bind(&CApplication::x, this, std::placeholders::_1)
 
@@ -26,6 +30,12 @@ namespace Havtorn
 		Engine = new CEngine();
 
 		IsRunning = Engine->Init(windowData);
+	
+		//idelegate.AddLambda([]()
+		//	{
+		//		HV_LOG_DEBUG("Lambda?: retval: %f"/*, retval*/);
+		//		//HV_LOG_DEBUG("Lambda?: retval: %f    p: %f     q: %f", retval, p, q);
+		//	});
 	}
 
 	CApplication::~CApplication()
@@ -66,6 +76,7 @@ namespace Havtorn
 			Engine->BeginFrame();
 			//if (!game.Update())
 			//	break;
+			//idelegate.Broadcast();
 			Engine->Update();
 			Engine->RenderFrame();
 			Engine->EndFrame();
