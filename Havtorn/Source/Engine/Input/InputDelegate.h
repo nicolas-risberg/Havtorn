@@ -1,31 +1,67 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
+#pragma once
+
+#include "Core/Delegate.h"
+
 namespace Havtorn
 {
-	template<typename RetVal, typename... Args>
+	template<typename... BroadcastTypes>
 	class CInputDelegate
 	{
 	public:
 		CInputDelegate()
-		{
-			Delegate = MulticastDelegate<RetVal, Args>();
-		};
-		~CInputDelegate() = default;
+			: Delegate(MulticastDelegate<BroadcastTypes...>())
+		{}
 
-		template<typename TLambda>
-		void AddLambda(TLambda&& lambda, Args&&... args) 
+		~CInputDelegate() = default;
+		CInputDelegate(const CInputDelegate&) = default;
+		CInputDelegate(CInputDelegate&&) = default;
+		CInputDelegate& operator=(const CInputDelegate&) = default;
+		CInputDelegate& operator=(CInputDelegate&&) = default;
+
+		template<typename LambdaType, typename... LambdaArgs>
+		void AddLambda(LambdaType&& lambda, LambdaArgs&&... args)
 		{
-			Delegate.AddLambda(std::forward<TLambda>(lambda), std::forward<Args>(args)...);
+			Delegate.AddLambda(std::forward<LambdaType>(lambda), std::forward<LambdaArgs>(args)...);
 		}
 
-		//template<typename TClass>
-		//void AddMember(TClass& object, std::function& func, Args... args);
+		//template<typename ObjectType, typename FunctionReturnType, typename... FunctionArgs>
+		//void AddMember(const ObjectType* object, FunctionReturnType(ObjectType::* function)(FunctionArgs&&...) const, FunctionArgs&&... args)
+		//{
+		//	Delegate.AddRaw(object, function, std::forward<FunctionArgs>(args)...);
+		//}
 
-		//void AddStatic(std::function& func, Args... args);
+		template<typename ObjectType, typename FunctionReturnType>
+		void AddMember(const ObjectType* object, FunctionReturnType(ObjectType::* function)(BroadcastTypes...) const)
+		{
+			Delegate.AddRaw(object, function);
+		}
 
-		void Broadcast(Args&&... args) { Delegate.Broadcast(std::forward<Args>(args)...); }
+		//template<typename ObjectType, typename FunctionReturnType, typename... FunctionArgs>
+		//void AddMember(ObjectType* object, FunctionReturnType(ObjectType::* function)(FunctionArgs&&...), FunctionArgs&&... args)
+		//{
+		//	Delegate.AddRaw(object, function, std::forward<FunctionArgs>(args)...);
+		//}
+
+		template<typename ObjectType, typename FunctionReturnType>
+		void AddMember(ObjectType* object, FunctionReturnType(ObjectType::* function)(BroadcastTypes...))
+		{
+			Delegate.AddRaw(object, function);
+		}
+
+		template<typename FunctionType, typename... FunctionArgs>
+		void AddStatic(FunctionType&& function, FunctionArgs&&... args)
+		{
+			Delegate.AddStatic(std::forward<FunctionType>(function), std::forward<FunctionArgs>(args)...);
+		}
+
+		void Broadcast(BroadcastTypes... args)
+		{
+			Delegate.Broadcast(std::forward<BroadcastTypes>(args)...);
+		}
 
 	public:
-		MulticastDelegate<RetVal, Args...> Delegate;
+		MulticastDelegate<BroadcastTypes...> Delegate;
 	};
 }

@@ -15,7 +15,7 @@ namespace Havtorn
 	{
 	public:
 		CApplication();
-		virtual ~CApplication();
+		virtual ~CApplication() = default;
 		
 		CApplication(const CApplication& other) = delete;
 		CApplication(const CApplication&& other) = delete;
@@ -25,6 +25,9 @@ namespace Havtorn
 		void Run();
 
 		void OnEvent(CEvent& e);
+
+		void ConstDelegateTest() const;
+		void DelegateTest();
 
 		void PushLayer(CLayer* layer);
 		void PushOverlay(CLayer* overlay);

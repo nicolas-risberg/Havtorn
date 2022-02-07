@@ -39,7 +39,7 @@
 //#include "ImguiManager.h"
 //
 //#include "AudioManager.h"
-//#include "InputMapper.h"
+#include "Input/InputMapper.h"
 //
 //#include "Debug.h"
 //#include "DL_Debug.h"
@@ -70,6 +70,7 @@ namespace Havtorn
 #ifdef _DEBUG
 		ImguiManager = new CImguiManager();
 #endif
+		InputMapper = new CInputMapper();
 		//ForwardRenderer = new CForwardRenderer();
 		//ModelFactory = new CModelFactory();
 		//CameraFactory = new CCameraFactory();
@@ -145,6 +146,7 @@ namespace Havtorn
 		//SceneFactory = nullptr;
 
 		SAFE_DELETE(Scene);
+		SAFE_DELETE(InputMapper);
 
 #ifdef _DEBUG
 		SAFE_DELETE(ImguiManager);
@@ -165,6 +167,7 @@ namespace Havtorn
 		ENGINE_ERROR_BOOL_MESSAGE(Framework->Init(WindowHandler), "Framework could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(RenderManager->Init(Framework, WindowHandler), "RenderManager could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(ThreadManager->Init(RenderManager), "Thread Manager could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(InputMapper->Init(), "Input Mapper could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(Scene->Init(RenderManager), "Scene could not be initialized.");
 
 #ifdef _DEBUG
@@ -216,7 +219,7 @@ namespace Havtorn
 		//	}
 		//	mySceneMap[myActiveState]->Update();
 		//}
-
+		InputMapper->Update();
 		Scene->Update();
 
 		//AudioManager->Update();
@@ -305,6 +308,11 @@ namespace Havtorn
 	CEngine* CEngine::GetInstance()
 	{
 		return Instance;
+	}
+
+	CInputMapper* CEngine::GetInput() const
+	{
+		return InputMapper;
 	}
 
 	//const CStateStack::EState CEngine::AddScene(const CStateStack::EState aState, CScene* aScene)

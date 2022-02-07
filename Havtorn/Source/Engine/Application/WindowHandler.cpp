@@ -61,9 +61,31 @@ namespace Havtorn
 #endif
             break;
 
+        // The following cases suppresses the following effects (by hindering DefWindowProc from running):
+        // The windows help menu popup, which pauses the application when pressing the Alt key
+        // The handling of the Alt key input in general (still picked up by WM_KEYDOWN etc. in our own loop)
+        // The windows sound played when pressing Alt+(any other key)
+        //
+        // This means that default Alt+(other key) bindings won't be caught, such as Alt+F4, Alt+Space etc.
+        // Alt+Enter still works but it might still be worth figuring out what to do about these.
+		//
+		//
+		//
+        // This needs more testing.
+        case WM_ENTERIDLE:
+        //case WM_SYSKEYDOWN:
+        case WM_SYSKEYUP:
+        case WM_SYSCHAR:
+            return true;
+
         default:
             CInput::GetInstance()->UpdateEvents(uMsg, wParam, lParam);
             break;
+
+        	//if (CInput::GetInstance()->UpdateEvents(uMsg, wParam, lParam))
+	        //    break;
+
+        	//return true;
         }
 
         return DefWindowProc(hwnd, uMsg, wParam, lParam);

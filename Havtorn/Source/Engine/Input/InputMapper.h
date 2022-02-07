@@ -2,7 +2,6 @@
 
 #pragma once
 #include "InputObserver.h"
-#include <unordered_map>
 
 namespace Havtorn
 {
@@ -10,38 +9,25 @@ namespace Havtorn
 
 	class CInputMapper
 	{
-		friend class CEngine;
 	public:
-		static CInputMapper* GetInstance();
-
-		void Update();
-		void MapEvent(const EInputKey& inputEvent, const EInputActionEvent& outputEvent);
-		bool AddObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer);
-		bool RemoveObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer);
-		bool HasObserver(const EInputActionEvent& eventToListenFor, IInputObserver* observer);
-
-		void ClearObserverList(const EInputActionEvent& eventToListenFor);
-
-	public:
+		CInputMapper();
 		~CInputMapper() = default;
 		CInputMapper(const CInputMapper&) = delete;
-		CInputMapper(const CInputMapper&&) = delete;
+		CInputMapper(CInputMapper&&) = delete;
 		CInputMapper operator=(const CInputMapper&) = delete;
-		CInputMapper operator=(const CInputMapper&&) = delete;
+		CInputMapper operator=(CInputMapper&&) = delete;
+
+		bool Init();
+		void Update();
+
+		[[nodiscard]] CInputDelegate<F32>& GetActionDelegate(EInputActionEvent event);
 
 	private:
-		static CInputMapper* Instance;
-
-		CInputMapper();
-		bool Init();
-
-		void RunEvent(const EInputActionEvent& outputEvent);
-		void TranslateActionToEvent(const EInputKey& action);
+		void MapEvent(EInputActionEvent event, SInputAction action, const EInputContext& context);
 		void UpdateKeyboardInput();
 		void UpdateMouseInput();
 
-		std::unordered_map<EInputActionEvent, std::vector<IInputObserver*>> Observers;
-		std::unordered_map<EInputKey, EInputActionEvent> Events;
+		std::map<EInputActionEvent, SInputActionEvent> BoundActionEvents;
 		CInput* Input;
 	};
 }

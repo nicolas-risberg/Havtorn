@@ -17,6 +17,7 @@
 #include <array>
 #include <unordered_map>
 #include <unordered_set>
+#include <map>
 #include <deque>
 
 #include <d3d11.h>
@@ -28,7 +29,6 @@
 #include "Core/EngineTypes.h"
 #include "Core/MathTypes/HavtornMath.h"
 #include "Core/EngineException.h"
-#include "Core/Delegate.h"
 #include "Timer.h"
 #include "Log.h"
 #include "ECS/ECS.h"

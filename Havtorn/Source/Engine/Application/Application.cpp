@@ -3,22 +3,17 @@
 #include "hvpch.h"
 
 #include "Application.h"
-#include "Log.h"
 #include "Engine.h"
 #include "WindowHandler.h"
 
-//#include "Input/InputDelegate.h"
-
 namespace Havtorn
 {
-
-	//CInputDelegate<void> idelegate;
-
 #define BIND_EVENT_FUNCTION(x) std::bind(&CApplication::x, this, std::placeholders::_1)
 
 	CApplication::CApplication()
+		: Engine(new CEngine())
 	{
-		//Window = IWindow::Create();
+		Window = IWindow::Create();
 		//Window->SetEventCallback(BIND_EVENT_FUNCTION(OnEvent));
 
 		CWindowHandler::SWindowData windowData;
@@ -27,19 +22,7 @@ namespace Havtorn
 		windowData.myWidth = 1280;
 		windowData.myHeight = 720;
 
-		Engine = new CEngine();
-
 		IsRunning = Engine->Init(windowData);
-	
-		//idelegate.AddLambda([]()
-		//	{
-		//		HV_LOG_DEBUG("Lambda?: retval: %f"/*, retval*/);
-		//		//HV_LOG_DEBUG("Lambda?: retval: %f    p: %f     q: %f", retval, p, q);
-		//	});
-	}
-
-	CApplication::~CApplication()
-	{
 	}
 
 	void CApplication::Run()
@@ -76,7 +59,6 @@ namespace Havtorn
 			Engine->BeginFrame();
 			//if (!game.Update())
 			//	break;
-			//idelegate.Broadcast();
 			Engine->Update();
 			Engine->RenderFrame();
 			Engine->EndFrame();

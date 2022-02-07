@@ -3,7 +3,6 @@
 #pragma once
 #include "hvpch.h"
 
-#include "Core/Core.h"
 #include "Application/WindowHandler.h"
 #include "Graphics/GraphicsFramework.h"
 #include "Application/LayerStack.h"
@@ -70,6 +69,7 @@ namespace Havtorn
 
 		static CEngine* GetInstance();
 
+		CInputMapper* GetInput() const;
 		//const CStateStack::EState AddScene(const CStateStack::EState aState, CScene* aScene);
 		//void SetActiveScene(const CStateStack::EState aState);
 		CScene& GetActiveScene();
@@ -112,6 +112,7 @@ namespace Havtorn
 #endif
 		CRenderManager* RenderManager;
 		CTimer* Timer;
+		CInputMapper* InputMapper;
 		//CDebug* Debug;
 		//CPhysXWrapper* PhysxWrapper;
 
@@ -130,7 +131,6 @@ namespace Havtorn
 		//CSpriteFactory* SpriteFactory;
 		//CTextFactory* TextFactory;
 		//CDecalFactory* DecalFactory;
-		//CInputMapper* InputMapper;
 		//CMainSingleton* MainSingleton;
 		//CAudioManager* AudioManager;
 		//CSceneFactory* SceneFactory;

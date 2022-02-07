@@ -49,13 +49,31 @@ namespace Havtorn
 
 		switch (message)
 		{
+		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 			KeyDown[wParam] = true;
+
+			if (wParam == 0x10 || wParam == 0x11 || wParam == 0x12) // Handle Shift, Ctrl, and Alt input modifiers
+			{
+				KeyInputModifiers[wParam - 16] = true;
+				return true;
+			}
+
+			KeyInputBuffer.push_back(wParam);
 			return true;
 
+		case WM_SYSKEYUP:
 		case WM_KEYUP:
 			KeyDown[wParam] = false;
+
+			if (wParam == 0x10 || wParam == 0x11 || wParam == 0x12) // Handle Shift, Ctrl, and Alt input modifiers
+			{
+				KeyInputModifiers[wParam - 16] = false;
+				return true;
+			}
+
 			return true;
+
 
 		case WM_MOUSEMOVE:
 			MouseX = GET_X_LPARAM(lParam); // Returns x coordiante
@@ -181,28 +199,18 @@ namespace Havtorn
 		UpdateAxisUsingNoFallOff();
 #endif
 
+		KeyInputBuffer.clear();
 	}
 
-	//bool CInput::MoveLeft()
-	//{
-	//	return IsKeyPressed('A') == true || IsKeyPressed(VK_LEFT) == true;
-	//}
+	const std::vector<WPARAM>& CInput::GetKeyInputBuffer() const
+	{
+		return KeyInputBuffer;
+	}
 
-	//bool CInput::MoveRight()
-	//{
-	//	return IsKeyPressed('D') == true || IsKeyPressed(VK_RIGHT) == true;
-	//}
-
-	//bool CInput::MoveUp()
-	//{
-	//	return IsKeyPressed('W') == true || IsKeyPressed(VK_UP) == true;
-	//}
-
-	//bool CInput::MoveDown()
-	//{
-	//	return IsKeyPressed('S') == true || IsKeyPressed(VK_DOWN) == true;
-	//}
-	//const auto& ImguiInput = ImGui::GetIO();
+	const std::bitset<3>& CInput::GetKeyInputModifiers() const
+	{
+		return KeyInputModifiers;
+	}
 
 	F32 CInput::GetAxis(const EAxis& axis)
 	{

@@ -33,10 +33,8 @@ namespace Havtorn
 		bool UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam);
 		void Update();
 
-		//bool MoveLeft();
-		//bool MoveRight();
-		//bool MoveUp();
-		//bool MoveDown();
+		[[nodiscard]] const std::vector<WPARAM>& GetKeyInputBuffer() const;
+		[[nodiscard]] const std::bitset<3>& GetKeyInputModifiers() const;
 
 		static SVector2<F32> GetAxisRaw();
 
@@ -72,6 +70,9 @@ namespace Havtorn
 
 		std::bitset<256> KeyDownLast;
 		std::bitset<256> KeyDown;
+
+		std::vector<WPARAM> KeyInputBuffer;
+		std::bitset<3> KeyInputModifiers;
 
 		U16 MouseX;
 		U16 MouseY;

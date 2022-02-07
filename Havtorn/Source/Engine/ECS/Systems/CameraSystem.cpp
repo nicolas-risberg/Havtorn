@@ -6,10 +6,15 @@
 #include "ECS/Components/TransformComponent.h"
 #include "ECS/Components/CameraComponent.h"
 #include "Input/Input.h"
+#include "Input/InputMapper.h"
+#include "Engine.h"
 
 Havtorn::CCameraSystem::CCameraSystem()
 	: CSystem()
 {
+	CEngine::GetInstance()->GetInput()->GetActionDelegate(EInputActionEvent::CenterCamera).AddMember(this, &CCameraSystem::CenterCamera);
+	CEngine::GetInstance()->GetInput()->GetActionDelegate(EInputActionEvent::ResetCamera).AddMember(this, &CCameraSystem::ResetCamera);
+	CEngine::GetInstance()->GetInput()->GetActionDelegate(EInputActionEvent::TeleportCamera).AddMember(this, &CCameraSystem::TeleportCamera);
 }
 
 Havtorn::CCameraSystem::~CCameraSystem()
@@ -51,4 +56,19 @@ void Havtorn::CCameraSystem::Update(CScene* scene)
 		yaw = UMath::DegToRad(-90.0f) * dt;
 
 	transformComp->Transform.Rotate({ pitch, yaw, 0.0f });
+}
+
+void Havtorn::CCameraSystem::CenterCamera(F32 axisValue)
+{
+	HV_LOG_TRACE("Ctrl+G is pressed with axis value: %f", axisValue);
+}
+
+void Havtorn::CCameraSystem::ResetCamera(F32 axisValue) const
+{
+	HV_LOG_WARN("Shift+Ctrl+Alt+K is pressed with axis value: %f", axisValue);
+}
+
+void Havtorn::CCameraSystem::TeleportCamera(F32 axisValue) const
+{
+	HV_LOG_INFO("Shift+Alt+J is pressed with axis value: %f", axisValue);
 }

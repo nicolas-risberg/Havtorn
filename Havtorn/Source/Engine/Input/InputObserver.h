@@ -1,7 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-
+#include "InputDelegate.h"
 namespace Havtorn
 {
 	enum class EInputState
@@ -13,10 +13,10 @@ namespace Havtorn
 
 	enum class EInputModifier
 	{
-		None		= BIT(0),
-		Alt			= BIT(1),
-		Shift		= BIT(2),
-		Ctrl		= BIT(3),
+		None		= 0,
+		Shift		= BIT(0),
+		Ctrl		= BIT(1),
+		Alt			= BIT(2),
 	};
 
 	enum class EInputContext
@@ -123,36 +123,12 @@ namespace Havtorn
 		ScrLk		= 0x91,	// Scroll Lock key
 	};
 
-	struct SInputAction
-	{
-		EInputState State;
-		EInputModifier Modifier;
-		EInputKey Key;
-	};
-
 	enum class EInputActionEvent
 	{
-		PopState,
-		Push,
-		Pull,
-		MoveDown,
-		OpenMenuPress,
-		LoadLevel,
-		PauseGame,
-		QuitGame,
-		MiddleMouseMove,
-		StandStill,
-		Moving,
-		MoveForward,
-		MoveBackward,
-		MoveLeft,
-		MoveRight,
-		Jump,
-		Crouch,
-		ResetEntities,
-		SetResetPointEntities,
-		StartSprint,
-		EndSprint,
+		None,
+		CenterCamera,
+		ResetCamera,
+		TeleportCamera,
 		Count
 	};
 
@@ -161,6 +137,67 @@ namespace Havtorn
 		Horizontal,
 		Vertical,
 		Count
+	};
+
+	struct SInputAction
+	{
+		SInputAction(EInputState state, EInputModifier modifier, EInputKey key)
+			: State(state)
+			, Modifiers(static_cast<U32>(modifier))
+			, Key(key)
+		{}
+
+		SInputAction(EInputState state, EInputKey key)
+			: State(state)
+			, Key(key)
+		{}
+
+		// Pass in the number of modifiers the SInputAction should have
+		// followed by that number of EInputModifier entries, separated by comma
+		void SetModifiers(U32 numberOfModifiers, ...)
+		{
+			Modifiers = 0;
+
+			va_list args;
+			va_start(args, numberOfModifiers);
+
+			for (U32 index = 0; index < numberOfModifiers; index++)
+			{
+				Modifiers += static_cast<U32>(va_arg(args, EInputModifier));
+			}
+
+			va_end(args);
+		}
+
+		EInputState State = EInputState::Pressed;
+		U32 Modifiers = static_cast<U32>(EInputModifier::None);
+		EInputKey Key = EInputKey::KeyW;
+	};
+
+	struct SInputActionEvent
+	{
+		SInputActionEvent() = default;
+
+		explicit SInputActionEvent(SInputAction action)
+			: Delegate()
+		{
+			Actions.push_back(action);
+		}
+
+		[[nodiscard]] bool HasKey(const EInputKey& key) const
+		{
+			return std::ranges::any_of(Actions.begin(), Actions.end(),
+				[key](const SInputAction& action) {return action.Key == key; });
+		}
+
+		[[nodiscard]] bool HasModifiers(U32 modifiers) const
+		{
+			return std::ranges::any_of(Actions.begin(), Actions.end(),
+				[modifiers](const SInputAction& action) {return (action.Modifiers ^ modifiers) == 0; });
+		}
+
+		CInputDelegate<F32> Delegate;
+		std::vector<SInputAction> Actions;
 	};
 
 	class IInputObserver
