@@ -20,7 +20,7 @@ namespace Havtorn
 		bool Init();
 		void Update();
 
-		[[nodiscard]] CInputDelegate<F32>& GetActionDelegate(EInputActionEvent event);
+		[[nodiscard]] CInputDelegate<SInputPayload>& GetActionDelegate(EInputActionEvent event);
 
 		void SetInputContext(EInputContext context);
 

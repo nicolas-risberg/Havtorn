@@ -15,22 +15,14 @@ namespace Havtorn
 
 	bool CInputMapper::Init()
 	{
-		const SInputAction action = { EInputState::Pressed, EInputKey::KeyG, EInputContext::Editor, EInputModifier::Ctrl };
+		const SInputAction action = { EInputKey::KeyH, EInputContext::Editor };
 		MapEvent(EInputActionEvent::CenterCamera, action);
 
-		SInputAction otherAction = { EInputState::Pressed, EInputKey::KeyK, EInputContext::Editor };
-		otherAction.SetModifiers(3, EInputModifier::Shift, EInputModifier::Ctrl, EInputModifier::Alt);
+		const SInputAction otherAction = { EInputKey::KeyG, EInputContext::Editor };
 		MapEvent(EInputActionEvent::ResetCamera, otherAction);
 
-		SInputAction thirdAction = { EInputState::Pressed, EInputKey::KeyJ, EInputContext::Editor };
-		thirdAction.SetModifiers(2, EInputModifier::Shift, EInputModifier::Alt);
+		const SInputAction thirdAction = { EInputKey::KeyJ, EInputContext::Editor };
 		MapEvent(EInputActionEvent::TeleportCamera, thirdAction);
-
-		const SInputAction fourthAction = {EInputState::Pressed, EInputKey::KeyH, EInputContext::Editor, EInputModifier::Shift};
-		MapEvent(EInputActionEvent::TeleportCamera, fourthAction);
-
-		const SInputAction fifthAction = { EInputState::Pressed, EInputKey::KeyL, {EInputContext::Editor, EInputContext::InGame}, {EInputModifier::Shift} };
-		MapEvent(EInputActionEvent::CenterCamera, fifthAction);
 
 		return true;
 	}
@@ -39,10 +31,10 @@ namespace Havtorn
 	{
 		UpdateKeyboardInput();
 		UpdateMouseInput();
-		Input->Update();
+		Input->UpdateState();
 	}
 
-	CInputDelegate<F32>& CInputMapper::GetActionDelegate(EInputActionEvent event)
+	CInputDelegate<SInputPayload>& CInputMapper::GetActionDelegate(EInputActionEvent event)
 	{
 		HV_ASSERT(BoundActionEvents.contains(event), "There is no such Input Action Event bound!");
 		return BoundActionEvents[event].Delegate;
@@ -71,9 +63,9 @@ namespace Havtorn
 		{
 			for (auto& val : BoundActionEvents | std::views::values)
 			{
-				if (val.Has(static_cast<EInputKey>(param), context, modifiers))
+				if (val.Has(static_cast<EInputKey>(param.first), context, modifiers))
 				{
-					val.Delegate.Broadcast(1.0f);
+					val.Delegate.Broadcast(param.second);
 				}
 			}
 		}

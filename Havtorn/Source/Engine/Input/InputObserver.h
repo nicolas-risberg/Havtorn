@@ -4,13 +4,6 @@
 #include "InputDelegate.h"
 namespace Havtorn
 {
-	enum class EInputState
-	{
-		Pressed		= BIT(0),
-		Held		= BIT(1),
-		Released	= BIT(2),
-	};
-
 	enum class EInputModifier
 	{
 		None		= 0,
@@ -141,16 +134,14 @@ namespace Havtorn
 
 	struct SInputAction
 	{
-		SInputAction(EInputState state, EInputKey key, EInputContext context, EInputModifier modifier)
-			: State(state)
-			, Key(key)
+		SInputAction(EInputKey key, EInputContext context, EInputModifier modifier)
+			: Key(key)
 			, Contexts(static_cast<U32>(context))
 			, Modifiers(static_cast<U32>(modifier))
 		{}
 
-		SInputAction(EInputState state, EInputKey key, std::initializer_list<EInputContext> contexts, std::initializer_list<EInputModifier> modifiers = {})
-			: State(state)
-			, Key(key)
+		SInputAction(EInputKey key, std::initializer_list<EInputContext> contexts, std::initializer_list<EInputModifier> modifiers = {})
+			: Key(key)
 			, Contexts(static_cast<U32>(EInputContext::Editor))
 			, Modifiers(0)
 		{
@@ -158,9 +149,8 @@ namespace Havtorn
 			SetModifiers(modifiers);
 		}
 
-		SInputAction(EInputState state, EInputKey key, EInputContext context)
-			: State(state)
-			, Key(key)
+		SInputAction(EInputKey key, EInputContext context)
+			: Key(key)
 			, Contexts(static_cast<U32>(context))
 			, Modifiers(0)
 		{}
@@ -195,10 +185,16 @@ namespace Havtorn
 				Contexts += static_cast<U32>(context);
 		}
 
-		EInputState State = EInputState::Pressed;
 		EInputKey Key = EInputKey::KeyW;
 		U32 Contexts = static_cast<U32>(EInputContext::Editor);
 		U32 Modifiers = static_cast<U32>(EInputModifier::None);
+	};
+
+	struct SInputPayload
+	{
+		bool IsPressed = false;
+		bool IsHeld = false;
+		bool IsReleased = false;
 	};
 
 	struct SInputActionEvent
@@ -238,7 +234,7 @@ namespace Havtorn
 				});
 		}
 
-		CInputDelegate<F32> Delegate;
+		CInputDelegate<SInputPayload> Delegate;
 		std::vector<SInputAction> Actions;
 	};
 

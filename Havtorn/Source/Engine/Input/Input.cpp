@@ -8,6 +8,8 @@
 #include "imgui.h"
 #include "Engine.h"
 
+#include <ranges>
+
 namespace Havtorn
 {
 	CInput* CInput::GetInstance()
@@ -59,7 +61,25 @@ namespace Havtorn
 				return true;
 			}
 
-			KeyInputBuffer.push_back(wParam);
+			if (KeyInputBuffer.contains(wParam))
+			{
+				if (KeyInputBuffer[wParam].IsPressed)
+				{
+					KeyInputBuffer[wParam].IsPressed = false;
+					KeyInputBuffer[wParam].IsHeld = true;
+				}
+				else if (!KeyInputBuffer[wParam].IsHeld)
+				{
+					KeyInputBuffer[wParam].IsPressed = true;
+				}
+			}
+			else
+			{
+				KeyInputBuffer.emplace(wParam, SInputPayload());
+				KeyInputBuffer[wParam].IsPressed = true;
+			}
+
+			KeyPressedInputBuffer.push_back(wParam);
 			return true;
 
 		case WM_SYSKEYUP:
@@ -72,8 +92,11 @@ namespace Havtorn
 				return true;
 			}
 
-			return true;
+			KeyInputBuffer[wParam].IsPressed = false;
+			KeyInputBuffer[wParam].IsHeld = false;
+			KeyInputBuffer[wParam].IsReleased = true;
 
+			return true;
 
 		case WM_MOUSEMOVE:
 			MouseX = GET_X_LPARAM(lParam); // Returns x coordiante
@@ -175,7 +198,7 @@ namespace Havtorn
 		return false;
 	}
 
-	void CInput::Update()
+	void CInput::UpdateState()
 	{
 		KeyDownLast = KeyDown;
 
@@ -199,10 +222,45 @@ namespace Havtorn
 		UpdateAxisUsingNoFallOff();
 #endif
 
-		KeyInputBuffer.clear();
+		KeyPressedInputBuffer.clear();
+
+		for (auto& keyInput : KeyInputBuffer | std::views::values)
+		{
+			if (keyInput.IsPressed)
+			{
+				keyInput.IsPressed = false;
+				keyInput.IsHeld = true;
+			}
+		}
+
+		for (auto it = KeyInputBuffer.cbegin(); it != KeyInputBuffer.cend();)
+		{
+			auto& keyInput = it->second;
+
+			if (keyInput.IsReleased)
+				it = KeyInputBuffer.erase(it);
+
+			else
+				++it;
+		}
 	}
 
-	const std::vector<WPARAM>& CInput::GetKeyInputBuffer() const
+	const std::vector<WPARAM>& CInput::GetKeyPressedInputBuffer() const
+	{
+		return KeyPressedInputBuffer;
+	}
+
+	const std::vector<WPARAM>& CInput::GetKeyHeldInputBuffer() const
+	{
+		return KeyHeldInputBuffer;
+	}
+
+	const std::vector<WPARAM>& CInput::GetKeyReleasedInputBuffer() const
+	{
+		return KeyReleasedInputBuffer;
+	}
+
+	const std::map<WPARAM, SInputPayload>& CInput::GetKeyInputBuffer() const
 	{
 		return KeyInputBuffer;
 	}

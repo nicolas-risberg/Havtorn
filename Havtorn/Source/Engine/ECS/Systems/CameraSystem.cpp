@@ -58,17 +58,20 @@ void Havtorn::CCameraSystem::Update(CScene* scene)
 	transformComp->Transform.Rotate({ pitch, yaw, 0.0f });
 }
 
-void Havtorn::CCameraSystem::CenterCamera(F32 axisValue)
+void Havtorn::CCameraSystem::CenterCamera(SInputPayload payload)
 {
-	HV_LOG_TRACE("Ctrl+G is pressed with axis value: %f", axisValue);
+	if (payload.IsHeld)
+		HV_LOG_TRACE("Center Camera event is held!");
 }
 
-void Havtorn::CCameraSystem::ResetCamera(F32 axisValue) const
+void Havtorn::CCameraSystem::ResetCamera(SInputPayload payload) const
 {
-	HV_LOG_WARN("Shift+Ctrl+Alt+K is pressed with axis value: %f", axisValue);
+	if (payload.IsPressed)
+		HV_LOG_WARN("Reset Camera event is pressed!");
 }
 
-void Havtorn::CCameraSystem::TeleportCamera(F32 axisValue) const
+void Havtorn::CCameraSystem::TeleportCamera(SInputPayload payload) const
 {
-	HV_LOG_INFO("Shift+Alt+J is pressed with axis value: %f", axisValue);
+	if (payload.IsReleased)
+		HV_LOG_INFO("Teleport Camera event is released!");
 }

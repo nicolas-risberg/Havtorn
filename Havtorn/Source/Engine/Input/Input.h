@@ -5,12 +5,14 @@
 
 //#define INPUT_AXIS_USES_FALLOFF
 
+// Will be removed when SInputPayload or payload gets finalized
+#include "InputObserver.h"
+
 namespace Havtorn
 {
 	class CInput
 	{
 	public:
-
 		static CInput* GetInstance();
 
 		enum class EMouseButton
@@ -31,9 +33,13 @@ namespace Havtorn
 		CInput();
 
 		bool UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam);
-		void Update();
+		void UpdateState();
 
-		[[nodiscard]] const std::vector<WPARAM>& GetKeyInputBuffer() const;
+		[[nodiscard]] const std::vector<WPARAM>& GetKeyPressedInputBuffer() const;
+		[[nodiscard]] const std::vector<WPARAM>& GetKeyHeldInputBuffer() const;
+		[[nodiscard]] const std::vector<WPARAM>& GetKeyReleasedInputBuffer() const;
+
+		[[nodiscard]] const std::map<WPARAM, SInputPayload>& GetKeyInputBuffer() const;
 		[[nodiscard]] const std::bitset<3>& GetKeyInputModifiers() const;
 
 		static SVector2<F32> GetAxisRaw();
@@ -71,7 +77,11 @@ namespace Havtorn
 		std::bitset<256> KeyDownLast;
 		std::bitset<256> KeyDown;
 
-		std::vector<WPARAM> KeyInputBuffer;
+		std::vector<WPARAM> KeyPressedInputBuffer;
+		std::vector<WPARAM> KeyHeldInputBuffer;
+		std::vector<WPARAM> KeyReleasedInputBuffer;
+
+		std::map<WPARAM, SInputPayload> KeyInputBuffer;
 		std::bitset<3> KeyInputModifiers;
 
 		U16 MouseX;

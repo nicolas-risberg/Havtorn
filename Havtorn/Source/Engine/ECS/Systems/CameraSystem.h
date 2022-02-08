@@ -3,6 +3,8 @@
 #pragma once
 #include "ECS/System.h"
 
+#include "Input/InputObserver.h"
+
 namespace Havtorn 
 {
 	
@@ -12,9 +14,9 @@ namespace Havtorn
 		~CCameraSystem();
 
 		void Update(CScene* scene) override;
-		void CenterCamera(F32 axisValue);
-		void ResetCamera(F32 axisValue) const;
-		void TeleportCamera(F32 axisValue) const;
+		void CenterCamera(SInputPayload payload);
+		void ResetCamera(SInputPayload payload) const;
+		void TeleportCamera(SInputPayload payload) const;
 	private:
 
 	};
