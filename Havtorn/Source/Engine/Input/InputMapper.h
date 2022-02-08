@@ -22,12 +22,16 @@ namespace Havtorn
 
 		[[nodiscard]] CInputDelegate<F32>& GetActionDelegate(EInputActionEvent event);
 
+		void SetInputContext(EInputContext context);
+
 	private:
-		void MapEvent(EInputActionEvent event, SInputAction action, const EInputContext& context);
+		void MapEvent(EInputActionEvent event, SInputAction action);
 		void UpdateKeyboardInput();
 		void UpdateMouseInput();
 
 		std::map<EInputActionEvent, SInputActionEvent> BoundActionEvents;
 		CInput* Input;
+
+		EInputContext CurrentInputContext;
 	};
 }

@@ -8,21 +8,29 @@
 
 namespace Havtorn
 {
-	CInputMapper::CInputMapper() : Input(CInput::GetInstance())
+	CInputMapper::CInputMapper()
+		: Input(CInput::GetInstance())
+		, CurrentInputContext(EInputContext::Editor)
 	{}
 
 	bool CInputMapper::Init()
 	{
-		const SInputAction action = { EInputState::Pressed, EInputModifier::Ctrl, EInputKey::KeyG };
-		MapEvent(EInputActionEvent::CenterCamera, action, EInputContext::Editor);
+		const SInputAction action = { EInputState::Pressed, EInputKey::KeyG, EInputContext::Editor, EInputModifier::Ctrl };
+		MapEvent(EInputActionEvent::CenterCamera, action);
 
-		SInputAction otherAction = { EInputState::Pressed, EInputKey::KeyK };
+		SInputAction otherAction = { EInputState::Pressed, EInputKey::KeyK, EInputContext::Editor };
 		otherAction.SetModifiers(3, EInputModifier::Shift, EInputModifier::Ctrl, EInputModifier::Alt);
-		MapEvent(EInputActionEvent::ResetCamera, otherAction, EInputContext::Editor);
+		MapEvent(EInputActionEvent::ResetCamera, otherAction);
 
-		SInputAction thirdAction = { EInputState::Pressed, EInputKey::KeyJ };
+		SInputAction thirdAction = { EInputState::Pressed, EInputKey::KeyJ, EInputContext::Editor };
 		thirdAction.SetModifiers(2, EInputModifier::Shift, EInputModifier::Alt);
-		MapEvent(EInputActionEvent::TeleportCamera, thirdAction, EInputContext::Editor);
+		MapEvent(EInputActionEvent::TeleportCamera, thirdAction);
+
+		const SInputAction fourthAction = {EInputState::Pressed, EInputKey::KeyH, EInputContext::Editor, EInputModifier::Shift};
+		MapEvent(EInputActionEvent::TeleportCamera, fourthAction);
+
+		const SInputAction fifthAction = { EInputState::Pressed, EInputKey::KeyL, {EInputContext::Editor, EInputContext::InGame}, {EInputModifier::Shift} };
+		MapEvent(EInputActionEvent::CenterCamera, fifthAction);
 
 		return true;
 	}
@@ -40,7 +48,12 @@ namespace Havtorn
 		return BoundActionEvents[event].Delegate;
 	}
 
-	void CInputMapper::MapEvent(EInputActionEvent event, SInputAction action, const EInputContext& /*context*/)
+	void CInputMapper::SetInputContext(EInputContext context)
+	{
+		CurrentInputContext = context;
+	}
+
+	void CInputMapper::MapEvent(EInputActionEvent event, SInputAction action)
 	{
 		if (!BoundActionEvents.contains(event))
 			BoundActionEvents.emplace(event, SInputActionEvent(action));
@@ -51,12 +64,14 @@ namespace Havtorn
 
 	void CInputMapper::UpdateKeyboardInput()
 	{
-		const auto& modifiers = Input->GetKeyInputModifiers();
+		const auto& modifiers = Input->GetKeyInputModifiers().to_ulong();
+		const auto& context = static_cast<U32>(CurrentInputContext);
+
 		for (const auto& param : Input->GetKeyInputBuffer())
 		{
 			for (auto& val : BoundActionEvents | std::views::values)
 			{
-				if (val.HasKey(static_cast<EInputKey>(param)) && val.HasModifiers(modifiers.to_ulong()))
+				if (val.Has(static_cast<EInputKey>(param), context, modifiers))
 				{
 					val.Delegate.Broadcast(1.0f);
 				}

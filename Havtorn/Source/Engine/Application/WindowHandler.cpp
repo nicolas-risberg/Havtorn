@@ -69,8 +69,6 @@ namespace Havtorn
         // This means that default Alt+(other key) bindings won't be caught, such as Alt+F4, Alt+Space etc.
         // Alt+Enter still works but it might still be worth figuring out what to do about these.
 		//
-		//
-		//
         // This needs more testing.
         case WM_ENTERIDLE:
         //case WM_SYSKEYDOWN:

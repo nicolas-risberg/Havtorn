@@ -141,15 +141,28 @@ namespace Havtorn
 
 	struct SInputAction
 	{
-		SInputAction(EInputState state, EInputModifier modifier, EInputKey key)
+		SInputAction(EInputState state, EInputKey key, EInputContext context, EInputModifier modifier)
 			: State(state)
-			, Modifiers(static_cast<U32>(modifier))
 			, Key(key)
+			, Contexts(static_cast<U32>(context))
+			, Modifiers(static_cast<U32>(modifier))
 		{}
 
-		SInputAction(EInputState state, EInputKey key)
+		SInputAction(EInputState state, EInputKey key, std::initializer_list<EInputContext> contexts, std::initializer_list<EInputModifier> modifiers = {})
 			: State(state)
 			, Key(key)
+			, Contexts(static_cast<U32>(EInputContext::Editor))
+			, Modifiers(0)
+		{
+			SetContexts(contexts);
+			SetModifiers(modifiers);
+		}
+
+		SInputAction(EInputState state, EInputKey key, EInputContext context)
+			: State(state)
+			, Key(key)
+			, Contexts(static_cast<U32>(context))
+			, Modifiers(0)
 		{}
 
 		// Pass in the number of modifiers the SInputAction should have
@@ -168,10 +181,24 @@ namespace Havtorn
 
 			va_end(args);
 		}
+		void SetModifiers(std::initializer_list<EInputModifier> modifiers)
+		{
+			Modifiers = 0;
+			for (auto modifier : modifiers)
+				Modifiers += static_cast<U32>(modifier);
+		}
+
+		void SetContexts(std::initializer_list<EInputContext> contexts)
+		{
+			Contexts = 0;
+			for (auto context : contexts)
+				Contexts += static_cast<U32>(context);
+		}
 
 		EInputState State = EInputState::Pressed;
-		U32 Modifiers = static_cast<U32>(EInputModifier::None);
 		EInputKey Key = EInputKey::KeyW;
+		U32 Contexts = static_cast<U32>(EInputContext::Editor);
+		U32 Modifiers = static_cast<U32>(EInputModifier::None);
 	};
 
 	struct SInputActionEvent
@@ -190,10 +217,25 @@ namespace Havtorn
 				[key](const SInputAction& action) {return action.Key == key; });
 		}
 
+		[[nodiscard]] bool HasContext(U32 context) const
+		{
+			return std::ranges::any_of(Actions.begin(), Actions.end(),
+				[context](const SInputAction& action) {return (action.Contexts & context) != 0; });
+		}
+
 		[[nodiscard]] bool HasModifiers(U32 modifiers) const
 		{
 			return std::ranges::any_of(Actions.begin(), Actions.end(),
 				[modifiers](const SInputAction& action) {return (action.Modifiers ^ modifiers) == 0; });
+		}
+
+		[[nodiscard]] bool Has(const EInputKey& key, U32 context, U32 modifiers) const
+		{
+			return std::ranges::any_of(Actions.begin(), Actions.end(),
+				[key, context, modifiers](const SInputAction& action)
+				{
+					return action.Key == key && (action.Contexts & context) != 0 && (action.Modifiers ^ modifiers) == 0;
+				});
 		}
 
 		CInputDelegate<F32> Delegate;
