@@ -116,6 +116,16 @@ namespace Havtorn
 		ScrLk		= 0x91,	// Scroll Lock key
 	};
 
+	enum class EInputAxis
+	{
+		Key,
+		MouseWheel,
+		MouseHorizontal,
+		MouseVertical,
+		AnalogHorizontal,
+		AnalogVertical
+	};
+
 	enum class EInputActionEvent
 	{
 		None,
@@ -127,9 +137,20 @@ namespace Havtorn
 
 	enum class EInputAxisEvent
 	{
-		Horizontal,
-		Vertical,
+		Right,		// X-axis
+		Up,			// Y-axis
+		Forward,	// Z-axis
+		Pitch,		// X-axis
+		Yaw,		// Y-axis
+		Roll,		// Z-axis
 		Count
+	};
+
+	struct SInputPayload
+	{
+		bool IsPressed = false;
+		bool IsHeld = false;
+		bool IsReleased = false;
 	};
 
 	struct SInputAction
@@ -171,6 +192,7 @@ namespace Havtorn
 
 			va_end(args);
 		}
+
 		void SetModifiers(std::initializer_list<EInputModifier> modifiers)
 		{
 			Modifiers = 0;
@@ -190,19 +212,12 @@ namespace Havtorn
 		U32 Modifiers = static_cast<U32>(EInputModifier::None);
 	};
 
-	struct SInputPayload
-	{
-		bool IsPressed = false;
-		bool IsHeld = false;
-		bool IsReleased = false;
-	};
-
 	struct SInputActionEvent
 	{
 		SInputActionEvent() = default;
 
 		explicit SInputActionEvent(SInputAction action)
-			: Delegate()
+			: Delegate(CInputDelegate<const SInputPayload>())
 		{
 			Actions.push_back(action);
 		}
@@ -234,8 +249,178 @@ namespace Havtorn
 				});
 		}
 
-		CInputDelegate<SInputPayload> Delegate;
+		CInputDelegate<const SInputPayload> Delegate;
 		std::vector<SInputAction> Actions;
+	};
+
+	struct SInputAxis
+	{
+		SInputAxis(EInputAxis axis, EInputContext context)
+			: Axis(axis)
+			, AxisPositiveKey(EInputKey::KeyW)
+			, AxisNegativeKey(EInputKey::KeyS)
+			, Contexts(static_cast<U32>(context))
+			, Modifiers(0)
+		{}
+
+		SInputAxis(EInputAxis axis, EInputContext context, EInputModifier modifier)
+			: Axis(axis)
+			, AxisPositiveKey(EInputKey::KeyW)
+			, AxisNegativeKey(EInputKey::KeyS)
+			, Contexts(static_cast<U32>(context))
+			, Modifiers(static_cast<U32>(modifier))
+		{}
+
+		SInputAxis(EInputAxis axis, EInputKey axisPositiveKey, EInputKey axisNegativeKey, EInputContext context)
+			: Axis(axis)
+			, AxisPositiveKey(axisPositiveKey)
+			, AxisNegativeKey(axisNegativeKey)
+			, Contexts(static_cast<U32>(context))
+			, Modifiers(0)
+		{}
+
+		SInputAxis(EInputAxis axis, std::initializer_list<EInputContext> contexts, std::initializer_list<EInputModifier> modifiers = {})
+			: Axis(axis)
+			, AxisPositiveKey(EInputKey::KeyW)
+			, AxisNegativeKey(EInputKey::KeyS)
+			, Contexts(static_cast<U32>(EInputContext::Editor))
+			, Modifiers(0)
+		{
+			SetContexts(contexts);
+			SetModifiers(modifiers);
+		}
+
+		SInputAxis(EInputAxis axis, EInputKey axisPositiveKey, EInputKey axisNegativeKey, std::initializer_list<EInputContext> contexts, std::initializer_list<EInputModifier> modifiers = {})
+			: Axis(axis)
+			, AxisPositiveKey(axisPositiveKey)
+			, AxisNegativeKey(axisNegativeKey)
+			, Contexts(static_cast<U32>(EInputContext::Editor))
+			, Modifiers(0)
+		{
+			SetContexts(contexts);
+			SetModifiers(modifiers);
+		}
+
+		// Pass in the number of modifiers the SInputAction should have
+		// followed by that number of EInputModifier entries, separated by comma
+		void SetModifiers(U32 numberOfModifiers, ...)
+		{
+			Modifiers = 0;
+
+			va_list args;
+			va_start(args, numberOfModifiers);
+
+			for (U32 index = 0; index < numberOfModifiers; index++)
+			{
+				Modifiers += static_cast<U32>(va_arg(args, EInputModifier));
+			}
+
+			va_end(args);
+		}
+
+		void SetModifiers(std::initializer_list<EInputModifier> modifiers)
+		{
+			Modifiers = 0;
+			for (auto modifier : modifiers)
+				Modifiers += static_cast<U32>(modifier);
+		}
+
+		void SetContexts(std::initializer_list<EInputContext> contexts)
+		{
+			Contexts = 0;
+			for (auto context : contexts)
+				Contexts += static_cast<U32>(context);
+		}
+
+		[[nodiscard]] F32 GetAxisValue(const EInputKey& key) const
+		{
+			if (AxisPositiveKey == key)
+				return 1.0;
+
+			if (AxisNegativeKey == key)
+				return -1.0f;
+
+			return 0.0f;
+		}
+
+		[[nodiscard]] F32 GetAxisValue(const I16 rawValue) const
+		{
+			switch (Axis)
+			{
+				// Mouse Wheel scroll threshold is capped at 120
+				case EInputAxis::MouseWheel:
+					return static_cast<F32>(rawValue) / 120.0f;
+
+				// Return raw delta for now
+				case EInputAxis::MouseHorizontal: 
+				case EInputAxis::MouseVertical: 
+					return static_cast<F32>(rawValue);
+
+				case EInputAxis::AnalogHorizontal: 
+
+				case EInputAxis::AnalogVertical: 
+
+				// Do not handle this here, call GetAxisValue(const EInputKey&) instead
+				case EInputAxis::Key:
+				default:
+					return 0.0f;
+			}
+		}
+
+		EInputAxis Axis = EInputAxis::Key;
+		EInputKey AxisPositiveKey = EInputKey::KeyW; // Optional
+		EInputKey AxisNegativeKey = EInputKey::KeyS; // Optional
+		U32 Contexts = static_cast<U32>(EInputContext::Editor);
+		U32 Modifiers = static_cast<U32>(EInputModifier::None);
+	};
+
+	struct SInputAxisEvent
+	{
+		SInputAxisEvent() = default;
+
+		explicit SInputAxisEvent(SInputAxis axis)
+			: Delegate(CInputDelegate<F32>())
+		{
+			Axes.push_back(axis);
+		}
+
+		[[nodiscard]] bool HasKeyAxis() const
+		{
+			return std::ranges::any_of(Axes.begin(), Axes.end(),
+				[](const SInputAxis& axis) {return axis.Axis == EInputAxis::Key; });
+		}
+
+		[[nodiscard]] bool Has(const EInputKey& key, U32 context, U32 modifiers, F32& outAxisValue) const
+		{
+			return std::ranges::any_of(Axes.begin(), Axes.end(),
+				[key, context, modifiers, &outAxisValue](const SInputAxis& axisAction)
+				{
+					if ((axisAction.AxisPositiveKey == key || axisAction.AxisNegativeKey == key)
+						&& (axisAction.Contexts & context) != 0 && (axisAction.Modifiers ^ modifiers) == 0)
+					{
+						outAxisValue = axisAction.GetAxisValue(key);
+						return true;
+					}
+					return false;
+				});
+		}
+
+		//[[nodiscard]] bool Has(const EInputAxis& axis, U32 context, U32 modifiers, F32& outAxisValue) const
+		//{
+		//	return std::ranges::any_of(Axes.begin(), Axes.end(),
+		//		[axis, context, modifiers, &outAxisValue](const SInputAxis& axisAction)
+		//		{
+		//			if (axisAction.Axis == axis && (axisAction.Contexts & context) != 0 && (axisAction.Modifiers ^ modifiers) == 0)
+		//			{
+		//				outAxisValue = axisAction.GetAxisValue()
+		//				return true;
+		//			}
+		//			return false;
+		//		});
+		//}
+
+		CInputDelegate<F32> Delegate;
+		std::vector<SInputAxis> Axes;
 	};
 
 	class IInputObserver

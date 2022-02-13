@@ -55,46 +55,15 @@ namespace Havtorn
 		case WM_KEYDOWN:
 			KeyDown[wParam] = true;
 
-			if (wParam == 0x10 || wParam == 0x11 || wParam == 0x12) // Handle Shift, Ctrl, and Alt input modifiers
-			{
-				KeyInputModifiers[wParam - 16] = true;
-				return true;
-			}
+			HandleKeyDown(wParam);
 
-			if (KeyInputBuffer.contains(wParam))
-			{
-				if (KeyInputBuffer[wParam].IsPressed)
-				{
-					KeyInputBuffer[wParam].IsPressed = false;
-					KeyInputBuffer[wParam].IsHeld = true;
-				}
-				else if (!KeyInputBuffer[wParam].IsHeld)
-				{
-					KeyInputBuffer[wParam].IsPressed = true;
-				}
-			}
-			else
-			{
-				KeyInputBuffer.emplace(wParam, SInputPayload());
-				KeyInputBuffer[wParam].IsPressed = true;
-			}
-
-			KeyPressedInputBuffer.push_back(wParam);
 			return true;
 
 		case WM_SYSKEYUP:
 		case WM_KEYUP:
 			KeyDown[wParam] = false;
 
-			if (wParam == 0x10 || wParam == 0x11 || wParam == 0x12) // Handle Shift, Ctrl, and Alt input modifiers
-			{
-				KeyInputModifiers[wParam - 16] = false;
-				return true;
-			}
-
-			KeyInputBuffer[wParam].IsPressed = false;
-			KeyInputBuffer[wParam].IsHeld = false;
-			KeyInputBuffer[wParam].IsReleased = true;
+			HandleKeyUp(wParam);
 
 			return true;
 
@@ -108,48 +77,59 @@ namespace Havtorn
 			return true;
 
 		case WM_LBUTTONDOWN:
-			MouseButton[static_cast<U32>(EMouseButton::Left)] = true;
+			//MouseButton[static_cast<U32>(EMouseButton::Left)] = true;
+			HandleKeyDown(static_cast<U32>(EMouseButton::Left));
 			return true;
 
 		case WM_LBUTTONUP:
-			MouseButton[static_cast<U32>(EMouseButton::Left)] = false;
+			//MouseButton[static_cast<U32>(EMouseButton::Left)] = false;
+			HandleKeyUp(static_cast<U32>(EMouseButton::Left));
 			return true;
 
 		case WM_RBUTTONDOWN:
-			MouseButton[static_cast<U32>(EMouseButton::Right)] = true;
+			//MouseButton[static_cast<U32>(EMouseButton::Right)] = true;
+			HandleKeyDown(static_cast<U32>(EMouseButton::Right));
 			return true;
 
 		case WM_RBUTTONUP:
-			MouseButton[static_cast<U32>(EMouseButton::Right)] = false;
+			//MouseButton[static_cast<U32>(EMouseButton::Right)] = false;
+			HandleKeyUp(static_cast<U32>(EMouseButton::Right));
 			return true;
 
 		case WM_MBUTTONDOWN:
-			MouseButton[static_cast<U32>(EMouseButton::Middle)] = true;
+			//MouseButton[static_cast<U32>(EMouseButton::Middle)] = true;
+			HandleKeyDown(static_cast<U32>(EMouseButton::Middle));
 			return true;
 
 		case WM_MBUTTONUP:
-			MouseButton[static_cast<U32>(EMouseButton::Middle)] = false;
+			//MouseButton[static_cast<U32>(EMouseButton::Middle)] = false;
+			HandleKeyUp(static_cast<U32>(EMouseButton::Middle));
 			return true;
 
 		case WM_XBUTTONDOWN:
 			if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) 
 			{
-				MouseButton[MouseButton[static_cast<U32>(EMouseButton::Mouse4)]] = true;
+				//MouseButton[MouseButton[static_cast<U32>(EMouseButton::Mouse4)]] = true;
+				HandleKeyDown(static_cast<U32>(EMouseButton::Mouse4));
 			}
 			else if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2) 
 			{
-				MouseButton[MouseButton[static_cast<U32>(EMouseButton::Mouse5)]] = true;
+				//MouseButton[MouseButton[static_cast<U32>(EMouseButton::Mouse5)]] = true;
+				HandleKeyDown(static_cast<U32>(EMouseButton::Mouse5));
 			}
 			return true;
 
 		case WM_XBUTTONUP:
 			if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
 			{
-				MouseButton[MouseButton[static_cast<U32>(EMouseButton::Mouse4)]] = false;
+				//MouseButton[MouseButton[static_cast<U32>(EMouseButton::Mouse4)]] = false;
+				HandleKeyUp(static_cast<U32>(EMouseButton::Mouse4));
+
 			}
 			else if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
 			{
-				MouseButton[MouseButton[static_cast<U32>(EMouseButton::Mouse5)]] = false;
+				//MouseButton[MouseButton[static_cast<U32>(EMouseButton::Mouse5)]] = false;
+				HandleKeyUp(static_cast<U32>(EMouseButton::Mouse5));
 			}
 			break;
 
@@ -207,7 +187,7 @@ namespace Havtorn
 		MouseRawDeltaX = 0;
 		MouseRawDeltaY = 0;
 		MouseWheelDelta = 0;
-		MouseButtonLast = MouseButton;
+		//MouseButtonLast = MouseButton;
 
 		POINT point;
 		if (GetCursorPos(&point)) 
@@ -221,8 +201,6 @@ namespace Havtorn
 #else
 		UpdateAxisUsingNoFallOff();
 #endif
-
-		KeyPressedInputBuffer.clear();
 
 		for (auto& keyInput : KeyInputBuffer | std::views::values)
 		{
@@ -243,21 +221,6 @@ namespace Havtorn
 			else
 				++it;
 		}
-	}
-
-	const std::vector<WPARAM>& CInput::GetKeyPressedInputBuffer() const
-	{
-		return KeyPressedInputBuffer;
-	}
-
-	const std::vector<WPARAM>& CInput::GetKeyHeldInputBuffer() const
-	{
-		return KeyHeldInputBuffer;
-	}
-
-	const std::vector<WPARAM>& CInput::GetKeyReleasedInputBuffer() const
-	{
-		return KeyReleasedInputBuffer;
 	}
 
 	const std::map<WPARAM, SInputPayload>& CInput::GetKeyInputBuffer() const
@@ -310,7 +273,7 @@ namespace Havtorn
 			static_cast<F32>(p.y)
 		};
 		const SVector2<F32> center = CEngine::GetInstance()->GetWindowHandler()->GetCenterPosition();
-		SetCursorPos(static_cast<I32>(center.X), static_cast<I32>(center.Y));
+		//SetCursorPos(static_cast<I32>(center.X), static_cast<I32>(center.Y));
 		const SVector2<F32> axisRaw = currentPos - center;
 		return axisRaw;
 	}
@@ -360,24 +323,58 @@ namespace Havtorn
 		return MouseWheelDelta;
 	}
 
-	bool CInput::IsMouseDown(EMouseButton mouseButton) const
-	{
-		return MouseButton[static_cast<U32>(mouseButton)];
-	}
+	//bool CInput::IsMouseDown(EMouseButton mouseButton) const
+	//{
+	//	return MouseButton[static_cast<U32>(mouseButton)];
+	//}
 
-	bool CInput::IsMousePressed(EMouseButton mouseButton) const
-	{
-		return MouseButton[static_cast<U32>(mouseButton)] && (!MouseButtonLast[static_cast<U32>(mouseButton)]);
-	}
+	//bool CInput::IsMousePressed(EMouseButton mouseButton) const
+	//{
+	//	return MouseButton[static_cast<U32>(mouseButton)] && (!MouseButtonLast[static_cast<U32>(mouseButton)]);
+	//}
 
-	bool CInput::IsMouseReleased(EMouseButton mouseButton) const
-	{
-		return (!MouseButton[static_cast<U32>(mouseButton)]) && MouseButtonLast[static_cast<U32>(mouseButton)];
-	}
+	//bool CInput::IsMouseReleased(EMouseButton mouseButton) const
+	//{
+	//	return (!MouseButton[static_cast<U32>(mouseButton)]) && MouseButtonLast[static_cast<U32>(mouseButton)];
+	//}
 
 	void CInput::SetMouseScreenPosition(U16 x, U16 y)
 	{
 		SetCursorPos(x, y);
+	}
+
+	void CInput::HandleKeyDown(const WPARAM& wParam)
+	{
+		if (wParam == 0x10 || wParam == 0x11 || wParam == 0x12) // Handle Shift, Ctrl, and Alt input modifiers
+			KeyInputModifiers[wParam - 0x10] = true;
+
+		if (KeyInputBuffer.contains(wParam))
+		{
+			if (KeyInputBuffer[wParam].IsPressed)
+			{
+				KeyInputBuffer[wParam].IsPressed = false;
+				KeyInputBuffer[wParam].IsHeld = true;
+			}
+			else if (!KeyInputBuffer[wParam].IsHeld)
+			{
+				KeyInputBuffer[wParam].IsPressed = true;
+			}
+		}
+		else
+		{
+			KeyInputBuffer.emplace(wParam, SInputPayload());
+			KeyInputBuffer[wParam].IsPressed = true;
+		}
+	}
+
+	void CInput::HandleKeyUp(const WPARAM& wParam)
+	{
+		if (wParam == 0x10 || wParam == 0x11 || wParam == 0x12) // Handle Shift, Ctrl, and Alt input modifiers
+			KeyInputModifiers[wParam - 0x10] = false;
+
+		KeyInputBuffer[wParam].IsPressed = false;
+		KeyInputBuffer[wParam].IsHeld = false;
+		KeyInputBuffer[wParam].IsReleased = true;
 	}
 
 	void CInput::UpdateAxisUsingFallOff()

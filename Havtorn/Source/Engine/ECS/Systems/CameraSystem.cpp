@@ -9,69 +9,65 @@
 #include "Input/InputMapper.h"
 #include "Engine.h"
 
-Havtorn::CCameraSystem::CCameraSystem()
-	: CSystem()
+namespace Havtorn
 {
-	CEngine::GetInstance()->GetInput()->GetActionDelegate(EInputActionEvent::CenterCamera).AddMember(this, &CCameraSystem::CenterCamera);
-	CEngine::GetInstance()->GetInput()->GetActionDelegate(EInputActionEvent::ResetCamera).AddMember(this, &CCameraSystem::ResetCamera);
-	CEngine::GetInstance()->GetInput()->GetActionDelegate(EInputActionEvent::TeleportCamera).AddMember(this, &CCameraSystem::TeleportCamera);
-}
+	CCameraSystem::CCameraSystem()
+		: CSystem()
+		, CameraMoveInput(SVector::Zero)
+		, CameraRotateInput(SVector::Zero)
+	{
+		// TODO.NR: Gather these together when the axis delegate broadcasts a payload with all necessary info
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Up).AddMember(this, &CCameraSystem::MoveUp);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Right).AddMember(this, &CCameraSystem::MoveRight);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Forward).AddMember(this, &CCameraSystem::MoveForward);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Pitch).AddMember(this, &CCameraSystem::RotatePitch);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Yaw).AddMember(this, &CCameraSystem::RotateYaw);
+	}
 
-Havtorn::CCameraSystem::~CCameraSystem()
-{
-}
+	CCameraSystem::~CCameraSystem()
+	{
+	}
 
-void Havtorn::CCameraSystem::Update(CScene* scene)
-{
-	auto& transformComponents = scene->GetTransformComponents();
-	auto& cameraComponents = scene->GetCameraComponents();
-	if (cameraComponents.empty())
-		return;
+	void CCameraSystem::Update(CScene* scene)
+	{
+		auto& transformComponents = scene->GetTransformComponents();
+		auto& cameraComponents = scene->GetCameraComponents();
+		if (cameraComponents.empty())
+			return;
 
-	I64 transformCompIndex = cameraComponents[0]->Entity->GetComponentIndex(EComponentType::TransformComponent);
-	auto& transformComp = transformComponents[transformCompIndex];
+		I64 transformCompIndex = cameraComponents[0]->Entity->GetComponentIndex(EComponentType::TransformComponent);
+		auto& transformComp = transformComponents[transformCompIndex];
 
-	F32 dt = CTimer::Dt();
-	if (CInput::GetInstance()->IsKeyPressed('W'))
-		transformComp->Transform.Translate(SVector::Forward * dt);
-	if (CInput::GetInstance()->IsKeyPressed('S'))
-		transformComp->Transform.Translate(SVector::Backward * dt);
-	if (CInput::GetInstance()->IsKeyPressed('A'))
-		transformComp->Transform.Translate(SVector::Left * dt);
-	if (CInput::GetInstance()->IsKeyPressed('D'))
-		transformComp->Transform.Translate(SVector::Right * dt);
-	if (CInput::GetInstance()->IsKeyPressed('Q'))
-		transformComp->Transform.Translate(SVector::Up * dt);
-	if (CInput::GetInstance()->IsKeyPressed('E'))
-		transformComp->Transform.Translate(SVector::Down * dt);
+		const F32 dt = CTimer::Dt();
+		transformComp->Transform.Translate(CameraMoveInput * dt);
+		transformComp->Transform.Rotate(CameraRotateInput * dt);
 
-	F32 yaw = 0.0f, pitch = 0.0f;
-	if (CInput::GetInstance()->IsKeyPressed(VK_UP))
-		pitch = UMath::DegToRad(90.0f) * dt;
-	if (CInput::GetInstance()->IsKeyPressed(VK_DOWN))
-		pitch = UMath::DegToRad(-90.0f) * dt;
-	if (CInput::GetInstance()->IsKeyPressed(VK_LEFT))
-		yaw = UMath::DegToRad(90.0f) * dt;
-	if (CInput::GetInstance()->IsKeyPressed(VK_RIGHT))
-		yaw = UMath::DegToRad(-90.0f) * dt;
+		CameraMoveInput = SVector::Zero;
+		CameraRotateInput = SVector::Zero;
+	}
 
-	transformComp->Transform.Rotate({ pitch, yaw, 0.0f });
-}
+	void CCameraSystem::MoveUp(F32 value)
+	{
+		CameraMoveInput += SVector::Up * value * 10.0f;
+	}
 
-void Havtorn::CCameraSystem::CenterCamera(SInputPayload payload)
-{
-	if (payload.IsHeld)
-		HV_LOG_TRACE("Center Camera event is held!");
-}
+	void CCameraSystem::MoveRight(F32 value)
+	{
+		CameraMoveInput += SVector::Right * value * 10.0f;
+	}
 
-void Havtorn::CCameraSystem::ResetCamera(SInputPayload payload) const
-{
-	if (payload.IsPressed)
-		HV_LOG_WARN("Reset Camera event is pressed!");
-}
+	void CCameraSystem::MoveForward(F32 value)
+	{
+		CameraMoveInput += SVector::Forward * value * 10.0f;
+	}
 
-void Havtorn::CCameraSystem::TeleportCamera(SInputPayload payload) const
-{
-	if (payload.IsReleased)
-		HV_LOG_INFO("Teleport Camera event is released!");
+	void CCameraSystem::RotatePitch(F32 value)
+	{
+		CameraRotateInput.X += UMath::DegToRad(90.0f) * value;
+	}
+
+	void CCameraSystem::RotateYaw(F32 value)
+	{
+		CameraRotateInput.Y += UMath::DegToRad(90.0f) * value;
+	}
 }

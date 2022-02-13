@@ -14,11 +14,16 @@ namespace Havtorn
 		~CCameraSystem();
 
 		void Update(CScene* scene) override;
-		void CenterCamera(SInputPayload payload);
-		void ResetCamera(SInputPayload payload) const;
-		void TeleportCamera(SInputPayload payload) const;
+		void MoveUp(F32 value);
+		void MoveRight(F32 value);
+		void MoveForward(F32 value);
+		void RotatePitch(F32 value);
+		void RotateYaw(F32 value);
+		void CenterCamera(const SInputPayload payload);
+		void ResetCamera(const SInputPayload payload) const;
+		void TeleportCamera(const SInputPayload payload) const;
 	private:
-
+		SVector CameraMoveInput;
+		SVector CameraRotateInput;
 	};
-
 }

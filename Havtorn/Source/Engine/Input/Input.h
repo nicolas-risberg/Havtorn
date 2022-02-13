@@ -17,11 +17,11 @@ namespace Havtorn
 
 		enum class EMouseButton
 		{
-			Left = 0,
-			Right = 1,
-			Middle = 2,
-			Mouse4 = 3,
-			Mouse5 = 4
+			Left = 1,
+			Right = 2,
+			Middle = 4,
+			Mouse4 = 5,
+			Mouse5 = 6
 		};
 
 		enum class EAxis
@@ -34,10 +34,6 @@ namespace Havtorn
 
 		bool UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam);
 		void UpdateState();
-
-		[[nodiscard]] const std::vector<WPARAM>& GetKeyPressedInputBuffer() const;
-		[[nodiscard]] const std::vector<WPARAM>& GetKeyHeldInputBuffer() const;
-		[[nodiscard]] const std::vector<WPARAM>& GetKeyReleasedInputBuffer() const;
 
 		[[nodiscard]] const std::map<WPARAM, SInputPayload>& GetKeyInputBuffer() const;
 		[[nodiscard]] const std::bitset<3>& GetKeyInputModifiers() const;
@@ -65,24 +61,22 @@ namespace Havtorn
 		static void SetMouseScreenPosition(U16 x, U16 y);
 
 	private:
+		void HandleKeyDown(const WPARAM& wParam);
+		void HandleKeyUp(const WPARAM& wParam);
 		void UpdateAxisUsingFallOff();
 		void UpdateAxisUsingNoFallOff();
 		F32 GetAxisUsingFallOff(const EAxis& axis);
 		F32 GetAxisUsingNoFallOff(const EAxis& axis);
 
 	private:
-		std::bitset<5> MouseButtonLast;
-		std::bitset<5> MouseButton;
+		std::map<WPARAM, SInputPayload> KeyInputBuffer;
+		std::bitset<3> KeyInputModifiers;
+
+		//std::bitset<5> MouseButtonLast;
+		//std::bitset<5> MouseButton;
 
 		std::bitset<256> KeyDownLast;
 		std::bitset<256> KeyDown;
-
-		std::vector<WPARAM> KeyPressedInputBuffer;
-		std::vector<WPARAM> KeyHeldInputBuffer;
-		std::vector<WPARAM> KeyReleasedInputBuffer;
-
-		std::map<WPARAM, SInputPayload> KeyInputBuffer;
-		std::bitset<3> KeyInputModifiers;
 
 		U16 MouseX;
 		U16 MouseY;

@@ -15,14 +15,23 @@ namespace Havtorn
 
 	bool CInputMapper::Init()
 	{
-		const SInputAction action = { EInputKey::KeyH, EInputContext::Editor };
-		MapEvent(EInputActionEvent::CenterCamera, action);
+		// TODO.NR: Make Input Axis events broadcast payloads as well,
+		// make payloads general so we don't need so many functions binding to the delegates.
 
-		const SInputAction otherAction = { EInputKey::KeyG, EInputContext::Editor };
-		MapEvent(EInputActionEvent::ResetCamera, otherAction);
+		const SInputAxis forwardAxis = { EInputAxis::Key, EInputKey::KeyW, EInputKey::KeyS, EInputContext::Editor };
+		MapEvent(EInputAxisEvent::Forward, forwardAxis);
 
-		const SInputAction thirdAction = { EInputKey::KeyJ, EInputContext::Editor };
-		MapEvent(EInputActionEvent::TeleportCamera, thirdAction);
+		const SInputAxis rightAxis = { EInputAxis::Key, EInputKey::KeyD, EInputKey::KeyA, EInputContext::Editor };
+		MapEvent(EInputAxisEvent::Right, rightAxis);
+
+		const SInputAxis upAxis = { EInputAxis::Key, EInputKey::KeyQ, EInputKey::KeyE, EInputContext::Editor };
+		MapEvent(EInputAxisEvent::Up, upAxis);
+
+		const SInputAxis pitchAxis = { EInputAxis::Key, EInputKey::Up, EInputKey::Down, EInputContext::Editor };
+		MapEvent(EInputAxisEvent::Pitch, pitchAxis);
+
+		const SInputAxis yawAxis = { EInputAxis::Key, EInputKey::Left, EInputKey::Right, EInputContext::Editor };
+		MapEvent(EInputAxisEvent::Yaw, yawAxis);
 
 		return true;
 	}
@@ -34,10 +43,16 @@ namespace Havtorn
 		Input->UpdateState();
 	}
 
-	CInputDelegate<SInputPayload>& CInputMapper::GetActionDelegate(EInputActionEvent event)
+	CInputDelegate<const SInputPayload>& CInputMapper::GetActionDelegate(EInputActionEvent event)
 	{
 		HV_ASSERT(BoundActionEvents.contains(event), "There is no such Input Action Event bound!");
 		return BoundActionEvents[event].Delegate;
+	}
+
+	CInputDelegate<F32>& CInputMapper::GetAxisDelegate(EInputAxisEvent event)
+	{
+		HV_ASSERT(BoundAxisEvents.contains(event), "There is no such Input Axis Event bound!");
+		return BoundAxisEvents[event].Delegate;
 	}
 
 	void CInputMapper::SetInputContext(EInputContext context)
@@ -54,6 +69,15 @@ namespace Havtorn
 			BoundActionEvents[event].Actions.push_back(action);
 	}
 
+	void CInputMapper::MapEvent(EInputAxisEvent event, SInputAxis axisAction)
+	{
+		if (!BoundAxisEvents.contains(event))
+			BoundAxisEvents.emplace(event, SInputAxisEvent(axisAction));
+
+		else
+			BoundAxisEvents[event].Axes.push_back(axisAction);
+	}
+
 	void CInputMapper::UpdateKeyboardInput()
 	{
 		const auto& modifiers = Input->GetKeyInputModifiers().to_ulong();
@@ -68,34 +92,29 @@ namespace Havtorn
 					val.Delegate.Broadcast(param.second);
 				}
 			}
+
+			// Key Axes
+			for (auto& val : BoundAxisEvents | std::views::values)
+			{
+				if (val.HasKeyAxis())
+				{
+					F32 axisValue = 0.0f;
+					if (val.Has(static_cast<EInputKey>(param.first), context, modifiers, axisValue))
+					{
+						val.Delegate.Broadcast(axisValue);
+					}
+				}
+			}
 		}
+
+		if (Input->GetMouseWheelDelta() != 0)
+			HV_LOG_WARN("Wheel Delta: %i", Input->GetMouseWheelDelta());
+		//HV_LOG_WARN("Axis Raw: %s", Input->GetAxisRaw().ToString().c_str());
+		//HV_LOG_WARN("Raw Delta X: %f, Y: %f", Input->GetMouseRawDeltaX(), Input->GetMouseRawDeltaY());
 	}
 
 	void CInputMapper::UpdateMouseInput()
 	{
-		//if (Input->IsMouseDown(CInput::EMouseButton::Middle))
-		//{
-		//	TranslateActionToEvent(EInputKey::MouseMiddle);
-		//}
-		//if (Input->IsMousePressed(CInput::EMouseButton::Left))
-		//{
-		//	TranslateActionToEvent(EInputKey::MouseLeftPressed);
-		//}
-		//if (Input->IsMouseDown(CInput::EMouseButton::Left))
-		//{
-		//	TranslateActionToEvent(EInputKey::MouseLeftDown);
-		//}
-		////else if (myInput->IsMouseDown(CInput::EMouseButton::Left))
-		////{
-		////	TranslateActionToEvent(EInputKey::MouseLeft);
-		////}
-		////else if (myInput->IsMouseReleased(CInput::EMouseButton::Left))
-		////{
-		////	TranslateActionToEvent(EInputKey::MouseLeft);
-		////}
-		//if (Input->IsMouseDown(CInput::EMouseButton::Right))
-		//{
-		//	TranslateActionToEvent(EInputKey::MouseRightDown);
-		//}
+
 	}
 }

@@ -20,16 +20,19 @@ namespace Havtorn
 		bool Init();
 		void Update();
 
-		[[nodiscard]] CInputDelegate<SInputPayload>& GetActionDelegate(EInputActionEvent event);
+		[[nodiscard]] CInputDelegate<const SInputPayload>& GetActionDelegate(EInputActionEvent event);
+		[[nodiscard]] CInputDelegate<F32>& GetAxisDelegate(EInputAxisEvent event);
 
 		void SetInputContext(EInputContext context);
 
 	private:
 		void MapEvent(EInputActionEvent event, SInputAction action);
+		void MapEvent(EInputAxisEvent event, SInputAxis axisAction);
 		void UpdateKeyboardInput();
 		void UpdateMouseInput();
 
 		std::map<EInputActionEvent, SInputActionEvent> BoundActionEvents;
+		std::map<EInputAxisEvent, SInputAxisEvent> BoundAxisEvents;
 		CInput* Input;
 
 		EInputContext CurrentInputContext;
