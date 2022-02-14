@@ -15,9 +15,6 @@ namespace Havtorn
 
 	bool CInputMapper::Init()
 	{
-		// TODO.NR: Make Input Axis events broadcast payloads as well,
-		// make payloads general so we don't need so many functions binding to the delegates.
-
 		const SInputAxis forwardAxis = { EInputAxis::Key, EInputKey::KeyW, EInputKey::KeyS, EInputContext::Editor };
 		MapEvent(EInputAxisEvent::Forward, forwardAxis);
 
@@ -107,15 +104,35 @@ namespace Havtorn
 				}
 			}
 		}
-
-		if (Input->GetMouseWheelDelta() != 0)
-			HV_LOG_WARN("Wheel Delta: %i", Input->GetMouseWheelDelta());
-		//HV_LOG_WARN("Axis Raw: %s", Input->GetAxisRaw().ToString().c_str());
-		//HV_LOG_WARN("Raw Delta X: %f, Y: %f", Input->GetMouseRawDeltaX(), Input->GetMouseRawDeltaY());
 	}
 
 	void CInputMapper::UpdateMouseInput()
 	{
+		SVector2<F32> rawMouseMovement = { static_cast<F32>(Input->GetMouseDeltaX()), static_cast<F32>(Input->GetMouseDeltaY()) };
+		F32 mouseWheelDelta = static_cast<F32>(Input->GetMouseWheelDelta());
 
+		for (auto& val : BoundAxisEvents)
+		{
+			if (rawMouseMovement.X != 0.0f && val.second.Has(EInputAxis::MouseHorizontal, rawMouseMovement.X))
+			{
+				const F32 axisValue = rawMouseMovement.X;
+				const SInputAxisPayload payload = { val.first, axisValue };
+				val.second.Delegate.Broadcast(payload);
+			}
+
+			if (rawMouseMovement.Y != 0.0f && val.second.Has(EInputAxis::MouseVertical, rawMouseMovement.Y))
+			{
+				const F32 axisValue = rawMouseMovement.Y;
+				const SInputAxisPayload payload = { val.first, axisValue };
+				val.second.Delegate.Broadcast(payload);
+			}
+
+			if (mouseWheelDelta != 0.0f && val.second.Has(EInputAxis::MouseWheel, mouseWheelDelta))
+			{
+				const F32 axisValue = mouseWheelDelta;
+				const SInputAxisPayload payload = { val.first, axisValue };
+				val.second.Delegate.Broadcast(payload);
+			}
+		}
 	}
 }

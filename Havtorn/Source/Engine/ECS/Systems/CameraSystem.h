@@ -14,6 +14,7 @@ namespace Havtorn
 
 		void Update(CScene* scene) override;
 		void HandleAxisInput(const SInputAxisPayload payload);
+
 	private:
 		SVector CameraMoveInput;
 		SVector CameraRotateInput;

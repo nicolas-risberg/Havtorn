@@ -144,8 +144,9 @@ namespace Havtorn
 		Pitch,		// X-axis
 		Yaw,		// Y-axis
 		Roll,		// Z-axis
-		MouseHoriztontal,
+		MouseHorizontal,
 		MouseVertical,
+		Zoom,
 		Count
 	};
 
@@ -353,18 +354,18 @@ namespace Havtorn
 			return 0.0f;
 		}
 
-		[[nodiscard]] F32 GetAxisValue(const I16 rawValue) const
+		[[nodiscard]] F32 GetAxisValue(const F32 rawValue) const
 		{
 			switch (Axis)
 			{
 				// Mouse Wheel scroll threshold is capped at 120
 				case EInputAxis::MouseWheel:
-					return static_cast<F32>(rawValue) / 120.0f;
+					return rawValue / 120.0f;
 
 				// Return raw delta for now
 				case EInputAxis::MouseHorizontal: 
 				case EInputAxis::MouseVertical: 
-					return static_cast<F32>(rawValue);
+					return rawValue;
 
 				case EInputAxis::AnalogHorizontal: 
 
@@ -411,6 +412,21 @@ namespace Havtorn
 						outAxisValue = axisAction.GetAxisValue(key);
 						return true;
 					}
+					return false;
+				});
+		}
+
+		[[nodiscard]] bool Has(const EInputAxis& axis, F32& outAxisValue) const
+		{
+			return std::ranges::any_of(Axes.begin(), Axes.end(),
+				[axis, &outAxisValue](const SInputAxis& axisAction)
+				{
+					if (axisAction.Axis == axis)
+					{
+						outAxisValue = axisAction.GetAxisValue(outAxisValue);
+						return true;
+					}
+
 					return false;
 				});
 		}
