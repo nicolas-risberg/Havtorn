@@ -2,8 +2,7 @@
 
 #pragma once
 #include "ECS/System.h"
-
-#include "Input/InputObserver.h"
+#include "Input/InputTypes.h"
 
 namespace Havtorn 
 {
@@ -11,17 +10,10 @@ namespace Havtorn
 	class CCameraSystem final : public CSystem {
 	public:
 		CCameraSystem();
-		~CCameraSystem();
+		~CCameraSystem() override;
 
 		void Update(CScene* scene) override;
-		void MoveUp(F32 value);
-		void MoveRight(F32 value);
-		void MoveForward(F32 value);
-		void RotatePitch(F32 value);
-		void RotateYaw(F32 value);
-		void CenterCamera(const SInputPayload payload);
-		void ResetCamera(const SInputPayload payload) const;
-		void TeleportCamera(const SInputPayload payload) const;
+		void HandleAxisInput(const SInputAxisPayload payload);
 	private:
 		SVector CameraMoveInput;
 		SVector CameraRotateInput;

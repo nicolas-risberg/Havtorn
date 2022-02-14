@@ -223,7 +223,7 @@ namespace Havtorn
 		}
 	}
 
-	const std::map<WPARAM, SInputPayload>& CInput::GetKeyInputBuffer() const
+	const std::map<WPARAM, SInputActionPayload>& CInput::GetKeyInputBuffer() const
 	{
 		return KeyInputBuffer;
 	}
@@ -362,7 +362,8 @@ namespace Havtorn
 		}
 		else
 		{
-			KeyInputBuffer.emplace(wParam, SInputPayload());
+			KeyInputBuffer.emplace(wParam, SInputActionPayload());
+			KeyInputBuffer[wParam].Key = static_cast<EInputKey>(wParam);
 			KeyInputBuffer[wParam].IsPressed = true;
 		}
 	}

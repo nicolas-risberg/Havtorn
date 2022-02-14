@@ -1,7 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-#include "InputDelegate.h"
+
 namespace Havtorn
 {
 	enum class EInputModifier
@@ -20,6 +20,7 @@ namespace Havtorn
 
 	enum class EInputKey
 	{
+		None		= 0x00,
 		Mouse1		= 0x01, // Left
 		Mouse2		= 0x02, // Right
 		Mouse3		= 0x04, // Middle
@@ -143,14 +144,23 @@ namespace Havtorn
 		Pitch,		// X-axis
 		Yaw,		// Y-axis
 		Roll,		// Z-axis
+		MouseHoriztontal,
+		MouseVertical,
 		Count
 	};
 
-	struct SInputPayload
+	struct SInputActionPayload
 	{
+		EInputKey Key = EInputKey::None;
 		bool IsPressed = false;
 		bool IsHeld = false;
 		bool IsReleased = false;
+	};
+
+	struct SInputAxisPayload
+	{
+		EInputAxisEvent Event = EInputAxisEvent::Count;
+		F32 AxisValue = 0.0f;
 	};
 
 	struct SInputAction
@@ -207,7 +217,7 @@ namespace Havtorn
 				Contexts += static_cast<U32>(context);
 		}
 
-		EInputKey Key = EInputKey::KeyW;
+		EInputKey Key = EInputKey::None;
 		U32 Contexts = static_cast<U32>(EInputContext::Editor);
 		U32 Modifiers = static_cast<U32>(EInputModifier::None);
 	};
@@ -217,7 +227,7 @@ namespace Havtorn
 		SInputActionEvent() = default;
 
 		explicit SInputActionEvent(SInputAction action)
-			: Delegate(CInputDelegate<const SInputPayload>())
+			: Delegate(CMulticastDelegate<const SInputActionPayload>())
 		{
 			Actions.push_back(action);
 		}
@@ -249,7 +259,7 @@ namespace Havtorn
 				});
 		}
 
-		CInputDelegate<const SInputPayload> Delegate;
+		CMulticastDelegate<const SInputActionPayload> Delegate;
 		std::vector<SInputAction> Actions;
 	};
 
@@ -368,8 +378,8 @@ namespace Havtorn
 		}
 
 		EInputAxis Axis = EInputAxis::Key;
-		EInputKey AxisPositiveKey = EInputKey::KeyW; // Optional
-		EInputKey AxisNegativeKey = EInputKey::KeyS; // Optional
+		EInputKey AxisPositiveKey = EInputKey::None; // Optional
+		EInputKey AxisNegativeKey = EInputKey::None; // Optional
 		U32 Contexts = static_cast<U32>(EInputContext::Editor);
 		U32 Modifiers = static_cast<U32>(EInputModifier::None);
 	};
@@ -379,7 +389,7 @@ namespace Havtorn
 		SInputAxisEvent() = default;
 
 		explicit SInputAxisEvent(SInputAxis axis)
-			: Delegate(CInputDelegate<F32>())
+			: Delegate(CMulticastDelegate<const SInputAxisPayload>())
 		{
 			Axes.push_back(axis);
 		}
@@ -405,21 +415,7 @@ namespace Havtorn
 				});
 		}
 
-		//[[nodiscard]] bool Has(const EInputAxis& axis, U32 context, U32 modifiers, F32& outAxisValue) const
-		//{
-		//	return std::ranges::any_of(Axes.begin(), Axes.end(),
-		//		[axis, context, modifiers, &outAxisValue](const SInputAxis& axisAction)
-		//		{
-		//			if (axisAction.Axis == axis && (axisAction.Contexts & context) != 0 && (axisAction.Modifiers ^ modifiers) == 0)
-		//			{
-		//				outAxisValue = axisAction.GetAxisValue()
-		//				return true;
-		//			}
-		//			return false;
-		//		});
-		//}
-
-		CInputDelegate<F32> Delegate;
+		CMulticastDelegate<const SInputAxisPayload> Delegate;
 		std::vector<SInputAxis> Axes;
 	};
 

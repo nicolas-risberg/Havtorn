@@ -1,7 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-#include "InputObserver.h"
+#include "InputTypes.h"
 
 namespace Havtorn
 {
@@ -20,8 +20,8 @@ namespace Havtorn
 		bool Init();
 		void Update();
 
-		[[nodiscard]] CInputDelegate<const SInputPayload>& GetActionDelegate(EInputActionEvent event);
-		[[nodiscard]] CInputDelegate<F32>& GetAxisDelegate(EInputAxisEvent event);
+		[[nodiscard]] CMulticastDelegate<const SInputActionPayload>& GetActionDelegate(EInputActionEvent event);
+		[[nodiscard]] CMulticastDelegate<const SInputAxisPayload>& GetAxisDelegate(EInputAxisEvent event);
 
 		void SetInputContext(EInputContext context);
 

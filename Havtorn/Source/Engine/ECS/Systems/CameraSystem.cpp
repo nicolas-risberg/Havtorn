@@ -2,12 +2,11 @@
 
 #include "hvpch.h"
 #include "CameraSystem.h"
+#include "Engine.h"
 #include "Scene/Scene.h"
 #include "ECS/Components/TransformComponent.h"
 #include "ECS/Components/CameraComponent.h"
-#include "Input/Input.h"
 #include "Input/InputMapper.h"
-#include "Engine.h"
 
 namespace Havtorn
 {
@@ -16,12 +15,11 @@ namespace Havtorn
 		, CameraMoveInput(SVector::Zero)
 		, CameraRotateInput(SVector::Zero)
 	{
-		// TODO.NR: Gather these together when the axis delegate broadcasts a payload with all necessary info
-		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Up).AddMember(this, &CCameraSystem::MoveUp);
-		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Right).AddMember(this, &CCameraSystem::MoveRight);
-		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Forward).AddMember(this, &CCameraSystem::MoveForward);
-		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Pitch).AddMember(this, &CCameraSystem::RotatePitch);
-		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Yaw).AddMember(this, &CCameraSystem::RotateYaw);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Up).AddMember(this, &CCameraSystem::HandleAxisInput);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Right).AddMember(this, &CCameraSystem::HandleAxisInput);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Forward).AddMember(this, &CCameraSystem::HandleAxisInput);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Pitch).AddMember(this, &CCameraSystem::HandleAxisInput);
+		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Yaw).AddMember(this, &CCameraSystem::HandleAxisInput);
 	}
 
 	CCameraSystem::~CCameraSystem()
@@ -46,28 +44,27 @@ namespace Havtorn
 		CameraRotateInput = SVector::Zero;
 	}
 
-	void CCameraSystem::MoveUp(F32 value)
+	void CCameraSystem::HandleAxisInput(const SInputAxisPayload payload)
 	{
-		CameraMoveInput += SVector::Up * value * 10.0f;
-	}
-
-	void CCameraSystem::MoveRight(F32 value)
-	{
-		CameraMoveInput += SVector::Right * value * 10.0f;
-	}
-
-	void CCameraSystem::MoveForward(F32 value)
-	{
-		CameraMoveInput += SVector::Forward * value * 10.0f;
-	}
-
-	void CCameraSystem::RotatePitch(F32 value)
-	{
-		CameraRotateInput.X += UMath::DegToRad(90.0f) * value;
-	}
-
-	void CCameraSystem::RotateYaw(F32 value)
-	{
-		CameraRotateInput.Y += UMath::DegToRad(90.0f) * value;
+		switch (payload.Event)
+		{
+			case EInputAxisEvent::Right: 
+				CameraMoveInput += SVector::Right * payload.AxisValue * 10.0f;
+				return;
+			case EInputAxisEvent::Up:
+				CameraMoveInput += SVector::Up * payload.AxisValue * 10.0f;
+				return;
+			case EInputAxisEvent::Forward:
+				CameraMoveInput += SVector::Forward * payload.AxisValue * 10.0f;
+				return;
+			case EInputAxisEvent::Pitch:
+				CameraRotateInput.X += UMath::DegToRad(90.0f) * payload.AxisValue;
+				return;
+			case EInputAxisEvent::Yaw:
+				CameraRotateInput.Y += UMath::DegToRad(90.0f) * payload.AxisValue;
+				return;
+			default: 
+				return;
+		}
 	}
 }

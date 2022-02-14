@@ -7,18 +7,18 @@
 namespace Havtorn
 {
 	template<typename... BroadcastTypes>
-	class CInputDelegate
+	class CMulticastDelegate
 	{
 	public:
-		CInputDelegate()
+		CMulticastDelegate()
 			: Delegate(MulticastDelegate<BroadcastTypes...>())
 		{}
 
-		~CInputDelegate() = default;
-		CInputDelegate(const CInputDelegate&) = default;
-		CInputDelegate(CInputDelegate&&) = default;
-		CInputDelegate& operator=(const CInputDelegate&) = default;
-		CInputDelegate& operator=(CInputDelegate&&) = default;
+		~CMulticastDelegate() = default;
+		CMulticastDelegate(const CMulticastDelegate&) = default;
+		CMulticastDelegate(CMulticastDelegate&&) = default;
+		CMulticastDelegate& operator=(const CMulticastDelegate&) = default;
+		CMulticastDelegate& operator=(CMulticastDelegate&&) = default;
 
 		template<typename LambdaType, typename... LambdaArgs>
 		void AddLambda(LambdaType&& lambda, LambdaArgs&&... args)
@@ -26,23 +26,11 @@ namespace Havtorn
 			Delegate.AddLambda(std::forward<LambdaType>(lambda), std::forward<LambdaArgs>(args)...);
 		}
 
-		//template<typename ObjectType, typename FunctionReturnType, typename... FunctionArgs>
-		//void AddMember(const ObjectType* object, FunctionReturnType(ObjectType::* function)(FunctionArgs&&...) const, FunctionArgs&&... args)
-		//{
-		//	Delegate.AddRaw(object, function, std::forward<FunctionArgs>(args)...);
-		//}
-
 		template<typename ObjectType, typename FunctionReturnType>
 		void AddMember(const ObjectType* object, FunctionReturnType(ObjectType::* function)(BroadcastTypes...) const)
 		{
 			Delegate.AddRaw(object, function);
 		}
-
-		//template<typename ObjectType, typename FunctionReturnType, typename... FunctionArgs>
-		//void AddMember(ObjectType* object, FunctionReturnType(ObjectType::* function)(FunctionArgs&&...), FunctionArgs&&... args)
-		//{
-		//	Delegate.AddRaw(object, function, std::forward<FunctionArgs>(args)...);
-		//}
 
 		template<typename ObjectType, typename FunctionReturnType>
 		void AddMember(ObjectType* object, FunctionReturnType(ObjectType::* function)(BroadcastTypes...))

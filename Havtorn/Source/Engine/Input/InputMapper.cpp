@@ -43,13 +43,13 @@ namespace Havtorn
 		Input->UpdateState();
 	}
 
-	CInputDelegate<const SInputPayload>& CInputMapper::GetActionDelegate(EInputActionEvent event)
+	CMulticastDelegate<const SInputActionPayload>& CInputMapper::GetActionDelegate(EInputActionEvent event)
 	{
 		HV_ASSERT(BoundActionEvents.contains(event), "There is no such Input Action Event bound!");
 		return BoundActionEvents[event].Delegate;
 	}
 
-	CInputDelegate<F32>& CInputMapper::GetAxisDelegate(EInputAxisEvent event)
+	CMulticastDelegate<const SInputAxisPayload>& CInputMapper::GetAxisDelegate(EInputAxisEvent event)
 	{
 		HV_ASSERT(BoundAxisEvents.contains(event), "There is no such Input Axis Event bound!");
 		return BoundAxisEvents[event].Delegate;
@@ -94,14 +94,15 @@ namespace Havtorn
 			}
 
 			// Key Axes
-			for (auto& val : BoundAxisEvents | std::views::values)
+			for (auto& val : BoundAxisEvents)
 			{
-				if (val.HasKeyAxis())
+				if (val.second.HasKeyAxis())
 				{
 					F32 axisValue = 0.0f;
-					if (val.Has(static_cast<EInputKey>(param.first), context, modifiers, axisValue))
+					if (val.second.Has(static_cast<EInputKey>(param.first), context, modifiers, axisValue))
 					{
-						val.Delegate.Broadcast(axisValue);
+						const SInputAxisPayload payload = { val.first, axisValue };
+						val.second.Delegate.Broadcast(payload);
 					}
 				}
 			}

@@ -5,8 +5,7 @@
 
 //#define INPUT_AXIS_USES_FALLOFF
 
-// Will be removed when SInputPayload or payload gets finalized
-#include "InputObserver.h"
+#include "InputTypes.h"
 
 namespace Havtorn
 {
@@ -35,7 +34,7 @@ namespace Havtorn
 		bool UpdateEvents(UINT message, WPARAM wParam, LPARAM lParam);
 		void UpdateState();
 
-		[[nodiscard]] const std::map<WPARAM, SInputPayload>& GetKeyInputBuffer() const;
+		[[nodiscard]] const std::map<WPARAM, SInputActionPayload>& GetKeyInputBuffer() const;
 		[[nodiscard]] const std::bitset<3>& GetKeyInputModifiers() const;
 
 		static SVector2<F32> GetAxisRaw();
@@ -69,7 +68,7 @@ namespace Havtorn
 		F32 GetAxisUsingNoFallOff(const EAxis& axis);
 
 	private:
-		std::map<WPARAM, SInputPayload> KeyInputBuffer;
+		std::map<WPARAM, SInputActionPayload> KeyInputBuffer;
 		std::bitset<3> KeyInputModifiers;
 
 		//std::bitset<5> MouseButtonLast;

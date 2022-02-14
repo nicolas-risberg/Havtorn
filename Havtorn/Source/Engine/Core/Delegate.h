@@ -3,7 +3,7 @@
 #pragma once
 
 /*
- * This header provided by Simon Coenen, simco50 @GitHub
+ * This following code is provided by Simon Coenen, simco50 @GitHub
  *
 DOCUMENTATION
 
