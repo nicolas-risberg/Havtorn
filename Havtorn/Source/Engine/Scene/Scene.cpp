@@ -30,7 +30,7 @@ namespace Havtorn
 		// Setup entities (create components)
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(cameraEntity, EComponentType::TransformComponent));
 		cameraEntity->AddComponent(EComponentType::TransformComponent, 0);
-		TransformComponents.back()->Transform.Translation({ 0.0f, 0.0f, -5.0f });
+		TransformComponents.back()->Transform.GetMatrix().Translation({ 0.0f, 0.0f, -5.0f });
 
 		CameraComponents.emplace_back(std::make_shared<SCameraComponent>(cameraEntity, EComponentType::CameraComponent));
 		cameraEntity->AddComponent(EComponentType::CameraComponent, 0);
@@ -53,14 +53,14 @@ namespace Havtorn
 	// TODO.NR: Make primitive class containing verts (static getters for bindables?)
 	void CScene::InitDemoScene()
 	{
-		constexpr U8 cubeNumber = 20;
+		constexpr U8 cubeNumber = 2;
 
 		const SVector minTranslation = { -4.0f, -4.0f, -4.0f };
 		const SVector maxTranslation = { 4.0f, 4.0f, 4.0f };
 		const SVector minEulerRotation = { UMath::DegToRad(-90.0f), UMath::DegToRad(-90.0f), UMath::DegToRad(-90.0f) };
 		const SVector maxEulerRotation = { UMath::DegToRad(90.0f), UMath::DegToRad(90.0f), UMath::DegToRad(90.0f) };
 
-		for (U8 i = 0; i <= cubeNumber; ++i)
+		for (U8 i = 0; i < cubeNumber; ++i)
 		{
 			U64 newID = Entities.back()->ID + 1;
 			Entities.emplace_back(std::make_shared<SEntity>(newID, "Cube"));
@@ -69,11 +69,38 @@ namespace Havtorn
 			TransformComponents.emplace_back(std::make_shared<STransformComponent>(cubeEntity, EComponentType::TransformComponent));
 			cubeEntity->AddComponent(EComponentType::TransformComponent, i + 1);
 			auto& transform = TransformComponents.back()->Transform;
-			transform.Translation(SVector::Random(minTranslation, maxTranslation));
+			transform.GetMatrix().Translation(SVector::Random(minTranslation, maxTranslation));
 			transform.Rotate(SVector::Random(minEulerRotation, maxEulerRotation));
 
 			RenderComponents.emplace_back(std::make_shared<SRenderComponent>(cubeEntity, EComponentType::RenderComponent));
 			cubeEntity->AddComponent(EComponentType::RenderComponent, i);
+			RenderComponents.back()->MaterialRef = 0;
+		}
+
+		std::vector<SVector> corners;
+		constexpr F32 cornerRadius = 5.0f;
+		corners.emplace_back(SVector(cornerRadius, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(-cornerRadius, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius, -cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius, cornerRadius, -cornerRadius));
+		corners.emplace_back(SVector(-cornerRadius, -cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius, -cornerRadius, -cornerRadius));
+		corners.emplace_back(SVector(-cornerRadius, cornerRadius, -cornerRadius));
+		corners.emplace_back(SVector(-cornerRadius, -cornerRadius, -cornerRadius));
+
+		for (U8 i = 0; i < 8; i++)
+		{
+			U64 newID = Entities.back()->ID + 1;
+			Entities.emplace_back(std::make_shared<SEntity>(newID, "Cube"));
+			auto cubeEntity = Entities.back();
+
+			TransformComponents.emplace_back(std::make_shared<STransformComponent>(cubeEntity, EComponentType::TransformComponent));
+			cubeEntity->AddComponent(EComponentType::TransformComponent, cubeNumber + i + 1);
+			auto& transform = TransformComponents.back()->Transform;
+			transform.GetMatrix().Translation(corners[i]);
+
+			RenderComponents.emplace_back(std::make_shared<SRenderComponent>(cubeEntity, EComponentType::RenderComponent));
+			cubeEntity->AddComponent(EComponentType::RenderComponent, cubeNumber + i);
 			RenderComponents.back()->MaterialRef = 0;
 		}
 	}

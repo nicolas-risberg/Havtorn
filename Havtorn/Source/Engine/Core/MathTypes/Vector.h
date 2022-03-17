@@ -88,7 +88,7 @@ namespace Havtorn
 
 		inline static SVector Random(const SVector& lowerBound, const SVector& upperBound);
 
-		inline std::string ToString();
+		inline std::string ToString() const;
 	};
 
 	SVector::SVector() : X(0), Y(0), Z(0) {}
@@ -360,7 +360,7 @@ namespace Havtorn
 		return SVector(x, y, z);
 	}
 
-	inline std::string SVector::ToString()
+	inline std::string SVector::ToString() const
 	{
 		char buffer[32];
 		sprintf_s(buffer, "{X: %.1f, Y: %.1f, Z: %.1f}", X, Y, Z);

@@ -80,12 +80,6 @@ namespace Havtorn
 		inline void Backward(const SVector& v);
 		inline void Translation(const SVector& v);
 		inline void Translation(const SVector4& v);
-		inline void Rotate(const SMatrix& rotationMatrix);
-		inline void Rotate(const SVector& eulerAngles);
-		inline void Translate(const SVector& v);
-		inline void Translate(const SVector4& v);
-		inline void Orbit(const SVector& point, const SMatrix& rotation);
-		inline void Orbit(const SVector4& point, const SMatrix& rotation);
 
 		inline bool operator==(const SMatrix& matrix) const;
 
@@ -539,81 +533,6 @@ namespace Havtorn
 		M[3][1] = v.Y;
 		M[3][2] = v.Z;
 		M[3][3] = v.W;
-	}
-
-	// TODO.NR: Fix this
-	inline void SMatrix::Rotate(const SMatrix& rotationMatrix)
-	{
-		SMatrix copy = rotationMatrix;
-		copy *= GetRotationMatrix();
-		SetRotation(GetRotationMatrix() * copy);
-	}
-
-	inline void SMatrix::Rotate(const SVector& eulerAngles)
-	{
-		if (eulerAngles.IsEqual(SVector::Zero))
-			return;
-
-		SMatrix rightRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.X, Right());
-		SMatrix upRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.Y, Up());
-		SMatrix forwardRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.Z, Forward());
-		SMatrix finalRotation = GetRotationMatrix();
-		finalRotation *= rightRotation;
-		finalRotation *= upRotation;
-		finalRotation *= forwardRotation;
-		SetRotation(finalRotation);
-	}
-	
-	inline void SMatrix::Translate(const SVector& v)
-	{
-		SVector localMove = Right() * v.X;
-		M[3][0] += localMove.X;
-		M[3][1] += localMove.Y;
-		M[3][2] += localMove.Z;
-		localMove = Up() * v.Y;
-		M[3][0] += localMove.X;
-		M[3][1] += localMove.Y;
-		M[3][2] += localMove.Z;
-		localMove = Forward() * v.Z;
-		M[3][0] += localMove.X;
-		M[3][1] += localMove.Y;
-		M[3][2] += localMove.Z;
-	}
-	
-	inline void SMatrix::Translate(const SVector4& v)
-	{
-		SVector localMove = Right() * v.X;
-		M[3][0] += localMove.X;
-		M[3][1] += localMove.Y;
-		M[3][2] += localMove.Z;
-		localMove = Up() * v.Y;
-		M[3][0] += localMove.X;
-		M[3][1] += localMove.Y;
-		M[3][2] += localMove.Z;
-		localMove = Forward() * v.Z;
-		M[3][0] += localMove.X;
-		M[3][1] += localMove.Y;
-		M[3][2] += localMove.Z;
-	}
-
-	// TODO.NR: Make transform struct which can store local transform data and make parent from point argument
-	inline void SMatrix::Orbit(const SVector& /*point*/, const SMatrix& rotation)
-	{
-		SMatrix finalRotation = rotation;
-		//finalRotation.Translation(point);
-		//SMatrix parentTransform = SMatrix();
-		//parentTransform.Translation(point);
-		//Translate(-point);
-		(*this) *= finalRotation;
-		//(*this) *= parentTransform;
-		//Translate(point);
-	}
-
-	inline void SMatrix::Orbit(const SVector4& /*point*/, const SMatrix& rotation)
-	{
-		SMatrix finalRotation = rotation;
-		//finalRotation.Translation(point);
-		(*this) *= finalRotation;
 	}
 
 	// Static function for creating a transpose of a matrix.

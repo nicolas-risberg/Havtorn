@@ -274,11 +274,11 @@ namespace Havtorn
 					auto transformComp = currentCommand.GetComponent(TransformComponent);
 					auto cameraComp = currentCommand.GetComponent(CameraComponent);
 
-					FrameBufferData.ToCameraFromWorld = transformComp->Transform.FastInverse();
-					FrameBufferData.ToWorldFromCamera = transformComp->Transform;
+					FrameBufferData.ToCameraFromWorld = transformComp->Transform.GetMatrix().FastInverse();
+					FrameBufferData.ToWorldFromCamera = transformComp->Transform.GetMatrix();
 					FrameBufferData.ToProjectionFromCamera = cameraComp->ProjectionMatrix;
 					FrameBufferData.ToCameraFromProjection = cameraComp->ProjectionMatrix.Inverse();
-					FrameBufferData.CameraPosition = transformComp->Transform.Translation4();
+					FrameBufferData.CameraPosition = transformComp->Transform.GetMatrix().Translation4();
 					BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
 
 					Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
@@ -290,7 +290,7 @@ namespace Havtorn
 					auto transformComp = currentCommand.GetComponent(TransformComponent);
 					//auto renderComp = currentCommand.GetComponent(RenderComponent);
 
-					ObjectBufferData.ToWorldFromObject = transformComp->Transform;
+					ObjectBufferData.ToWorldFromObject = transformComp->Transform.GetMatrix();
 					BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
 
 					Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);

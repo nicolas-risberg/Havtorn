@@ -35,6 +35,7 @@ namespace Havtorn
 	class CPhysXWrapper;
 	class CSceneFactory;
 	class CGameObject;
+	class CFileSystem;
 
 	namespace PostMaster 
 	{
@@ -103,6 +104,8 @@ namespace Havtorn
 
 	private:
 		static CEngine* Instance;
+
+		CFileSystem* FileSystem;
 		CWindowHandler* WindowHandler;
 		CThreadManager* ThreadManager;
 		CDirectXFramework* Framework;

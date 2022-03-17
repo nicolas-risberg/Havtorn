@@ -8,7 +8,7 @@ namespace Havtorn
 	struct SRenderComponent : public SComponent
 	{
 		SRenderComponent(Ref<SEntity> entity, EComponentType type)
-			: SComponent(entity, type) 
+			: SComponent(std::move(entity), type) 
 			, MaterialRef(0)
 		{}
 

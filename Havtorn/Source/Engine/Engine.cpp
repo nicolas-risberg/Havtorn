@@ -9,6 +9,7 @@
 //#include <PopupTextService.h>
 
 #include "Engine.h"
+#include "FileSystem/FileSystem.h"
 #include "Application/WindowHandler.h"
 #include "Threading/ThreadManager.h"
 #include "Graphics/GraphicsFramework.h"
@@ -62,6 +63,7 @@ namespace Havtorn
 	{
 		Instance = this;
 
+		FileSystem = new CFileSystem();
 		Timer = new CTimer();
 		WindowHandler = new CWindowHandler();
 		ThreadManager = new CThreadManager();
@@ -156,6 +158,7 @@ namespace Havtorn
 		SAFE_DELETE(Framework);
 		SAFE_DELETE(WindowHandler);
 		SAFE_DELETE(Timer);
+		SAFE_DELETE(FileSystem);
 
 		Instance = nullptr;
 	}
