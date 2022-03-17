@@ -7,7 +7,7 @@ namespace Havtorn
 	enum class EComponentType
 	{
 		TransformComponent,
-		RenderComponent,
+		StaticMeshComponent,
 		CameraComponent,
 		Count
 	};

@@ -11,4 +11,13 @@
 
 namespace Havtorn
 {
+	enum class EAssetType
+	{
+		StaticMesh,
+		SkeletalMesh,
+		Animation,
+		AudioOneShot,
+		AudioCollection,
+		VisualFX
+	};
 }

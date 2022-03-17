@@ -63,6 +63,7 @@ namespace Havtorn
 		void RenderFrame();
 		void EndFrame();
 		CWindowHandler* GetWindowHandler();
+		CFileSystem* GetFileSystem();
 		void InitWindowsImaging();
 		void CrashWithScreenShot(std::wstring& subPath);
 

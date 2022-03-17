@@ -148,5 +148,19 @@ namespace Havtorn
 			break;
 		}
 	}
+
+	void CFileSystem::Serialize(const std::string& fileName, const char* data, U32 size)
+	{
+		OpenFile(fileName, EFileMode::BinaryWrite);
+		OutputStream.write(data, size);
+		CloseFile(EFileMode::BinaryWrite);
+	}
+
+	void CFileSystem::DeSerialize(const std::string& fileName, char* data, U32 size)
+	{
+		OpenFile(fileName, EFileMode::BinaryRead);
+		InputStream.read(data, size);
+		CloseFile(EFileMode::BinaryRead);
+	}
 }
 

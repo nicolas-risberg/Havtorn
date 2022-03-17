@@ -266,6 +266,11 @@ namespace Havtorn
 		return WindowHandler;
 	}
 
+	CFileSystem* CEngine::GetFileSystem()
+	{
+		return FileSystem;
+	}
+
 	void CEngine::InitWindowsImaging()
 	{
 #if (_WIN32_WINNT >= 0x0A00 /*_WIN32_WINNT_WIN10*/)

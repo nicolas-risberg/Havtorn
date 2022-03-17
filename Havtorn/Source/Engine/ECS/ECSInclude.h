@@ -10,5 +10,5 @@
 #include "ECS/Systems/CameraSystem.h"
 
 #include "ECS/Components/TransformComponent.h"
-#include "ECS/Components/RenderComponent.h"
+#include "ECS/Components/StaticMeshComponent.h"
 #include "ECS/Components/CameraComponent.h"

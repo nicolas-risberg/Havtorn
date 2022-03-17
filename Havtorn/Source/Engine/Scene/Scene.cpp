@@ -9,7 +9,7 @@ namespace Havtorn
 	//CScene::CScene()
 	//	: Entities()
 	//	, TransformComponents()
-	//	, RenderComponents()
+	//	, StaticMeshComponents()
 	//	, Systems()
 	//{}
 
@@ -72,9 +72,9 @@ namespace Havtorn
 			transform.GetMatrix().Translation(SVector::Random(minTranslation, maxTranslation));
 			transform.Rotate(SVector::Random(minEulerRotation, maxEulerRotation));
 
-			RenderComponents.emplace_back(std::make_shared<SRenderComponent>(cubeEntity, EComponentType::RenderComponent));
-			cubeEntity->AddComponent(EComponentType::RenderComponent, i);
-			RenderComponents.back()->MaterialRef = 0;
+			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
+			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, i);
+			//StaticMeshComponents.back()->MaterialRef = 0;
 		}
 
 		std::vector<SVector> corners;
@@ -99,9 +99,8 @@ namespace Havtorn
 			auto& transform = TransformComponents.back()->Transform;
 			transform.GetMatrix().Translation(corners[i]);
 
-			RenderComponents.emplace_back(std::make_shared<SRenderComponent>(cubeEntity, EComponentType::RenderComponent));
-			cubeEntity->AddComponent(EComponentType::RenderComponent, cubeNumber + i);
-			RenderComponents.back()->MaterialRef = 0;
+			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
+			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, cubeNumber + i);
 		}
 	}
 }

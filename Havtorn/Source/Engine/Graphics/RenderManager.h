@@ -23,6 +23,7 @@ namespace Havtorn
 	class CDirectXFramework;
 	class CWindowHandler;
 	struct SRenderCommand;
+	struct SStaticMeshComponent;
 
 	struct SRenderCommandComparer
 	{
@@ -41,6 +42,9 @@ namespace Havtorn
 		void Render();
 
 		void Release();
+
+		void WriteAssetFile(const std::string& fileName, EAssetType assetType);
+		void LoadStaticMesh(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent);
 
 	public:
 		const CFullscreenTexture& GetRenderedSceneTexture() const;
@@ -69,7 +73,7 @@ namespace Havtorn
 		{
 			D3D11_MAPPED_SUBRESOURCE localBufferData;
 			ZeroMemory(&localBufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
-			std::string errorMessage = bufferType + " could not be bound.";
+			const std::string errorMessage = bufferType + " could not be bound.";
 			ENGINE_HR_MESSAGE(Context->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &localBufferData), errorMessage.c_str());
 
 			memcpy(localBufferData.pData, &bufferData, sizeof(T));
@@ -94,6 +98,7 @@ namespace Havtorn
 		HV_ASSERT_BUFFER(SObjectBufferData)
 
 	private:
+		CDirectXFramework* Framework;
 		ID3D11DeviceContext* Context;
 		ID3D11Buffer* FrameBuffer;
 		ID3D11Buffer* ObjectBuffer;
@@ -155,9 +160,20 @@ namespace Havtorn
 		ID3D11Buffer* DemoVertexBuffer;
 		ID3D11Buffer* DemoIndexBuffer;
 		ID3D11InputLayout* DemoInputLayout;
+		D3D11_PRIMITIVE_TOPOLOGY DemoTopology;
 		U32 DemoNumberOfVertices;
 		U32 DemoNumberOfIndices;
 		U32 DemoStride;
 		U32 DemoOffset;
+
+		std::vector<ID3D11VertexShader*> VertexShaders;
+		std::vector<ID3D11PixelShader*> PixelShaders;
+		std::vector<ID3D11SamplerState*> Samplers;
+		std::vector<ID3D11Buffer*> VertexBuffers;
+		std::vector<ID3D11Buffer*> IndexBuffers;
+		std::vector<ID3D11InputLayout*> InputLayouts;
+		std::vector<D3D11_PRIMITIVE_TOPOLOGY> Topologies;
+		std::vector<U32> MeshVertexStrides;
+		std::vector<U32> MeshVertexOffsets;
 	};
 }

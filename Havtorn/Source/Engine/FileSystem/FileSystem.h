@@ -33,6 +33,8 @@ namespace Havtorn
 		void Serialize(const SVector& data, std::string fileName, ESerializeMode mode);
 		void DeSerialize(const SVector& data, std::string fileName, ESerializeMode mode);
 
+		void Serialize(const std::string& fileName, const char* data, U32 size);
+		void DeSerialize(const std::string& fileName, char* data, U32 size);
 	private:
 		std::ifstream InputStream;
 		std::ofstream OutputStream;

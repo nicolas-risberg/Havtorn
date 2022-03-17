@@ -23,10 +23,12 @@
 //#include "BoxLightComponent.h"
 //#include "BoxLight.h"
 #include "ECS/ECSInclude.h"
+#include "VertexStructs.h"
 
 #include <algorithm>
 #include <future>
 
+#include "FileSystem/FileSystem.h"
 #include "Threading/ThreadManager.h"
 
 namespace Havtorn
@@ -39,6 +41,7 @@ namespace Havtorn
 		, UseBrokenScreenPass(false)
 		, ClearColor(0.5f, 0.5f, 0.5f, 1.0f)
 		, RenderPassIndex(0)
+		, Framework(nullptr)
 		, Context(nullptr)
 		, FrameBuffer(nullptr)
 		, ObjectBuffer(nullptr)
@@ -48,6 +51,7 @@ namespace Havtorn
 		, DemoVertexBuffer(nullptr)
 		, DemoIndexBuffer(nullptr)
 		, DemoInputLayout(nullptr)
+		, DemoTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 		, DemoNumberOfVertices(0)
 		, DemoNumberOfIndices(0)
 		, DemoStride(0)
@@ -64,8 +68,8 @@ namespace Havtorn
 
 	bool CRenderManager::Init(CDirectXFramework* framework, CWindowHandler* windowHandler)
 	{
-		Context = framework->GetContext();
-		ID3D11Device* device = framework->GetDevice();
+		Framework = framework;
+		Context = Framework->GetContext();
 
 		D3D11_BUFFER_DESC bufferDescription = { 0 };
 		bufferDescription.Usage = D3D11_USAGE_DYNAMIC;
@@ -73,10 +77,10 @@ namespace Havtorn
 		bufferDescription.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 		bufferDescription.ByteWidth = sizeof(SFrameBufferData);
-		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &FrameBuffer), "Frame Buffer could not be created.");
+		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &FrameBuffer), "Frame Buffer could not be created.");
 
 		bufferDescription.ByteWidth = sizeof(SObjectBufferData);
-		ENGINE_HR_BOOL_MESSAGE(device->CreateBuffer(&bufferDescription, nullptr, &ObjectBuffer), "Object Buffer could not be created.");
+		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &ObjectBuffer), "Object Buffer could not be created.");
 
 		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
@@ -102,6 +106,8 @@ namespace Havtorn
 		std::string vsData;
 		UGraphicsUtils::CreateVertexShader("Shaders/Demo_VS.cso", framework, &DemoVertexShader, vsData);
 		UGraphicsUtils::CreatePixelShader("Shaders/Demo_PS.cso", framework, &DemoPixelShader);
+		VertexShaders.emplace_back(DemoVertexShader);
+		PixelShaders.emplace_back(DemoPixelShader);
 
 		D3D11_SAMPLER_DESC samplerDesc = {};
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -111,15 +117,9 @@ namespace Havtorn
 		samplerDesc.MinLOD = 0;
 		samplerDesc.MaxLOD = 10;
 		ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateSamplerState(&samplerDesc, &SamplerState), "Sampler could not be created.");
+		Samplers.emplace_back(SamplerState);
 
-		struct DemoVertex
-		{
-			F32 x, y, z, w;
-			F32 nx, ny, nz, nw;
-			F32 tx, ty, tz, tw;
-			F32 bx, by, bz, bw;
-			F32 u, v;
-		} vertices[24] =
+		SStaticMeshVertex vertices[24] =
 		{
 			// X      Y      Z      W,    nX, nY, nZ, nW,   tX, tY, tZ, tW,    bX, bY, bZ, bW,    UV	
 			{ -0.5f, -0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 }, // 0
@@ -174,6 +174,7 @@ namespace Havtorn
 		demoSubVertexResourceData.pSysMem = vertices;
 
 		ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateBuffer(&demoVertexBufferDesc, &demoSubVertexResourceData, &DemoVertexBuffer), "Demo Vertex Buffer could not be created.");
+		VertexBuffers.emplace_back(DemoVertexBuffer);
 
 		D3D11_BUFFER_DESC demoIndexBufferDesc = { 0 };
 		demoIndexBufferDesc.ByteWidth = sizeof(indices);
@@ -184,11 +185,14 @@ namespace Havtorn
 		demoIndexSubresourceData.pSysMem = indices;
 
 		ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateBuffer(&demoIndexBufferDesc, &demoIndexSubresourceData, &DemoIndexBuffer), "Demo Index Buffer could not be created.");
+		IndexBuffers.emplace_back(DemoIndexBuffer);
 
-		DemoNumberOfVertices = static_cast<U32>(sizeof(vertices) / sizeof(DemoVertex));
+		DemoNumberOfVertices = static_cast<U32>(sizeof(vertices) / sizeof(SStaticMeshVertex));
 		DemoNumberOfIndices = static_cast<U32>(sizeof(indices) / sizeof(U32));
-		DemoStride = sizeof(DemoVertex);
+		DemoStride = sizeof(SStaticMeshVertex);
 		DemoOffset = 0;
+		MeshVertexStrides.emplace_back(DemoStride);
+		MeshVertexOffsets.emplace_back(DemoOffset);
 
 		D3D11_INPUT_ELEMENT_DESC demoLayout[] =
 		{
@@ -199,7 +203,15 @@ namespace Havtorn
 			{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	   0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 		};
 		ENGINE_HR_MESSAGE(framework->GetDevice()->CreateInputLayout(demoLayout, sizeof(demoLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC), vsData.data(), vsData.size(), &DemoInputLayout), "Demo Input Layout could not be created.");
+		InputLayouts.emplace_back(DemoInputLayout);
+
+		DemoTopology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		Topologies.emplace_back(DemoTopology);
+
 #pragma endregion Demo Resources
+
+		WriteAssetFile("helloAki", EAssetType::StaticMesh);
+		LoadStaticMesh("", nullptr);
 
 		return true;
 	}
@@ -264,6 +276,8 @@ namespace Havtorn
 			IntermediateDepth.ClearDepth();
 			RenderedScene.SetAsActiveTarget(&IntermediateDepth);
 
+			ID3D11DeviceContext* context = Framework->GetContext();
+
 			for (U16 i = 0; i < PopFromCommands->size(); ++i)
 			{
 				SRenderCommand currentCommand = PopFromCommands->top();
@@ -281,30 +295,33 @@ namespace Havtorn
 					FrameBufferData.CameraPosition = transformComp->Transform.GetMatrix().Translation4();
 					BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
 
-					Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
-					Context->PSSetConstantBuffers(0, 1, &FrameBuffer);
+					context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+					context->PSSetConstantBuffers(0, 1, &FrameBuffer);
 				}
 				break;
 				case ERenderCommandType::GBufferData:
 				{
-					auto transformComp = currentCommand.GetComponent(TransformComponent);
-					//auto renderComp = currentCommand.GetComponent(RenderComponent);
+					const auto transformComp = currentCommand.GetComponent(TransformComponent);
+					const auto staticMeshComp = currentCommand.GetComponent(StaticMeshComponent);
 
 					ObjectBufferData.ToWorldFromObject = transformComp->Transform.GetMatrix();
 					BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
 
-					Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
-					Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-					Context->IASetInputLayout(DemoInputLayout);
-					Context->IASetVertexBuffers(0, 1, &DemoVertexBuffer, &DemoStride, &DemoOffset);
-					Context->IASetIndexBuffer(DemoIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+					context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
+					context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
+					context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
 
-					Context->VSSetShader(DemoVertexShader, nullptr, 0);
-					Context->PSSetShader(DemoPixelShader, nullptr, 0);
+					ID3D11Buffer* vertexBuffer = VertexBuffers[staticMeshComp->VertexBufferIndex];
+					context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[staticMeshComp->VertexStrideIndex], &MeshVertexOffsets[staticMeshComp->VertexStrideIndex]);
+					context->IASetIndexBuffer(IndexBuffers[staticMeshComp->IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
 
-					Context->PSSetSamplers(0, 1, &SamplerState);
+					context->VSSetShader(VertexShaders[staticMeshComp->VertexShaderIndex], nullptr, 0);
+					context->PSSetShader(PixelShaders[staticMeshComp->PixelShaderIndex], nullptr, 0);
 
-					Context->DrawIndexed(DemoNumberOfIndices, 0, 0);
+					ID3D11SamplerState* sampler = Samplers[staticMeshComp->SamplerIndex];
+					context->PSSetSamplers(0, 1, &sampler);
+
+					context->DrawIndexed(staticMeshComp->IndexCount, 0, 0);
 					CRenderManager::NumberOfDrawCallsThisFrame++;
 				}
 				break;
@@ -734,6 +751,160 @@ namespace Havtorn
 
 		//myGBuffer.ReleaseResources();
 		//myGBufferCopy.ReleaseResources();
+	}
+
+	void CRenderManager::WriteAssetFile(const std::string& /*fileName*/, EAssetType assetType)
+	{
+		SStaticMeshVertex vertices[24] =
+		{
+			// X      Y      Z      W,    nX, nY, nZ, nW,   tX, tY, tZ, tW,    bX, bY, bZ, bW,    UV	
+			{ -0.5f, -0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 }, // 0
+			{  0.5f, -0.5f, -0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 0 }, // 1
+			{ -0.5f,  0.5f, -0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 1 }, // 2
+			{  0.5f,  0.5f, -0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 1 }, // 3
+			{ -0.5f, -0.5f,  0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 0 }, // 4
+			{  0.5f, -0.5f,  0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 0 }, // 5
+			{ -0.5f,  0.5f,  0.5f,  1,   -1,  0,  0,  0,    0,  0,  1,  0,     0,  1,  0,  0,     0, 1 }, // 6
+			{  0.5f,  0.5f,  0.5f,  1,    1,  0,  0,  0,    0,  0, -1,  0,     0,  1,  0,  0,     1, 1 }, // 7
+			// X      Y      Z      W,    nX, nY, nZ, nW,   nX, nY, nZ, nW,    nX, nY, nZ, nW,    UV	  
+			{ -0.5f, -0.5f, -0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 0 }, // 8  // 0
+			{  0.5f, -0.5f, -0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     1, 0 }, // 9	// 1
+			{ -0.5f,  0.5f, -0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     0, 0 }, // 10	// 2
+			{  0.5f,  0.5f, -0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 0 }, // 11	// 3
+			{ -0.5f, -0.5f,  0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 1 }, // 12	// 4
+			{  0.5f, -0.5f,  0.5f,  1,    0, -1,  0,  0,    1,  0,  0,  0,     0,  0,  1,  0,     0, 1 }, // 13	// 5
+			{ -0.5f,  0.5f,  0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 1 }, // 14	// 6
+			{  0.5f,  0.5f,  0.5f,  1,    0,  1,  0,  0,   -1,  0,  0,  0,     0,  0,  1,  0,     1, 1 }, // 15	// 7
+			// X      Y      Z      W,    nX, nY, nZ, nW,   nX, nY, nZ, nW,    nX, nY, nZ, nW,    UV	  
+			{ -0.5f, -0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     0, 0 }, // 16 // 0
+			{  0.5f, -0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     0, 0 }, // 17	// 1
+			{ -0.5f,  0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     1, 0 }, // 18	// 2
+			{  0.5f,  0.5f, -0.5f,  1,    0,  0, -1,  0,   -1,  0,  0,  0,     0,  1,  0,  0,     1, 0 }, // 19	// 3
+			{ -0.5f, -0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     0, 1 }, // 20	// 4
+			{  0.5f, -0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     1, 1 }, // 21	// 5
+			{ -0.5f,  0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     0, 1 }, // 22	// 6
+			{  0.5f,  0.5f,  0.5f,  1,    0,  0,  1,  0,    1,  0,  0,  0,     0,  1,  0,  0,     1, 1 }  // 23	// 7
+		};
+		U32 indices[36] =
+		{
+			0,4,2,
+			4,6,2,
+			1,3,5,
+			3,7,5,
+			8,9,12,
+			9,13,12,
+			10,14,11,
+			14,15,11,
+			16,18,17,
+			18,19,17,
+			20,21,22,
+			21,23,22
+		};
+
+		const U32 verticesSize = (sizeof(SStaticMeshVertex) * 24) / sizeof(char);
+		const U32 indicesSize = (sizeof(U32) * 36) / sizeof(char);
+		const U32 dataSize = verticesSize + indicesSize;
+		char* data = new char[dataSize];
+
+		switch (assetType)
+		{
+		case EAssetType::StaticMesh:
+			{
+				memcpy(&data[0], &vertices[0], verticesSize);
+				memcpy(&data[verticesSize], &indices[0], indicesSize);
+				CEngine::GetInstance()->GetFileSystem()->Serialize("ExampleCube.hvasset", &data[0], dataSize);
+			}
+			break;
+		case EAssetType::SkeletalMesh: 
+			break;
+		case EAssetType::Animation: 
+			break;
+		case EAssetType::AudioOneShot: 
+			break;
+		case EAssetType::AudioCollection: 
+			break;
+		case EAssetType::VisualFX: 
+			break;
+		default: ;
+		}
+	}
+
+	void CRenderManager::LoadStaticMesh(const std::string& /*fileName*/, SStaticMeshComponent* /*outStaticMeshComponent*/)
+	{
+		// fill component from file data
+
+		const U32 verticesSize = (sizeof(SStaticMeshVertex) * 24) / sizeof(char);
+		const U32 indicesSize = (sizeof(U32) * 36) / sizeof(char);
+		const U32 dataSize = verticesSize + indicesSize;
+		char data[dataSize] = {};
+
+		CEngine::GetInstance()->GetFileSystem()->DeSerialize("ExampleCube.hvasset", &data[0], dataSize);
+
+		SStaticMeshVertex vertices[24] = {};
+		U32 indices[36] = {};
+
+		memcpy(&vertices[0], &data[0], verticesSize);
+		memcpy(&indices[0], &data[verticesSize], indicesSize);
+		/*std::string vsData;
+		UGraphicsUtils::CreateVertexShader("Shaders/Demo_VS.cso", Framework, &DemoVertexShader, vsData);
+		UGraphicsUtils::CreatePixelShader("Shaders/Demo_PS.cso", Framework, &DemoPixelShader);
+		VertexShaders.emplace_back(DemoVertexShader);
+		PixelShaders.emplace_back(DemoPixelShader);
+
+		D3D11_SAMPLER_DESC samplerDesc = {};
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = 10;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateSamplerState(&samplerDesc, &SamplerState), "Sampler could not be created.");
+		Samplers.emplace_back(SamplerState);
+
+		
+
+		D3D11_BUFFER_DESC demoVertexBufferDesc = { 0 };
+		demoVertexBufferDesc.ByteWidth = sizeof(vertices);
+		demoVertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		demoVertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA demoSubVertexResourceData = { 0 };
+		demoSubVertexResourceData.pSysMem = vertices;
+
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&demoVertexBufferDesc, &demoSubVertexResourceData, &DemoVertexBuffer), "Demo Vertex Buffer could not be created.");
+		VertexBuffers.emplace_back(DemoVertexBuffer);
+
+		D3D11_BUFFER_DESC demoIndexBufferDesc = { 0 };
+		demoIndexBufferDesc.ByteWidth = sizeof(indices);
+		demoIndexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		demoIndexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA demoIndexSubresourceData = { 0 };
+		demoIndexSubresourceData.pSysMem = indices;
+
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&demoIndexBufferDesc, &demoIndexSubresourceData, &DemoIndexBuffer), "Demo Index Buffer could not be created.");
+		IndexBuffers.emplace_back(DemoIndexBuffer);
+
+		DemoNumberOfVertices = static_cast<U32>(sizeof(vertices) / sizeof(SStaticMeshVertex));
+		DemoNumberOfIndices = static_cast<U32>(sizeof(indices) / sizeof(U32));
+		DemoStride = sizeof(SStaticMeshVertex);
+		DemoOffset = 0;
+		MeshVertexStrides.emplace_back(DemoStride);
+		MeshVertexOffsets.emplace_back(DemoOffset);
+
+		D3D11_INPUT_ELEMENT_DESC demoLayout[] =
+		{
+			{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"NORMAL"   ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TANGENT"  ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"BINORMAL" ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	   0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		};
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateInputLayout(demoLayout, sizeof(demoLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC), vsData.data(), vsData.size(), &DemoInputLayout), "Demo Input Layout could not be created.");
+		InputLayouts.emplace_back(DemoInputLayout);
+
+		DemoTopology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		Topologies.emplace_back(DemoTopology);*/
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
