@@ -162,5 +162,10 @@ namespace Havtorn
 		InputStream.read(data, size);
 		CloseFile(EFileMode::BinaryRead);
 	}
+
+	U64 CFileSystem::GetFileSize(const std::string& fileName) const
+	{
+		return std::filesystem::file_size(fileName);
+	}
 }
 

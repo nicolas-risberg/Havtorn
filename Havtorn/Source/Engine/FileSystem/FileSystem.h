@@ -35,6 +35,7 @@ namespace Havtorn
 
 		void Serialize(const std::string& fileName, const char* data, U32 size);
 		void DeSerialize(const std::string& fileName, char* data, U32 size);
+		U64 GetFileSize(const std::string& fileName) const;
 	private:
 		std::ifstream InputStream;
 		std::ofstream OutputStream;

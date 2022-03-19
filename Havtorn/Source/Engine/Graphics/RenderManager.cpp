@@ -24,6 +24,7 @@
 //#include "BoxLight.h"
 #include "ECS/ECSInclude.h"
 #include "VertexStructs.h"
+#include "FileSystem/FileHeaderDeclarations.h"
 
 #include <algorithm>
 #include <future>
@@ -210,8 +211,8 @@ namespace Havtorn
 
 #pragma endregion Demo Resources
 
-		WriteAssetFile("helloAki", EAssetType::StaticMesh);
-		LoadStaticMesh("", nullptr);
+		WriteAssetFile("ExampleCube.hvasset", EAssetType::StaticMesh);
+		LoadStaticMesh("ExampleCube.hvasset", nullptr);
 
 		return true;
 	}
@@ -753,7 +754,7 @@ namespace Havtorn
 		//myGBufferCopy.ReleaseResources();
 	}
 
-	void CRenderManager::WriteAssetFile(const std::string& /*fileName*/, EAssetType assetType)
+	void CRenderManager::WriteAssetFile(const std::string& fileName, EAssetType assetType)
 	{
 		SStaticMeshVertex vertices[24] =
 		{
@@ -801,18 +802,23 @@ namespace Havtorn
 			21,23,22
 		};
 
-		const U32 verticesSize = (sizeof(SStaticMeshVertex) * 24) / sizeof(char);
-		const U32 indicesSize = (sizeof(U32) * 36) / sizeof(char);
-		const U32 dataSize = verticesSize + indicesSize;
-		char* data = new char[dataSize];
+		SStaticMeshAsset asset;
+		asset.AssetType = EAssetType::StaticMesh;
+		asset.Name = "PrimitiveCube";
+		asset.NameLength = static_cast<U32>(asset.Name.length());
+		asset.NumberOfVertices = 24;
+		asset.Vertices.assign(vertices, vertices + 24);
+		asset.NumberOfIndices = 36;
+		asset.Indices.assign(indices, indices + 36);
+
+		char* data = new char[asset.GetSize()];
 
 		switch (assetType)
 		{
 		case EAssetType::StaticMesh:
 			{
-				memcpy(&data[0], &vertices[0], verticesSize);
-				memcpy(&data[verticesSize], &indices[0], indicesSize);
-				CEngine::GetInstance()->GetFileSystem()->Serialize("ExampleCube.hvasset", &data[0], dataSize);
+				asset.Serialize(data);
+				CEngine::GetInstance()->GetFileSystem()->Serialize(fileName, &data[0], asset.GetSize());
 			}
 			break;
 		case EAssetType::SkeletalMesh: 
@@ -829,22 +835,16 @@ namespace Havtorn
 		}
 	}
 
-	void CRenderManager::LoadStaticMesh(const std::string& /*fileName*/, SStaticMeshComponent* /*outStaticMeshComponent*/)
+	void CRenderManager::LoadStaticMesh(const std::string& fileName, SStaticMeshComponent* /*outStaticMeshComponent*/)
 	{
-		// fill component from file data
+		const U64 fileSize = CEngine::GetInstance()->GetFileSystem()->GetFileSize(fileName);
+		char* data = new char[fileSize];
 
-		const U32 verticesSize = (sizeof(SStaticMeshVertex) * 24) / sizeof(char);
-		const U32 indicesSize = (sizeof(U32) * 36) / sizeof(char);
-		const U32 dataSize = verticesSize + indicesSize;
-		char data[dataSize] = {};
+		CEngine::GetInstance()->GetFileSystem()->DeSerialize(fileName, data, static_cast<U32>(fileSize));
 
-		CEngine::GetInstance()->GetFileSystem()->DeSerialize("ExampleCube.hvasset", &data[0], dataSize);
+		SStaticMeshAsset asset;
+		asset.Deserialize(data);
 
-		SStaticMeshVertex vertices[24] = {};
-		U32 indices[36] = {};
-
-		memcpy(&vertices[0], &data[0], verticesSize);
-		memcpy(&indices[0], &data[verticesSize], indicesSize);
 		/*std::string vsData;
 		UGraphicsUtils::CreateVertexShader("Shaders/Demo_VS.cso", Framework, &DemoVertexShader, vsData);
 		UGraphicsUtils::CreatePixelShader("Shaders/Demo_PS.cso", Framework, &DemoPixelShader);

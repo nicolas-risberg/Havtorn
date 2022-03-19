@@ -1,5 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
+#pragma once
+
 namespace Havtorn
 {
 	struct SStaticMeshVertex
@@ -18,7 +20,5 @@ namespace Havtorn
 
 		// UV
 		F32 u, v;
-
-		F32 padding1, padding2;
 	};
 }
