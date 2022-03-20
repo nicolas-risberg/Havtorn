@@ -9,9 +9,11 @@ workspace "Havtorn"
 outputdir = "%{cfg.buildcfg}_%{cfg.system}_%{cfg.architecture}"
 engineProj = "Engine"
 engineSource = "Source/" .. engineProj .. "/"
+editorProj = "Editor"
+editorSource = "Source/" .. editorProj .. "/"
 
 project "Engine"
-	location "Source/Engine"
+	location ("Source/" .. engineProj)
 	kind "SharedLib"
 	language "C++"
 	cppdialect "C++20"
@@ -26,7 +28,7 @@ project "Engine"
 	flags { "FatalWarnings", "ShadowedVariables", "MultiProcessorCompile" }
 
 	pchheader "hvpch.h"
-	pchsource "Source/Engine/hvpch.cpp"
+	pchsource ("Source/" .. engineProj .. "/hvpch.cpp")
 	forceincludes { "hvpch.h" }
 
 	files 
@@ -54,31 +56,31 @@ project "Engine"
 	debugdir "Bin/"
 
 	-- Begin Shader stuff
-	filter{} -- Clear filter
+		filter{} -- Clear filter
 
-	shaderSource = engineSource .. "Graphics/Shaders/"
-	shaderTarget = "$(SolutionDir)../Bin/Shaders/"
+		shaderSource = engineSource .. "Graphics/Shaders/"
+		shaderTarget = "$(SolutionDir)../Bin/Shaders/"
 
-	shadermodel("5.0")
-	-- Warnings as errors
-	shaderoptions({"/WX"})
-	shaderobjectfileoutput(shaderTarget .. "%%(Filename).cso")
+		shadermodel("5.0")
+		-- Warnings as errors
+		shaderoptions({"/WX"})
+		shaderobjectfileoutput(shaderTarget .. "%%(Filename).cso")
 
-	files
-	{
-		shaderSource .. "*.hlsl",
-		shaderSource .. "Includes/*.hlsli",
-	}
- 
-	filter("files:**_PS.hlsl")
-	   removeflags("ExcludeFromBuild")
-	   shadertype("Pixel")
- 
-	filter("files:**_VS.hlsl")
-	   removeflags("ExcludeFromBuild")
-	   shadertype("Vertex")
+		files
+		{
+			shaderSource .. "*.hlsl",
+			shaderSource .. "Includes/*.hlsli",
+		}
 	
-	filter{} -- Clear filter
+		filter("files:**_PS.hlsl")
+		removeflags("ExcludeFromBuild")
+		shadertype("Pixel")
+	
+		filter("files:**_VS.hlsl")
+		removeflags("ExcludeFromBuild")
+		shadertype("Vertex")
+		
+		filter{} -- Clear filter
 	-- End Shader Stuff
 
 	filter "system:Windows"
@@ -123,6 +125,90 @@ project "Engine"
 		optimize "On"
 		flags { "LinkTimeOptimization" }
 
+project "Editor"
+	location ("Source/" .. editorProj)
+	kind "SharedLib"
+	language "C++"
+	cppdialect "C++20"
+	architecture "x86_64"
+
+	targetname "%{prj.name}_%{cfg.buildcfg}"
+
+	targetdir ("Bin/" .. outputdir .. "/%{prj.name}") 
+	objdir ("Temp/" .. outputdir .. "/%{prj.name}") 
+
+	warnings "Extra"
+	flags { "FatalWarnings", "ShadowedVariables", "MultiProcessorCompile" }
+
+	--pchheader "hvpch.h"
+	--pchsource ("Source/" .. editorProj .. "/hvpch.cpp")
+	--forceincludes { "hvpch.h" }
+
+	files 
+	{
+		"Source/%{prj.name}/**.h",
+		"Source/%{prj.name}/**.cpp",
+		
+		vpaths 
+		{
+			["*"] = "Source/"
+		}
+	}
+
+	includedirs
+	{
+		"Source/%{prj.name}",
+		"External/rapidjson",
+		"External/imgui",
+		"Source/Engine"
+	}
+
+	links
+	{
+		"Engine"
+	}
+
+	libdirs {  }
+
+	floatingpoint "Fast"
+	debugdir "Bin/"
+
+	filter "system:Windows"
+		staticruntime "On"
+		systemversion "latest"
+		vectorextensions "SSE4.1"
+
+		defines 
+		{
+			"HV_PLATFORM_WINDOWS",
+			"HV_BUILD_DLL"
+		}
+
+		postbuildcommands
+		{
+			"{COPY} %{cfg.buildtarget.relpath} ../../Bin/"
+		}
+
+	filter "configurations:Debug"
+		defines "HV_DEBUG"
+		buildoptions "/MDd"
+		staticruntime "off"
+		runtime "Debug"
+		symbols "On"
+
+		defines 
+		{
+			"HV_ENABLE_ASSERTS"
+		}
+
+	filter "configurations:Release"
+		defines "HV_RELEASE"
+		buildoptions "/MD"
+		staticruntime "off"
+		runtime "Release"
+		optimize "On"
+		flags { "LinkTimeOptimization" }
+		
 project "Launcher"
 	location "Source/Launcher"
 	kind "WindowedApp"
@@ -152,11 +238,13 @@ project "Launcher"
 	includedirs
 	{
 		"Source/%{prj.name}",
+		"Source/Editor",
 		"Source/Engine"
 	}
 
 	links
 	{
+		"Editor",
 		"Engine"
 	}
 

@@ -3,6 +3,7 @@
 #include <hvpch.h>
 
 #include <Havtorn.h>
+#include <test.h>
 
 class CLauncherApplication : public Havtorn::CApplication
 {
@@ -13,5 +14,6 @@ public:
 
 Havtorn::CApplication* Havtorn::CreateApplication()
 {
+	Test::Do();
 	return new CLauncherApplication();
 }
