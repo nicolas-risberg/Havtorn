@@ -74,7 +74,7 @@ namespace Havtorn
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, i);
-			//StaticMeshComponents.back()->MaterialRef = 0;
+			
 		}
 
 		std::vector<SVector> corners;

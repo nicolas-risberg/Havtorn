@@ -90,15 +90,16 @@ namespace Havtorn
 		void ToggleRenderPass(bool shouldToggleForwards = true);
 
 	private:
-		std::string AddShader(const std::string& fileName, EShaderType shaderType);
-		void AddSampler(ESamplerType samplerType);
-
 		template<typename T>
-		void AddVertexBuffer(const std::vector<T>& vertices);
+		U16 AddVertexBuffer(const std::vector<T>& vertices);
+		U16 AddIndexBuffer(const std::vector<U32>& indices);
+		U16 AddMeshVertexStride(U32 stride);
+		U16 AddMeshVertexOffset(U32 offset);
 
-		void AddIndexBuffer(const std::vector<U32>& indices);
+		std::string AddShader(const std::string& fileName, EShaderType shaderType);
 		void AddInputLayout(const std::string& vsData, EInputLayoutType layoutType);
-		std::initializer_list<D3D11_INPUT_ELEMENT_DESC> GetInputLayoutDesc(EInputLayoutType layoutType);
+		void AddSampler(ESamplerType samplerType);
+		void AddTopology(D3D11_PRIMITIVE_TOPOLOGY topology);
 
 	private:
 		template<class T>
@@ -199,7 +200,7 @@ namespace Havtorn
 	};
 
 	template <typename T>
-	void CRenderManager::AddVertexBuffer(const std::vector<T>& vertices)
+	U16 CRenderManager::AddVertexBuffer(const std::vector<T>& vertices)
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc = { 0 };
 		vertexBufferDesc.ByteWidth = sizeof(T) * static_cast<U32>(vertices.size());
@@ -212,5 +213,7 @@ namespace Havtorn
 		ID3D11Buffer* vertexBuffer;
 		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&vertexBufferDesc, &subVertexResourceData, &vertexBuffer), "Vertex Buffer could not be created.");
 		VertexBuffers.emplace_back(vertexBuffer);
+
+		return static_cast<U16>(VertexBuffers.size() - 1);
 	}
 }

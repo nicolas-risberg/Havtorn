@@ -15,17 +15,16 @@ namespace Havtorn
 		U32 VertexCount = 0;
 		U32 IndexCount = 36;
 
-		U8 VertexBufferIndex = 0;
-		U8 InputLayoutIndex = 0;
-		U8 IndexBufferIndex = 0;
+		U16 VertexBufferIndex = 0;
+		U16 IndexBufferIndex = 0;
+		U16 VertexStrideIndex = 0;
+		U16 VertexOffsetIndex = 0;
 
 		// Render Data
-		U8 TopologyIndex = 0;
-		U8 VertexStrideIndex = 0;
-		U8 VertexOffsetIndex = 0;
 		U8 VertexShaderIndex = 0;
+		U8 InputLayoutIndex = 0;
 		U8 PixelShaderIndex = 0;
 		U8 SamplerIndex = 0;
-
+		U8 TopologyIndex = 0;
 	};
 }

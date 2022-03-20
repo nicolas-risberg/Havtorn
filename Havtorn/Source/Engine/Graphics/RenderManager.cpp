@@ -91,6 +91,13 @@ namespace Havtorn
 		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(windowHandler);
 
+		// Load default resources
+		const std::string vsData = AddShader("Shaders/Demo_VS.cso", EShaderType::Vertex);
+		AddInputLayout(vsData, EInputLayoutType::Pos4Nor4Tan4Bit4UV2);
+		AddShader("Shaders/Demo_PS.cso", EShaderType::Pixel);
+		AddSampler(ESamplerType::Wrap);
+		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 		WriteAssetFile("ExampleCube.hvasset", EAssetType::StaticMesh);
 		LoadStaticMesh("ExampleCube.hvasset", nullptr);
 
@@ -717,7 +724,6 @@ namespace Havtorn
 	void CRenderManager::LoadStaticMesh(const std::string& fileName, SStaticMeshComponent* /*outStaticMeshComponent*/)
 	{
 		// Asset Loading
-
 		const U64 fileSize = CEngine::GetInstance()->GetFileSystem()->GetFileSize(fileName);
 		char* data = new char[fileSize];
 
@@ -726,20 +732,19 @@ namespace Havtorn
 		SStaticMeshAsset asset;
 		asset.Deserialize(data);
 
-		// Resource Loading
+		// Geometry
+		// TODO.NR: Use this when checking for duplicated resources is finished (using custom structs and GUIDs for all resources)
+		//outStaticMeshComponent->VertexCount = asset.NumberOfVertices;
+		//outStaticMeshComponent->IndexCount = asset.NumberOfIndices;
+		//outStaticMeshComponent->VertexBufferIndex = AddVertexBuffer(asset.Vertices);
+		//outStaticMeshComponent->IndexBufferIndex = AddIndexBuffer(asset.Indices);
+		//outStaticMeshComponent->VertexStrideIndex = AddMeshVertexStride(static_cast<U32>(sizeof(SStaticMeshVertex)));
+		//outStaticMeshComponent->VertexOffsetIndex = AddMeshVertexOffset(0);
 
 		AddVertexBuffer(asset.Vertices);
 		AddIndexBuffer(asset.Indices);
-
-		const std::string vsData = AddShader("Shaders/Demo_VS.cso", EShaderType::Vertex);
-		AddInputLayout(vsData, EInputLayoutType::Pos4Nor4Tan4Bit4UV2);
-		AddShader("Shaders/Demo_PS.cso", EShaderType::Pixel);
-		AddSampler(ESamplerType::Wrap);
-
-		MeshVertexStrides.emplace_back(static_cast<U32>(sizeof(SStaticMeshVertex)));
-		MeshVertexOffsets.emplace_back(0);
-
-		Topologies.emplace_back(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		AddMeshVertexStride(static_cast<U32>(sizeof(SStaticMeshVertex)));
+		AddMeshVertexOffset(0);
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
@@ -851,6 +856,35 @@ namespace Havtorn
 		}
 	}
 
+	U16 CRenderManager::AddIndexBuffer(const std::vector<U32>& indices)
+	{
+		D3D11_BUFFER_DESC indexBufferDesc = { 0 };
+		indexBufferDesc.ByteWidth = sizeof(U32) * static_cast<U32>(indices.size());
+		indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA indexSubresourceData = { 0 };
+		indexSubresourceData.pSysMem = indices.data();
+
+		ID3D11Buffer* indexBuffer;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &indexBuffer), "Index Buffer could not be created.");
+		IndexBuffers.emplace_back(indexBuffer);
+
+		return static_cast<U16>(IndexBuffers.size() - 1);
+	}
+
+	U16 CRenderManager::AddMeshVertexOffset(U32 offset)
+	{
+		MeshVertexOffsets.emplace_back(offset);
+		return static_cast<U16>(MeshVertexOffsets.size() - 1);
+	}
+
+	U16 CRenderManager::AddMeshVertexStride(U32 stride)
+	{
+		MeshVertexStrides.emplace_back(stride);
+		return static_cast<U16>(MeshVertexStrides.size() - 1);
+	}
+
 	std::string CRenderManager::AddShader(const std::string& fileName, const EShaderType shaderType)
 	{
 		std::string outShaderData;
@@ -858,25 +892,46 @@ namespace Havtorn
 		switch (shaderType)
 		{
 		case EShaderType::Vertex:
-			{
-				ID3D11VertexShader* vertexShader;
-				UGraphicsUtils::CreateVertexShader(fileName, Framework, &vertexShader, outShaderData);
-				VertexShaders.emplace_back(vertexShader);
-			}
-			break;
-		case EShaderType::Compute: 
-		case EShaderType::Geometry: 
+		{
+			ID3D11VertexShader* vertexShader;
+			UGraphicsUtils::CreateVertexShader(fileName, Framework, &vertexShader, outShaderData);
+			VertexShaders.emplace_back(vertexShader);
+		}
+		break;
+		case EShaderType::Compute:
+		case EShaderType::Geometry:
 			break;
 		case EShaderType::Pixel:
-			{
-				ID3D11PixelShader* pixelShader;
-				UGraphicsUtils::CreatePixelShader(fileName, Framework, &pixelShader);
-				PixelShaders.emplace_back(pixelShader);
-			}
-			break;
+		{
+			ID3D11PixelShader* pixelShader;
+			UGraphicsUtils::CreatePixelShader(fileName, Framework, &pixelShader);
+			PixelShaders.emplace_back(pixelShader);
+		}
+		break;
 		}
 
 		return outShaderData;
+	}
+
+	void CRenderManager::AddInputLayout(const std::string& vsData, EInputLayoutType layoutType)
+	{
+		std::vector<D3D11_INPUT_ELEMENT_DESC> layout;
+		switch (layoutType)
+		{
+		case EInputLayoutType::Pos4Nor4Tan4Bit4UV2:
+			layout =
+			{
+				{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"NORMAL"   ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"TANGENT"  ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"BINORMAL" ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	   0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			};
+			break;
+		}
+		ID3D11InputLayout* inputLayout;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateInputLayout(layout.data(), static_cast<U32>(layout.size()), vsData.data(), vsData.size(), &inputLayout), "Input Layout could not be created.")
+			InputLayouts.emplace_back(inputLayout);
 	}
 
 	void CRenderManager::AddSampler(ESamplerType samplerType)
@@ -916,40 +971,9 @@ namespace Havtorn
 		Samplers.emplace_back(samplerState);
 	}
 
-	void CRenderManager::AddIndexBuffer(const std::vector<U32>& indices)
+	void CRenderManager::AddTopology(D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
-		D3D11_BUFFER_DESC indexBufferDesc = { 0 };
-		indexBufferDesc.ByteWidth = sizeof(U32) * static_cast<U32>(indices.size());
-		indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-		D3D11_SUBRESOURCE_DATA indexSubresourceData = { nullptr };
-		indexSubresourceData.pSysMem = indices.data();
-
-		ID3D11Buffer* indexBuffer;
-		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &indexBuffer), "Index Buffer could not be created.");
-		IndexBuffers.emplace_back(indexBuffer);
-	}
-
-	void CRenderManager::AddInputLayout(const std::string& vsData, EInputLayoutType layoutType)
-	{
-		std::vector<D3D11_INPUT_ELEMENT_DESC> layout;
-		switch (layoutType)
-		{
-		case EInputLayoutType::Pos4Nor4Tan4Bit4UV2:
-			layout =
-			{
-				{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-				{"NORMAL"   ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-				{"TANGENT"  ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-				{"BINORMAL" ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-				{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	   0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-			};
-			break;
-		}
-		ID3D11InputLayout* inputLayout;
-		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateInputLayout(layout.data(), static_cast<U32>(layout.size()), vsData.data(), vsData.size(), &inputLayout), "Input Layout could not be created.")
-		InputLayouts.emplace_back(inputLayout);
+		Topologies.emplace_back(topology);
 	}
 
 	bool SRenderCommandComparer::operator()(const SRenderCommand& a, const SRenderCommand& b) const
