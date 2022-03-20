@@ -2,7 +2,6 @@
 
 #include "hvpch.h"
 #include "RenderManager.h"
-#include "GraphicsFramework.h"
 #include "GraphicsUtilities.h"
 #include "RenderCommand.h"
 //#include "Scene.h"
@@ -46,17 +45,6 @@ namespace Havtorn
 		, Context(nullptr)
 		, FrameBuffer(nullptr)
 		, ObjectBuffer(nullptr)
-		, DemoVertexShader(nullptr)
-		, DemoPixelShader(nullptr)
-		, SamplerState(nullptr)
-		, DemoVertexBuffer(nullptr)
-		, DemoIndexBuffer(nullptr)
-		, DemoInputLayout(nullptr)
-		, DemoTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
-		, DemoNumberOfVertices(0)
-		, DemoNumberOfIndices(0)
-		, DemoStride(0)
-		, DemoOffset(0)
 	{
 		PushToCommands = &RenderCommandsA;
 		PopFromCommands = &RenderCommandsB;
@@ -703,7 +691,7 @@ namespace Havtorn
 		asset.NumberOfIndices = 36;
 		asset.Indices.assign(indices, indices + 36);
 
-		char* data = new char[asset.GetSize()];
+		const auto data = new char[asset.GetSize()];
 
 		switch (assetType)
 		{
@@ -723,7 +711,6 @@ namespace Havtorn
 			break;
 		case EAssetType::VisualFX: 
 			break;
-		default: ;
 		}
 	}
 
@@ -734,71 +721,25 @@ namespace Havtorn
 		const U64 fileSize = CEngine::GetInstance()->GetFileSystem()->GetFileSize(fileName);
 		char* data = new char[fileSize];
 
-		CEngine::GetInstance()->GetFileSystem()->DeSerialize(fileName, data, static_cast<U32>(fileSize));
+		CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, data, static_cast<U32>(fileSize));
 
 		SStaticMeshAsset asset;
 		asset.Deserialize(data);
 
 		// Resource Loading
 
-		std::string vsData;
-		UGraphicsUtils::CreateVertexShader("Shaders/Demo_VS.cso", Framework, &DemoVertexShader, vsData);
-		UGraphicsUtils::CreatePixelShader("Shaders/Demo_PS.cso", Framework, &DemoPixelShader);
-		VertexShaders.emplace_back(DemoVertexShader);
-		PixelShaders.emplace_back(DemoPixelShader);
+		AddVertexBuffer(asset.Vertices);
+		AddIndexBuffer(asset.Indices);
 
-		D3D11_SAMPLER_DESC samplerDesc = {};
-		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerDesc.MinLOD = 0;
-		samplerDesc.MaxLOD = 10;
-		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateSamplerState(&samplerDesc, &SamplerState), "Sampler could not be created.");
-		Samplers.emplace_back(SamplerState);
+		const std::string vsData = AddShader("Shaders/Demo_VS.cso", EShaderType::Vertex);
+		AddInputLayout(vsData, EInputLayoutType::Pos4Nor4Tan4Bit4UV2);
+		AddShader("Shaders/Demo_PS.cso", EShaderType::Pixel);
+		AddSampler(ESamplerType::Wrap);
 
-		D3D11_BUFFER_DESC demoVertexBufferDesc = { 0 };
-		demoVertexBufferDesc.ByteWidth = sizeof(SStaticMeshVertex) * static_cast<U32>(asset.Vertices.size());
-		demoVertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		demoVertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		MeshVertexStrides.emplace_back(static_cast<U32>(sizeof(SStaticMeshVertex)));
+		MeshVertexOffsets.emplace_back(0);
 
-		D3D11_SUBRESOURCE_DATA demoSubVertexResourceData = { 0 };
-		demoSubVertexResourceData.pSysMem = asset.Vertices.data();
-
-		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&demoVertexBufferDesc, &demoSubVertexResourceData, &DemoVertexBuffer), "Demo Vertex Buffer could not be created.");
-		VertexBuffers.emplace_back(DemoVertexBuffer);
-
-		D3D11_BUFFER_DESC demoIndexBufferDesc = { 0 };
-		demoIndexBufferDesc.ByteWidth = sizeof(U32) * static_cast<U32>(asset.Indices.size());
-		demoIndexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		demoIndexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-
-		D3D11_SUBRESOURCE_DATA demoIndexSubresourceData = { 0 };
-		demoIndexSubresourceData.pSysMem = asset.Indices.data();
-
-		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&demoIndexBufferDesc, &demoIndexSubresourceData, &DemoIndexBuffer), "Demo Index Buffer could not be created.");
-		IndexBuffers.emplace_back(DemoIndexBuffer);
-
-		DemoNumberOfVertices = asset.NumberOfVertices;
-		DemoNumberOfIndices = asset.NumberOfIndices;
-		DemoStride = sizeof(SStaticMeshVertex);
-		DemoOffset = 0;
-		MeshVertexStrides.emplace_back(DemoStride);
-		MeshVertexOffsets.emplace_back(DemoOffset);
-
-		D3D11_INPUT_ELEMENT_DESC demoLayout[] =
-		{
-			{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"NORMAL"   ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"TANGENT"  ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"BINORMAL" ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-			{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	   0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-		};
-		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateInputLayout(demoLayout, sizeof(demoLayout) / sizeof(D3D11_INPUT_ELEMENT_DESC), vsData.data(), vsData.size(), &DemoInputLayout), "Demo Input Layout could not be created.");
-		InputLayouts.emplace_back(DemoInputLayout);
-
-		DemoTopology = D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		Topologies.emplace_back(DemoTopology);
+		Topologies.emplace_back(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
@@ -910,7 +851,108 @@ namespace Havtorn
 		}
 	}
 
-	bool SRenderCommandComparer::operator()(const SRenderCommand& a, const SRenderCommand& b)
+	std::string CRenderManager::AddShader(const std::string& fileName, const EShaderType shaderType)
+	{
+		std::string outShaderData;
+
+		switch (shaderType)
+		{
+		case EShaderType::Vertex:
+			{
+				ID3D11VertexShader* vertexShader;
+				UGraphicsUtils::CreateVertexShader(fileName, Framework, &vertexShader, outShaderData);
+				VertexShaders.emplace_back(vertexShader);
+			}
+			break;
+		case EShaderType::Compute: 
+		case EShaderType::Geometry: 
+			break;
+		case EShaderType::Pixel:
+			{
+				ID3D11PixelShader* pixelShader;
+				UGraphicsUtils::CreatePixelShader(fileName, Framework, &pixelShader);
+				PixelShaders.emplace_back(pixelShader);
+			}
+			break;
+		}
+
+		return outShaderData;
+	}
+
+	void CRenderManager::AddSampler(ESamplerType samplerType)
+	{
+		// TODO.NR: Extend to different LOD levels and filters
+		D3D11_SAMPLER_DESC samplerDesc = {};
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = 10;
+
+		switch (samplerType)
+		{
+		case ESamplerType::Border:
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+			break;
+		case ESamplerType::Clamp:
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+			break;
+		case ESamplerType::Mirror:
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+			break;
+		case ESamplerType::Wrap:
+			samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			break;
+		}
+
+		ID3D11SamplerState* samplerState;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateSamplerState(&samplerDesc, &samplerState), "Sampler could not be created.");
+		Samplers.emplace_back(samplerState);
+	}
+
+	void CRenderManager::AddIndexBuffer(const std::vector<U32>& indices)
+	{
+		D3D11_BUFFER_DESC indexBufferDesc = { 0 };
+		indexBufferDesc.ByteWidth = sizeof(U32) * static_cast<U32>(indices.size());
+		indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA indexSubresourceData = { nullptr };
+		indexSubresourceData.pSysMem = indices.data();
+
+		ID3D11Buffer* indexBuffer;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &indexBuffer), "Index Buffer could not be created.");
+		IndexBuffers.emplace_back(indexBuffer);
+	}
+
+	void CRenderManager::AddInputLayout(const std::string& vsData, EInputLayoutType layoutType)
+	{
+		std::vector<D3D11_INPUT_ELEMENT_DESC> layout;
+		switch (layoutType)
+		{
+		case EInputLayoutType::Pos4Nor4Tan4Bit4UV2:
+			layout =
+			{
+				{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"NORMAL"   ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"TANGENT"  ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"BINORMAL" ,   0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+				{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	   0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			};
+			break;
+		}
+		ID3D11InputLayout* inputLayout;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateInputLayout(layout.data(), static_cast<U32>(layout.size()), vsData.data(), vsData.size(), &inputLayout), "Input Layout could not be created.")
+		InputLayouts.emplace_back(inputLayout);
+	}
+
+	bool SRenderCommandComparer::operator()(const SRenderCommand& a, const SRenderCommand& b) const
 	{
 		return 	static_cast<U16>(a.Type) > static_cast<U16>(b.Type);
 	}

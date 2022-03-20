@@ -121,34 +121,6 @@ namespace Havtorn
 			HV_LOG_ERROR("FileSystem encountered an operation error after closing the %s", streamName.c_str());
 	}
 
-	void CFileSystem::Serialize(const SVector& data, std::string /*fileName*/, ESerializeMode mode)
-	{
-		const std::string dataString = data.ToString();
-		switch (mode)
-		{
-		case ESerializeMode::Binary:
-			OutputStream.write(dataString.c_str(), strlen(dataString.c_str()));
-			break;
-		case ESerializeMode::Readable:
-			OutputStream.write(dataString.c_str(), strlen(dataString.c_str()));
-			break;
-		}
-	}
-
-	void CFileSystem::DeSerialize(const SVector& data, std::string fileName, ESerializeMode mode)
-	{
-		const std::string dataString = data.ToString();
-		switch (mode)
-		{
-		case ESerializeMode::Binary:
-			//InputStream.read(dataString.c_str(), strlen(dataString.c_str()));
-			break;
-		case ESerializeMode::Readable:
-			OutputStream.write(dataString.c_str(), strlen(dataString.c_str()));
-			break;
-		}
-	}
-
 	void CFileSystem::Serialize(const std::string& fileName, const char* data, U32 size)
 	{
 		OpenFile(fileName, EFileMode::BinaryWrite);
@@ -156,7 +128,7 @@ namespace Havtorn
 		CloseFile(EFileMode::BinaryWrite);
 	}
 
-	void CFileSystem::DeSerialize(const std::string& fileName, char* data, U32 size)
+	void CFileSystem::Deserialize(const std::string& fileName, char* data, U32 size)
 	{
 		OpenFile(fileName, EFileMode::BinaryRead);
 		InputStream.read(data, size);

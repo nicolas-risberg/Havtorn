@@ -5,6 +5,7 @@
 //#include "ForwardRenderer.h"
 //#include "DeferredRenderer.h"
 //#include "LightRenderer.h"
+#include "GraphicsFramework.h"
 #include "Renderers/FullscreenRenderer.h"
 #include "FullscreenTexture.h"
 #include "FullscreenTextureFactory.h"
@@ -20,6 +21,27 @@
 
 namespace Havtorn
 {
+	enum class EShaderType
+	{
+		Vertex,
+		Compute,
+		Geometry,
+		Pixel
+	};
+
+	enum class ESamplerType
+	{
+		Border,
+		Clamp,
+		Mirror,
+		Wrap
+	};
+
+	enum class EInputLayoutType
+	{
+		Pos4Nor4Tan4Bit4UV2
+	};
+
 	class CDirectXFramework;
 	class CWindowHandler;
 	struct SRenderCommand;
@@ -27,7 +49,7 @@ namespace Havtorn
 
 	struct SRenderCommandComparer
 	{
-		bool operator()(const SRenderCommand& a, const SRenderCommand& b);
+		bool operator()(const SRenderCommand& a, const SRenderCommand& b) const;
 	};
 
 	using CRenderCommandHeap = std::priority_queue<SRenderCommand, std::vector<SRenderCommand>, SRenderCommandComparer>;
@@ -66,6 +88,17 @@ namespace Havtorn
 		void RenderBloom();
 		void RenderWithoutBloom();
 		void ToggleRenderPass(bool shouldToggleForwards = true);
+
+	private:
+		std::string AddShader(const std::string& fileName, EShaderType shaderType);
+		void AddSampler(ESamplerType samplerType);
+
+		template<typename T>
+		void AddVertexBuffer(const std::vector<T>& vertices);
+
+		void AddIndexBuffer(const std::vector<U32>& indices);
+		void AddInputLayout(const std::string& vsData, EInputLayoutType layoutType);
+		std::initializer_list<D3D11_INPUT_ELEMENT_DESC> GetInputLayoutDesc(EInputLayoutType layoutType);
 
 	private:
 		template<class T>
@@ -154,18 +187,6 @@ namespace Havtorn
 		bool UseAntiAliasing;
 		bool UseBrokenScreenPass;
 
-		ID3D11VertexShader* DemoVertexShader;
-		ID3D11PixelShader* DemoPixelShader;
-		ID3D11SamplerState* SamplerState;
-		ID3D11Buffer* DemoVertexBuffer;
-		ID3D11Buffer* DemoIndexBuffer;
-		ID3D11InputLayout* DemoInputLayout;
-		D3D11_PRIMITIVE_TOPOLOGY DemoTopology;
-		U32 DemoNumberOfVertices;
-		U32 DemoNumberOfIndices;
-		U32 DemoStride;
-		U32 DemoOffset;
-
 		std::vector<ID3D11VertexShader*> VertexShaders;
 		std::vector<ID3D11PixelShader*> PixelShaders;
 		std::vector<ID3D11SamplerState*> Samplers;
@@ -176,4 +197,20 @@ namespace Havtorn
 		std::vector<U32> MeshVertexStrides;
 		std::vector<U32> MeshVertexOffsets;
 	};
+
+	template <typename T>
+	void CRenderManager::AddVertexBuffer(const std::vector<T>& vertices)
+	{
+		D3D11_BUFFER_DESC vertexBufferDesc = { 0 };
+		vertexBufferDesc.ByteWidth = sizeof(T) * static_cast<U32>(vertices.size());
+		vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA subVertexResourceData = { nullptr };
+		subVertexResourceData.pSysMem = vertices.data();
+
+		ID3D11Buffer* vertexBuffer;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateBuffer(&vertexBufferDesc, &subVertexResourceData, &vertexBuffer), "Vertex Buffer could not be created.");
+		VertexBuffers.emplace_back(vertexBuffer);
+	}
 }

@@ -8,32 +8,32 @@ namespace Havtorn
 {
 	namespace UGraphicsUtils
 	{
-		static bool CreateVertexShader(std::string filepath, CDirectXFramework* framework, ID3D11VertexShader** outVertexShader, std::string& outShaderData)
+		static bool CreateVertexShader(const std::string& filepath, const CDirectXFramework* framework, ID3D11VertexShader** outVertexShader, std::string& outShaderData)
 		{
 			std::ifstream vsFile;
 			vsFile.open(filepath, std::ios::binary);
-			std::string vsData = { std::istreambuf_iterator<char>(vsFile), std::istreambuf_iterator<char>() };
+			const std::string vsData = { std::istreambuf_iterator<char>(vsFile), std::istreambuf_iterator<char>() };
 			outShaderData = vsData;
 			ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateVertexShader(vsData.data(), vsData.size(), nullptr, outVertexShader), "Vertex Shader could not be created.");
 			vsFile.close();
 			return true;
 		}
 
-		static bool CreatePixelShader(std::string filepath, CDirectXFramework* framework, ID3D11PixelShader** outPixelShader)
+		static bool CreatePixelShader(const std::string& filepath, const CDirectXFramework* framework, ID3D11PixelShader** outPixelShader)
 		{
 			std::ifstream psFile;
 			psFile.open(filepath, std::ios::binary);
-			std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
+			const std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
 			ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreatePixelShader(psData.data(), psData.size(), nullptr, outPixelShader), "Pixel Shader could not be created.");
 			psFile.close();
 			return true;
 		}
 
-		static bool CreateGeometryShader(std::string filepath, CDirectXFramework* framework, ID3D11GeometryShader** outGeometryShader)
+		static bool CreateGeometryShader(const std::string& filepath, const CDirectXFramework* framework, ID3D11GeometryShader** outGeometryShader)
 		{
 			std::ifstream gsFile;
 			gsFile.open(filepath, std::ios::binary);
-			std::string gsData = { std::istreambuf_iterator<char>(gsFile), std::istreambuf_iterator<char>() };
+			const std::string gsData = { std::istreambuf_iterator<char>(gsFile), std::istreambuf_iterator<char>() };
 			ENGINE_HR_BOOL_MESSAGE(framework->GetDevice()->CreateGeometryShader(gsData.data(), gsData.size(), nullptr, outGeometryShader), "Geometry Shader could not be created.");
 			gsFile.close();
 			return true;
