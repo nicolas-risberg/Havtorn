@@ -61,7 +61,7 @@ namespace Havtorn
 	{
 	}
 
-	bool CDeferredRenderer::Init(CDirectXFramework* framework, CMaterialHandler* materialHandler)
+	bool CDeferredRenderer::Init(CGraphicsFramework* framework, CMaterialHandler* materialHandler)
 	{
 		myContext = framework->GetContext();
 		ENGINE_ERROR_BOOL_MESSAGE(myContext, "Context could not be acquired from Framework.");
@@ -446,7 +446,7 @@ namespace Havtorn
 		CRenderManager::NumberOfDrawCallsThisFrame++;
 	}
 
-	bool CDeferredRenderer::LoadRenderPassPixelShaders(CDirectXFramework* aFramework)
+	bool CDeferredRenderer::LoadRenderPassPixelShaders(CGraphicsFramework* aFramework)
 	{
 		myRenderPassShaders.emplace_back();
 		UGraphicsUtils::CreatePixelShader("Shaders/DeferredRenderPassShader_Albedo.cso", aFramework, &myRenderPassShaders[0]);

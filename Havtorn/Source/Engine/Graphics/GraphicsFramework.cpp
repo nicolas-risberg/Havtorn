@@ -10,14 +10,14 @@
 
 namespace Havtorn
 {
-	CDirectXFramework::CDirectXFramework()
+	CGraphicsFramework::CGraphicsFramework()
 	{
 		SwapChain = nullptr;
 		Device = nullptr;
 		Context = nullptr;
 	}
 
-	CDirectXFramework::~CDirectXFramework()
+	CGraphicsFramework::~CGraphicsFramework()
 	{
 		BOOL isFullscreen;
 		SwapChain->GetFullscreenState(&isFullscreen, nullptr);
@@ -29,12 +29,12 @@ namespace Havtorn
 		}
 	}
 
-	void CDirectXFramework::EndFrame()
+	void CGraphicsFramework::EndFrame()
 	{
 		SwapChain->Present(0, 0);
 	}
 
-	bool CDirectXFramework::Init(Havtorn::CWindowHandler* windowHandler)
+	bool CGraphicsFramework::Init(Havtorn::CWindowHandler* windowHandler)
 	{
 		if (!windowHandler)
 		{
@@ -70,22 +70,22 @@ namespace Havtorn
 		return true;
 	}
 
-	void CDirectXFramework::ToggleFullscreenState(bool setFullscreen)
+	void CGraphicsFramework::ToggleFullscreenState(bool setFullscreen)
 	{
 		SwapChain->SetFullscreenState(setFullscreen, NULL);
 	}
 
-	ID3D11Device* CDirectXFramework::GetDevice() const
+	ID3D11Device* CGraphicsFramework::GetDevice() const
 	{
 		return Device.Get();
 	}
 
-	ID3D11DeviceContext* CDirectXFramework::GetContext() const
+	ID3D11DeviceContext* CGraphicsFramework::GetContext() const
 	{
 		return Context.Get();
 	}
 
-	ID3D11Texture2D* CDirectXFramework::GetBackbufferTexture() const
+	ID3D11Texture2D* CGraphicsFramework::GetBackbufferTexture() const
 	{
 		ID3D11Texture2D* backbufferTexture = nullptr;
 		ENGINE_HR_MESSAGE(SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backbufferTexture), "Failed to Get Buffer");

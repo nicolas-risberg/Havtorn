@@ -8,7 +8,7 @@ namespace Havtorn
 {
 	namespace UGraphicsUtils
 	{
-		static bool CreateVertexShader(const std::string& filepath, const CDirectXFramework* framework, ID3D11VertexShader** outVertexShader, std::string& outShaderData)
+		static bool CreateVertexShader(const std::string& filepath, const CGraphicsFramework* framework, ID3D11VertexShader** outVertexShader, std::string& outShaderData)
 		{
 			std::ifstream vsFile;
 			vsFile.open(filepath, std::ios::binary);
@@ -19,7 +19,7 @@ namespace Havtorn
 			return true;
 		}
 
-		static bool CreatePixelShader(const std::string& filepath, const CDirectXFramework* framework, ID3D11PixelShader** outPixelShader)
+		static bool CreatePixelShader(const std::string& filepath, const CGraphicsFramework* framework, ID3D11PixelShader** outPixelShader)
 		{
 			std::ifstream psFile;
 			psFile.open(filepath, std::ios::binary);
@@ -29,7 +29,7 @@ namespace Havtorn
 			return true;
 		}
 
-		static bool CreateGeometryShader(const std::string& filepath, const CDirectXFramework* framework, ID3D11GeometryShader** outGeometryShader)
+		static bool CreateGeometryShader(const std::string& filepath, const CGraphicsFramework* framework, ID3D11GeometryShader** outGeometryShader)
 		{
 			std::ifstream gsFile;
 			gsFile.open(filepath, std::ios::binary);

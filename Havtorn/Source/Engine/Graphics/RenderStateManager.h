@@ -48,7 +48,7 @@ namespace Havtorn
 		CRenderStateManager();
 		~CRenderStateManager();
 
-		bool Init(class CDirectXFramework* aFramework);
+		bool Init(class CGraphicsFramework* aFramework);
 
 		void SetBlendState(BlendStates aBlendstate);
 		void SetDepthStencilState(DepthStencilStates aDepthStencilState, UINT aStencilRef = 0);

@@ -8,7 +8,7 @@ struct ID3D11Buffer;
 
 namespace Havtorn
 {
-	class CDirectXFramework;
+	class CGraphicsFramework;
 	class CModel;
 	class CEnvironmentLight;
 	class CPointLight;
@@ -22,7 +22,7 @@ namespace Havtorn
 		CDeferredRenderer();
 		~CDeferredRenderer();
 
-		bool Init(CDirectXFramework* framework, CMaterialHandler* materialHandler);
+		bool Init(CGraphicsFramework* framework, CMaterialHandler* materialHandler);
 
 		void GenerateGBuffer(CCameraComponent* aCamera, std::vector<CGameObject*>& aGameObjectList, std::vector<CGameObject*>& aInstancedGameObjectList);
 		void RenderSkybox(CCameraComponent* aCamera, CEnvironmentLight* anEnvironmentLight);
@@ -78,7 +78,7 @@ namespace Havtorn
 		HV_ASSERT_BUFFER(SSkyboxTransformData)
 
 	private:
-		bool LoadRenderPassPixelShaders(CDirectXFramework* aFramework);
+		bool LoadRenderPassPixelShaders(CGraphicsFramework* aFramework);
 
 		ID3D11DeviceContext* myContext;
 		CMaterialHandler* myMaterialHandler;

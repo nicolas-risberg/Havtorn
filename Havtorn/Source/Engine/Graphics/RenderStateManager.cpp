@@ -20,7 +20,7 @@ namespace Havtorn
         Context = nullptr;
     }
 
-    bool CRenderStateManager::Init(CDirectXFramework* aFramework)
+    bool CRenderStateManager::Init(CGraphicsFramework* aFramework)
     {
         Context = aFramework->GetContext();
         ID3D11Device* device = aFramework->GetDevice();

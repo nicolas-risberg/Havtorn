@@ -11,7 +11,7 @@ struct ID3D11Buffer;
 
 namespace Havtorn
 {
-	class CDirectXFramework;
+	class CGraphicsFramework;
 	class CRenderManager;
 
 	class CFullscreenRenderer 
@@ -111,7 +111,7 @@ namespace Havtorn
 	private:
 		CFullscreenRenderer();
 		~CFullscreenRenderer();
-		bool Init(CDirectXFramework* framework);
+		bool Init(CGraphicsFramework* framework);
 		void Render(EFullscreenShader effect);
 
 		SPostProcessingBufferData PostProcessingBufferData;

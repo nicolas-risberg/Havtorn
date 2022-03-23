@@ -42,7 +42,7 @@ namespace Havtorn
 		Pos4Nor4Tan4Bit4UV2
 	};
 
-	class CDirectXFramework;
+	class CGraphicsFramework;
 	class CWindowHandler;
 	struct SRenderCommand;
 	struct SStaticMeshComponent;
@@ -59,8 +59,8 @@ namespace Havtorn
 	public:
 		CRenderManager();
 		~CRenderManager();
-		bool Init(CDirectXFramework* framework, CWindowHandler* windowHandler);
-		bool ReInit(CDirectXFramework* framework, CWindowHandler* windowHandler);
+		bool Init(CGraphicsFramework* framework, CWindowHandler* windowHandler);
+		bool ReInit(CGraphicsFramework* framework, CWindowHandler* windowHandler);
 		void Render();
 
 		void Release();
@@ -132,7 +132,7 @@ namespace Havtorn
 		HV_ASSERT_BUFFER(SObjectBufferData)
 
 	private:
-		CDirectXFramework* Framework;
+		CGraphicsFramework* Framework;
 		ID3D11DeviceContext* Context;
 		ID3D11Buffer* FrameBuffer;
 		ID3D11Buffer* ObjectBuffer;

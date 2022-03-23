@@ -374,7 +374,7 @@ namespace Havtorn
 //		return myMaterialIsAlphaMap.at(aMaterialID);
 //	}
 //
-//	bool CMaterialHandler::Init(CDirectXFramework* aFramwork)
+//	bool CMaterialHandler::Init(CGraphicsFramework* aFramwork)
 //	{
 //		myDevice = aFramwork->GetDevice();
 //

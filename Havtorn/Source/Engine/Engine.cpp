@@ -67,7 +67,7 @@ namespace Havtorn
 		Timer = new CTimer();
 		WindowHandler = new CWindowHandler();
 		ThreadManager = new CThreadManager();
-		Framework = new CDirectXFramework();
+		Framework = new CGraphicsFramework();
 		RenderManager = new CRenderManager();
 #ifdef _DEBUG
 		ImguiManager = new CImguiManager();

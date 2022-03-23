@@ -42,7 +42,7 @@ namespace Havtorn
 		ImGui::DestroyContext();
 	}
 
-	bool CImguiManager::Init(const CDirectXFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene)
+	bool CImguiManager::Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene)
 	{
 		ImGui::DebugCheckVersionAndDataLayout("1.86 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
 		ImGui::CreateContext();

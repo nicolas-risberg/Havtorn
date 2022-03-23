@@ -4,7 +4,7 @@
 #include <array>
 #include <map>
 
-class CDirectXFramework;
+class CGraphicsFramework;
 struct SVertexPaintColorData;
 typedef std::array<ID3D11ShaderResourceView*, 3> material;
 
@@ -59,7 +59,7 @@ namespace Havtorn
 
 
 	protected:
-		bool Init(CDirectXFramework* aFramwork);
+		bool Init(CGraphicsFramework* aFramwork);
 
 	private:
 		inline bool MaterialIsAlpha(const std::array<std::string, 3>& someTexturePaths);

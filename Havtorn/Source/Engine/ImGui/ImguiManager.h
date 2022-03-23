@@ -17,7 +17,7 @@ namespace ImGui
 
 namespace Havtorn
 {
-	class CDirectXFramework;
+	class CGraphicsFramework;
 	class CWindowHandler;
 	class CRenderManager;
 	class CScene;
@@ -67,7 +67,7 @@ namespace Havtorn
 		CImguiManager();
 		~CImguiManager();
 
-		bool Init(const CDirectXFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
+		bool Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
 		void BeginFrame();
 		void Render();
 		void EndFrame();

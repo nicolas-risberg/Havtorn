@@ -109,7 +109,7 @@ namespace Havtorn
 		CFileSystem* FileSystem;
 		CWindowHandler* WindowHandler;
 		CThreadManager* ThreadManager;
-		CDirectXFramework* Framework;
+		CGraphicsFramework* Framework;
 		//CForwardRenderer* ForwardRenderer;
 #ifdef _DEBUG
 		CImguiManager* ImguiManager;

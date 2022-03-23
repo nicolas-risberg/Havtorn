@@ -14,7 +14,7 @@ namespace Havtorn
 	CFullscreenTextureFactory::~CFullscreenTextureFactory()
 	{}
 
-	bool CFullscreenTextureFactory::Init(CDirectXFramework* framework)
+	bool CFullscreenTextureFactory::Init(CGraphicsFramework* framework)
 	{
 		Framework = framework;
 		return true;

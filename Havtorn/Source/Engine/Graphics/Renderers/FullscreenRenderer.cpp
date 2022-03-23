@@ -29,7 +29,7 @@ namespace Havtorn
 	CFullscreenRenderer::~CFullscreenRenderer() 
 	{}
 
-	bool CFullscreenRenderer::Init(CDirectXFramework* framework) 
+	bool CFullscreenRenderer::Init(CGraphicsFramework* framework) 
 	{
 		if (!framework) 
 			return false;

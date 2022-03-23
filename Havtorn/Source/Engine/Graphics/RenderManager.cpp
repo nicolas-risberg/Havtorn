@@ -55,7 +55,7 @@ namespace Havtorn
 		Release();
 	}
 
-	bool CRenderManager::Init(CDirectXFramework* framework, CWindowHandler* windowHandler)
+	bool CRenderManager::Init(CGraphicsFramework* framework, CWindowHandler* windowHandler)
 	{
 		Framework = framework;
 		Context = Framework->GetContext();
@@ -104,7 +104,7 @@ namespace Havtorn
 		return true;
 	}
 
-	bool CRenderManager::ReInit(CDirectXFramework* framework, CWindowHandler* windowHandler)
+	bool CRenderManager::ReInit(CGraphicsFramework* framework, CWindowHandler* windowHandler)
 	{
 		ENGINE_ERROR_BOOL_MESSAGE(RenderStateManager.Init(framework), "Failed to Init Render State Manager.");
 

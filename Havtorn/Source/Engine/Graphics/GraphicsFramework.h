@@ -14,11 +14,11 @@ namespace Havtorn
 {
 	class CWindowHandler;
 
-	class CDirectXFramework
+	class CGraphicsFramework
 	{
 	public:
-		CDirectXFramework();
-		~CDirectXFramework();
+		CGraphicsFramework();
+		~CGraphicsFramework();
 
 		void EndFrame();
 

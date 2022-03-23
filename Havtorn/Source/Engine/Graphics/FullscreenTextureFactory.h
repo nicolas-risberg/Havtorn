@@ -6,7 +6,7 @@ struct ID3D11Texture2D;
 
 namespace Havtorn
 {
-	class CDirectXFramework;
+	class CGraphicsFramework;
 	class CFullscreenTexture;
 	
 	class CFullscreenTextureFactory 
@@ -14,7 +14,7 @@ namespace Havtorn
 	public:
 		CFullscreenTextureFactory();
 		~CFullscreenTextureFactory();
-		bool Init(CDirectXFramework* framework);
+		bool Init(CGraphicsFramework* framework);
 		CFullscreenTexture CreateTexture(SVector2<F32> size, DXGI_FORMAT format);
 		CFullscreenTexture CreateTexture(ID3D11Texture2D* texture);
 		CFullscreenTexture CreateTexture(SVector2<F32> size, DXGI_FORMAT format, const std::string& filePath);
@@ -25,6 +25,6 @@ namespace Havtorn
 		ID3D11ShaderResourceView* GetShaderResourceView(ID3D11Device* device, std::string filePath);
 
 	private:
-		CDirectXFramework* Framework;
+		CGraphicsFramework* Framework;
 	};
 }
