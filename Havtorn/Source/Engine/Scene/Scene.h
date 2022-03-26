@@ -20,7 +20,7 @@ namespace Havtorn
 		bool Init(CRenderManager* renderManager);
 		void Update();
 
-		void InitDemoScene();
+		void InitDemoScene(CRenderManager* renderManager);
 
 		std::vector<Ref<STransformComponent>>& GetTransformComponents() { return TransformComponents; }
 		std::vector<Ref<SStaticMeshComponent>>& GetStaticMeshComponents() { return StaticMeshComponents; }

@@ -53,7 +53,7 @@ namespace Havtorn
 		return size;
 	}
 
-	struct SStaticMeshAsset
+	struct SStaticMeshFileHeader
 	{
 		EAssetType AssetType = EAssetType::StaticMesh;
 		U32 NameLength = 0;
@@ -68,7 +68,7 @@ namespace Havtorn
 		void Deserialize(const char* fromData);
 	};
 
-	inline U32 SStaticMeshAsset::GetSize() const
+	inline U32 SStaticMeshFileHeader::GetSize() const
 	{
 		U32 size = sizeof(EAssetType);
 		size += sizeof(U32);
@@ -80,7 +80,7 @@ namespace Havtorn
 		return size;
 	}
 
-	inline void SStaticMeshAsset::Serialize(char* toData) const
+	inline void SStaticMeshFileHeader::Serialize(char* toData) const
 	{
 		U32 pointerPosition = 0;
 		pointerPosition += SerializeSimple(AssetType, toData, pointerPosition);
@@ -92,7 +92,7 @@ namespace Havtorn
 		SerializeVector(Indices, toData, pointerPosition);
 	}
 
-	inline void SStaticMeshAsset::Deserialize(const char* fromData)
+	inline void SStaticMeshFileHeader::Deserialize(const char* fromData)
 	{
 		U32 pointerPosition = 0;
 		pointerPosition += DeserializeSimple(AssetType, fromData, pointerPosition);

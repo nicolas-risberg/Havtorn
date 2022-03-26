@@ -99,7 +99,7 @@ namespace Havtorn
 		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		WriteAssetFile("ExampleCube.hvasset", EAssetType::StaticMesh);
-		LoadStaticMesh("ExampleCube.hvasset", nullptr);
+		//LoadStaticMesh("ExampleCube.hvasset", nullptr);
 
 		return true;
 	}
@@ -689,7 +689,7 @@ namespace Havtorn
 			21,23,22
 		};
 
-		SStaticMeshAsset asset;
+		SStaticMeshFileHeader asset;
 		asset.AssetType = EAssetType::StaticMesh;
 		asset.Name = "PrimitiveCube";
 		asset.NameLength = static_cast<U32>(asset.Name.length());
@@ -721,30 +721,39 @@ namespace Havtorn
 		}
 	}
 
-	void CRenderManager::LoadStaticMesh(const std::string& fileName, SStaticMeshComponent* /*outStaticMeshComponent*/)
+	void CRenderManager::LoadStaticMesh(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent)
 	{
-		// Asset Loading
-		const U64 fileSize = CEngine::GetInstance()->GetFileSystem()->GetFileSize(fileName);
-		char* data = new char[fileSize];
-
-		CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, data, static_cast<U32>(fileSize));
-
 		SStaticMeshAsset asset;
-		asset.Deserialize(data);
+		if (!LoadedStaticMeshes.contains(fileName))
+		{
+			// Asset Loading
+			const U64 fileSize = CEngine::GetInstance()->GetFileSystem()->GetFileSize(fileName);
+			char* data = new char[fileSize];
+
+			CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, data, static_cast<U32>(fileSize));
+
+			SStaticMeshFileHeader assetFile;
+			assetFile.Deserialize(data);
+			asset = SStaticMeshAsset(assetFile);
+
+			asset.VertexBufferIndex = AddVertexBuffer(assetFile.Vertices);
+			asset.IndexBufferIndex = AddIndexBuffer(assetFile.Indices);
+			asset.VertexStrideIndex = AddMeshVertexStride(static_cast<U32>(sizeof(SStaticMeshVertex)));
+			asset.VertexOffsetIndex = AddMeshVertexOffset(0);
+
+			LoadedStaticMeshes.emplace(fileName, asset);
+		}
+		else
+		{
+			asset = LoadedStaticMeshes.at(fileName);
+		}
 
 		// Geometry
-		// TODO.NR: Use this when checking for duplicated resources is finished (using custom structs and GUIDs for all resources)
-		//outStaticMeshComponent->VertexCount = asset.NumberOfVertices;
-		//outStaticMeshComponent->IndexCount = asset.NumberOfIndices;
-		//outStaticMeshComponent->VertexBufferIndex = AddVertexBuffer(asset.Vertices);
-		//outStaticMeshComponent->IndexBufferIndex = AddIndexBuffer(asset.Indices);
-		//outStaticMeshComponent->VertexStrideIndex = AddMeshVertexStride(static_cast<U32>(sizeof(SStaticMeshVertex)));
-		//outStaticMeshComponent->VertexOffsetIndex = AddMeshVertexOffset(0);
-
-		AddVertexBuffer(asset.Vertices);
-		AddIndexBuffer(asset.Indices);
-		AddMeshVertexStride(static_cast<U32>(sizeof(SStaticMeshVertex)));
-		AddMeshVertexOffset(0);
+		outStaticMeshComponent->IndexCount = asset.IndexCount;
+		outStaticMeshComponent->VertexBufferIndex = asset.VertexBufferIndex;
+		outStaticMeshComponent->IndexBufferIndex = asset.IndexBufferIndex;
+		outStaticMeshComponent->VertexStrideIndex = asset.VertexStrideIndex;
+		outStaticMeshComponent->VertexOffsetIndex = asset.VertexOffsetIndex;
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const

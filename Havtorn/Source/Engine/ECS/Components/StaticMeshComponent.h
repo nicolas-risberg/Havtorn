@@ -12,8 +12,7 @@ namespace Havtorn
 		{}
 
 		// Asset Data
-		U32 VertexCount = 0;
-		U32 IndexCount = 36;
+		U32 IndexCount = 0;
 
 		U16 VertexBufferIndex = 0;
 		U16 IndexBufferIndex = 0;

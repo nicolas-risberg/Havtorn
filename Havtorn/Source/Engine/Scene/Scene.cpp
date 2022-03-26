@@ -3,6 +3,7 @@
 #include "Scene.h"
 
 #include "ECS/ECSInclude.h"
+#include "Graphics/RenderManager.h"
 
 namespace Havtorn
 {
@@ -37,7 +38,7 @@ namespace Havtorn
 		CameraComponents.back()->ProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(70.0f), (16.0f / 9.0f), 0.1f, 1000.0f);
 		CameraComponents.back()->ViewMatrix = SMatrix::LookAtLH(SVector::Zero, SVector::Forward, SVector::Up);
 
-		InitDemoScene();
+		InitDemoScene(renderManager);
 
 		return true;
 	}
@@ -51,7 +52,7 @@ namespace Havtorn
 	}
 
 	// TODO.NR: Make primitive class containing verts (static getters for bindables?)
-	void CScene::InitDemoScene()
+	void CScene::InitDemoScene(CRenderManager* renderManager)
 	{
 		constexpr U8 cubeNumber = 2;
 
@@ -73,8 +74,8 @@ namespace Havtorn
 			transform.Rotate(SVector::Random(minEulerRotation, maxEulerRotation));
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
+			renderManager->LoadStaticMesh("ExampleCube.hvasset", StaticMeshComponents.back().get());
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, i);
-			
 		}
 
 		std::vector<SVector> corners;
@@ -100,6 +101,7 @@ namespace Havtorn
 			transform.GetMatrix().Translation(corners[i]);
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
+			renderManager->LoadStaticMesh("ExampleCube.hvasset", StaticMeshComponents.back().get());
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, cubeNumber + i);
 		}
 	}

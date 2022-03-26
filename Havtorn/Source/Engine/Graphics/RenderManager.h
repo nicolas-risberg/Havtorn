@@ -19,6 +19,8 @@
 //#include "GBuffer.h"
 #include <queue>
 
+#include "Core/RuntimeAssetDeclarations.h"
+
 namespace Havtorn
 {
 	enum class EShaderType
@@ -197,6 +199,8 @@ namespace Havtorn
 		std::vector<D3D11_PRIMITIVE_TOPOLOGY> Topologies;
 		std::vector<U32> MeshVertexStrides;
 		std::vector<U32> MeshVertexOffsets;
+
+		std::unordered_map<std::string, SStaticMeshAsset> LoadedStaticMeshes;
 	};
 
 	template <typename T>
