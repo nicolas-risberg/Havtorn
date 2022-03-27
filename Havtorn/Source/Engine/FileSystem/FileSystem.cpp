@@ -13,35 +13,12 @@ namespace Havtorn
 	CFileSystem::CFileSystem()
 		: AssetsPath("Assets/")
 	{
-		//OpenFile(AssetsPath + "ExampleAsset.hvasset", EFileMode::BinaryWrite);
+	}
 
-		//std::vector<SVector> vectors;
-		//vectors.emplace_back(SVector::Right);
-		//vectors.emplace_back(SVector::Up);
-		//vectors.emplace_back(SVector::Forward);
-
-		//for (U8 i = 0; i < 3; i++)
-		//	OutputStream.write((char*)&vectors[i], sizeof(SVector));
-
-		//CloseFile(EFileMode::BinaryWrite);
-
-		//vectors.clear();
-
-		//OpenFile(AssetsPath + "ExampleAsset.hvasset", EFileMode::BinaryRead);
-
-		//for (U8 i = 0; i < 3; i++)
-		//{
-		//	vectors.emplace_back();
-		//	InputStream.read((char*)&vectors.back(), sizeof(SVector));
-		//}
-
-		//CloseFile(EFileMode::BinaryRead);
-		//
-		//std::cout << "Data:" << std::endl;
-		//for (int i = 0; i < 3; i++) {
-		//	std::cout << vectors[i].ToString() << std::endl;
-		//	std::cout << std::endl;
-		//}
+	bool CFileSystem::DoesFileExist(const std::string& fileName)
+	{
+		const std::ifstream infile(fileName);
+		return infile.good();
 	}
 
 	void CFileSystem::OpenFile(const std::string& fileName, EFileMode mode)

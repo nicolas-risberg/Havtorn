@@ -45,13 +45,16 @@ project "Engine"
 	includedirs
 	{
 		"Source/%{prj.name}",
-		"External/assimp",
+		"External",
 		"External/FastNoise2/include",
 		"External/rapidjson",
 		"External/imgui"
 	}
 
-	libdirs {  }
+	libdirs 
+	{
+		"Lib/"
+	}
 
 	floatingpoint "Fast"
 	debugdir "Bin/"

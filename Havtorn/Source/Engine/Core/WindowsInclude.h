@@ -23,7 +23,9 @@
 //#define NONLS
 //#define NOMEMMGR
 //#define NOMETAFILE
-//#define NOMINMAX
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 //#define NOOPENFILE
 //#define NOSCROLL
 //#define NOSERVICE
