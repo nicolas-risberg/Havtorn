@@ -45,6 +45,7 @@ project "Engine"
 	includedirs
 	{
 		"Source/%{prj.name}",
+		"External/assimp",
 		"External/FastNoise2/include",
 		"External/rapidjson",
 		"External/imgui"

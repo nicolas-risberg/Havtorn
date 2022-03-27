@@ -173,8 +173,8 @@ namespace Havtorn
 				{
 				case ERenderCommandType::CameraDataStorage:
 				{
-					auto transformComp = currentCommand.GetComponent(TransformComponent);
-					auto cameraComp = currentCommand.GetComponent(CameraComponent);
+					const auto transformComp = currentCommand.GetComponent(TransformComponent);
+					const auto cameraComp = currentCommand.GetComponent(CameraComponent);
 
 					FrameBufferData.ToCameraFromWorld = transformComp->Transform.GetMatrix().FastInverse();
 					FrameBufferData.ToWorldFromCamera = transformComp->Transform.GetMatrix();
