@@ -31,7 +31,7 @@
 #include "FileSystem/FileSystem.h"
 #include "Threading/ThreadManager.h"
 
-#include "FBXImporter.h"
+#include "ModelImporter.h"
 
 namespace Havtorn
 {
@@ -103,7 +103,7 @@ namespace Havtorn
 		WriteAssetFile("ExampleCube.hvasset", EAssetType::StaticMesh);
 		//LoadStaticMesh("ExampleCube.hvasset", nullptr);
 
-		CFBXImporter::ImportFBX("Assets/Tests/cubeBinary.fbx");
+		CModelImporter::ImportFBX("Assets/Tests/cubeBinary.fbx");
 
 		return true;
 	}

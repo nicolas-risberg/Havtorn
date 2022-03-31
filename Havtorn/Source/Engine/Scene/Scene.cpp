@@ -74,7 +74,7 @@ namespace Havtorn
 			transform.Rotate(SVector::Random(minEulerRotation, maxEulerRotation));
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMesh("ExampleCube.hvasset", StaticMeshComponents.back().get());
+			renderManager->LoadStaticMesh("Assets/Tests/cubeBinary.hva", StaticMeshComponents.back().get());
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, i);
 		}
 
@@ -101,7 +101,7 @@ namespace Havtorn
 			transform.GetMatrix().Translation(corners[i]);
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMesh("ExampleCube.hvasset", StaticMeshComponents.back().get());
+			renderManager->LoadStaticMesh("Assets/Tests/cubeBinary.hva", StaticMeshComponents.back().get());
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, cubeNumber + i);
 		}
 	}
