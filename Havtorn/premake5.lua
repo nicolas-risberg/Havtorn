@@ -48,12 +48,14 @@ project "Engine"
 		"External",
 		"External/FastNoise2/include",
 		"External/rapidjson",
-		"External/imgui"
+		"External/imgui",
+		"External/DirectXTex"
 	}
 
 	libdirs 
 	{
-		"Lib/"
+		"Lib/",
+		"External/Lib"
 	}
 
 	floatingpoint "Fast"

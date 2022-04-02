@@ -77,6 +77,7 @@ namespace Havtorn
 
 	ID3D11Device* CGraphicsFramework::GetDevice() const
 	{
+		
 		return Device.Get();
 	}
 

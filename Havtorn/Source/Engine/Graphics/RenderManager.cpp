@@ -33,6 +33,8 @@
 
 #include "ModelImporter.h"
 
+#include <DirectXTex/DirectXTex.h>
+
 namespace Havtorn
 {
 	unsigned int CRenderManager::NumberOfDrawCallsThisFrame = 0;
@@ -100,10 +102,14 @@ namespace Havtorn
 		AddSampler(ESamplerType::Wrap);
 		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		WriteAssetFile("ExampleCube.hvasset", EAssetType::StaticMesh);
-		//LoadStaticMesh("ExampleCube.hvasset", nullptr);
+		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
 
-		CModelImporter::ImportFBX("Assets/Tests/cubeBinary.fbx");
+		//DirectX::ScratchImage scratchImage;
+		//DirectX::TexMetadata metaData;
+		//GetMetadataFromDDSFile(L"Assets/Cubemap.dds", DirectX::DDS_FLAGS_NONE, metaData);
+		//LoadFromDDSFile(L"Assets/Cubemap.dds", DirectX::DDS_FLAGS_NONE, &metaData, scratchImage);
+		//const DirectX::Image* image = scratchImage.GetImage(0, 0, 0);
+		//DirectX::CreateShaderResourceView(Framework->GetDevice(), image, scratchImage.GetImageCount(), metaData, )
 
 		return true;
 	}

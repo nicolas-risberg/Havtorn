@@ -54,6 +54,8 @@ namespace Havtorn
 	// TODO.NR: Make primitive class containing verts (static getters for bindables?)
 	void CScene::InitDemoScene(CRenderManager* renderManager)
 	{
+		const std::string modelPath = "Assets/Tests/En_P_PendulumClock.hva";
+
 		constexpr U8 cubeNumber = 2;
 
 		const SVector minTranslation = { -4.0f, -4.0f, -4.0f };
@@ -74,7 +76,7 @@ namespace Havtorn
 			transform.Rotate(SVector::Random(minEulerRotation, maxEulerRotation));
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMesh("Assets/Tests/cubeBinary.hva", StaticMeshComponents.back().get());
+			renderManager->LoadStaticMesh(modelPath, StaticMeshComponents.back().get());
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, i);
 		}
 
@@ -101,7 +103,7 @@ namespace Havtorn
 			transform.GetMatrix().Translation(corners[i]);
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMesh("Assets/Tests/cubeBinary.hva", StaticMeshComponents.back().get());
+			renderManager->LoadStaticMesh(modelPath, StaticMeshComponents.back().get());
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, cubeNumber + i);
 		}
 	}

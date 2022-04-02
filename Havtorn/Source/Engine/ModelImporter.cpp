@@ -14,8 +14,10 @@
 
 #ifdef _DEBUG
 #pragma comment(lib, "assimp-vc142-mtd.lib")
+#pragma comment(lib, "DirectXTex_Debug.lib")
 #else
 #pragma comment(lib, "assimp-vc142-mt.lib")
+#pragma comment(lib, "DirectXTex_Release.lib")
 #endif
 
 namespace Havtorn
@@ -36,7 +38,9 @@ namespace Havtorn
 		}
 
 		// Load multiple meshes
-		for (U8 n = 0; n < assimpScene->mNumMeshes; n++)
+		//for (U8 n = 0; n < assimpScene->mNumMeshes; n++)
+		for (U8 n = 0; n < 1; n++)
+
 		{
 			aiMesh* fbxMesh = assimpScene->mMeshes[n];
 			//model->myMaterialIndices.push_back(fbxMesh->mMaterialIndex);
@@ -67,8 +71,9 @@ namespace Havtorn
 			const auto data = new F32[(vertexBufferSize / 4) * fbxMesh->mNumVertices];
 			for (U32 i = 0, dataIndex = 0; i < fbxMesh->mNumVertices; i++, dataIndex += (vertexBufferSize / 4))
 			{
+				constexpr F32 scaleModifier = 0.01f;
 				aiVector3D& pos = fbxMesh->mVertices[i];
-				pos *= 0.01f;
+				pos *= scaleModifier;
 				data[dataIndex] = pos.x;
 				data[dataIndex + 1] = pos.y;
 				data[dataIndex + 2] = pos.z;

@@ -25,7 +25,7 @@
 *.lai
 *.la
 *.a
-*.lib
+# *.lib
 
 # Executables
 *.exe
@@ -45,6 +45,12 @@
 # Folders
 *premakeTest/
 *Havtorn/Source/_ReSharper.Caches
+
+# DirectXTex
+Havtorn/External/DirectXTex/*
+!Havtorn/External/DirectXTex/DirectXTex/
+Havtorn/External/DirectXTex/DirectXTex/*
+!Havtorn/External/DirectXTex/DirectXTex/DirectXTex.h
 
 # Other/Intermediate
 *.ilk
