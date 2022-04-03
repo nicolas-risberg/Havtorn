@@ -22,7 +22,7 @@
 //#include "BoxLightComponent.h"
 //#include "BoxLight.h"
 #include "ECS/ECSInclude.h"
-#include "VertexStructs.h"
+#include "GraphicsStructs.h"
 #include "FileSystem/FileHeaderDeclarations.h"
 
 #include <algorithm>
@@ -101,7 +101,7 @@ namespace Havtorn
 		AddSampler(ESamplerType::Wrap);
 		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
+		CModelImporter::ImportFBX("Assets/Tests/Tree_1_env2.fbx");
 
 		return true;
 	}
@@ -201,18 +201,20 @@ namespace Havtorn
 					context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
 					context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
 
-					ID3D11Buffer* vertexBuffer = VertexBuffers[staticMeshComp->VertexBufferIndex];
-					context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[staticMeshComp->VertexStrideIndex], &MeshVertexOffsets[staticMeshComp->VertexStrideIndex]);
-					context->IASetIndexBuffer(IndexBuffers[staticMeshComp->IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
-
 					context->VSSetShader(VertexShaders[staticMeshComp->VertexShaderIndex], nullptr, 0);
 					context->PSSetShader(PixelShaders[staticMeshComp->PixelShaderIndex], nullptr, 0);
 
 					ID3D11SamplerState* sampler = Samplers[staticMeshComp->SamplerIndex];
 					context->PSSetSamplers(0, 1, &sampler);
 
-					context->DrawIndexed(staticMeshComp->IndexCount, 0, 0);
-					CRenderManager::NumberOfDrawCallsThisFrame++;
+					for (const auto& drawData : staticMeshComp->DrawCallData)
+					{
+						ID3D11Buffer* vertexBuffer = VertexBuffers[drawData.VertexBufferIndex];
+						context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
+						context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
+						context->DrawIndexed(drawData.IndexCount, 0, 0);
+						CRenderManager::NumberOfDrawCallsThisFrame++;
+					}
 				}
 				break;
 				default:
@@ -691,20 +693,21 @@ namespace Havtorn
 			21,23,22
 		};
 
-		SStaticMeshFileHeader asset;
-		asset.AssetType = EAssetType::StaticMesh;
+		SStaticModelFileHeader asset;
+		asset.AssetType = EAssetType::StaticModel;
 		asset.Name = "PrimitiveCube";
 		asset.NameLength = static_cast<U32>(asset.Name.length());
-		asset.NumberOfVertices = 24;
-		asset.Vertices.assign(vertices, vertices + 24);
-		asset.NumberOfIndices = 36;
-		asset.Indices.assign(indices, indices + 36);
+		asset.Meshes.emplace_back();
+		asset.Meshes.back().NumberOfVertices = 24;
+		asset.Meshes.back().Vertices.assign(vertices, vertices + 24);
+		asset.Meshes.back().NumberOfIndices = 36;
+		asset.Meshes.back().Indices.assign(indices, indices + 36);
 
 		const auto data = new char[asset.GetSize()];
 
 		switch (assetType)
 		{
-		case EAssetType::StaticMesh:
+		case EAssetType::StaticModel:
 			{
 				asset.Serialize(data);
 				CEngine::GetInstance()->GetFileSystem()->Serialize(fileName, &data[0], asset.GetSize());
@@ -734,14 +737,17 @@ namespace Havtorn
 
 			CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, data, static_cast<U32>(fileSize));
 
-			SStaticMeshFileHeader assetFile;
+			SStaticModelFileHeader assetFile;
 			assetFile.Deserialize(data);
 			asset = SStaticMeshAsset(assetFile);
 
-			asset.VertexBufferIndex = AddVertexBuffer(assetFile.Vertices);
-			asset.IndexBufferIndex = AddIndexBuffer(assetFile.Indices);
-			asset.VertexStrideIndex = AddMeshVertexStride(static_cast<U32>(sizeof(SStaticMeshVertex)));
-			asset.VertexOffsetIndex = AddMeshVertexOffset(0);
+			for (U16 i = 0; i < assetFile.NumberOfMeshes; i++)
+			{
+				asset.DrawCallData[i].VertexBufferIndex = AddVertexBuffer(assetFile.Meshes[i].Vertices);
+				asset.DrawCallData[i].IndexBufferIndex = AddIndexBuffer(assetFile.Meshes[i].Indices);
+				asset.DrawCallData[i].VertexStrideIndex = AddMeshVertexStride(static_cast<U32>(sizeof(SStaticMeshVertex)));
+				asset.DrawCallData[i].VertexOffsetIndex = AddMeshVertexOffset(0);
+			}
 
 			LoadedStaticMeshes.emplace(fileName, asset);
 		}
@@ -751,11 +757,12 @@ namespace Havtorn
 		}
 
 		// Geometry
-		outStaticMeshComponent->IndexCount = asset.IndexCount;
-		outStaticMeshComponent->VertexBufferIndex = asset.VertexBufferIndex;
-		outStaticMeshComponent->IndexBufferIndex = asset.IndexBufferIndex;
-		outStaticMeshComponent->VertexStrideIndex = asset.VertexStrideIndex;
-		outStaticMeshComponent->VertexOffsetIndex = asset.VertexOffsetIndex;
+		outStaticMeshComponent->DrawCallData = asset.DrawCallData;
+		//outStaticMeshComponent->IndexCount = asset.IndexCount;
+		//outStaticMeshComponent->VertexBufferIndex = asset.VertexBufferIndex;
+		//outStaticMeshComponent->IndexBufferIndex = asset.IndexBufferIndex;
+		//outStaticMeshComponent->VertexStrideIndex = asset.VertexStrideIndex;
+		//outStaticMeshComponent->VertexOffsetIndex = asset.VertexOffsetIndex;
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const

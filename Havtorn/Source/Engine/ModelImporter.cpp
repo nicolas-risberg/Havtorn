@@ -35,86 +35,97 @@ namespace Havtorn
 			return;
 		}
 
-		// Load multiple meshes
-		//for (U8 n = 0; n < assimpScene->mNumMeshes; n++)
-		for (U8 n = 0; n < 1; n++)
+		const aiMesh* fbxMesh = assimpScene->mMeshes[0];
+
+		const bool hasPositions = fbxMesh->HasPositions();
+		const bool hasNormals = fbxMesh->HasNormals();
+		const bool hasTangents = fbxMesh->HasTangentsAndBitangents();
+		const bool hasTextures = fbxMesh->HasTextureCoords(0);
+		//const bool hasBones = fbxMesh->HasBones();
+		const bool hasBones = false;
+
+		SStaticModelFileHeader fileHeader;
+		if (hasPositions && hasNormals && hasTangents && hasTextures && !hasBones)
 		{
-			const aiMesh* fbxMesh = assimpScene->mMeshes[n];
+			fileHeader.AssetType = EAssetType::StaticModel;
+		}
+		
+		fileHeader.NameLength = assimpScene->mName.length;
+		fileHeader.Name = assimpScene->mName.C_Str();
+		fileHeader.NumberOfMeshes = assimpScene->mNumMeshes;
+		fileHeader.Meshes.reserve(fileHeader.NumberOfMeshes);
+
+		// Pre-loading Pass
+		for (U8 n = 0; n < assimpScene->mNumMeshes; n++)
+		{
+			fileHeader.Meshes.emplace_back();
+			fbxMesh = assimpScene->mMeshes[n];
+			fileHeader.Meshes[n].NumberOfVertices = fbxMesh->mNumVertices;
+			fileHeader.Meshes[n].Vertices.reserve(fbxMesh->mNumVertices);
+		}
+
+		for (U8 n = 0; n < assimpScene->mNumMeshes; n++)
+		{
+			auto& fileHeaderMesh = fileHeader.Meshes[n];
+			fbxMesh = assimpScene->mMeshes[n];
 			//model->myMaterialIndices.push_back(fbxMesh->mMaterialIndex);
 
-			//bool hasPositions = fbxMesh->HasPositions();
-			//bool hasNormals = fbxMesh->HasNormals();
-			//bool hasTangents = fbxMesh->HasTangentsAndBitangents();
-			//bool hasTextures = fbxMesh->HasTextureCoords(0);
-			//bool hasBones = fbxMesh->HasBones();
-
-			U32 vertexBufferElementSize = 0;
-			vertexBufferElementSize += (fbxMesh->HasPositions() ? sizeof(F32) * 3 : 0);
-			vertexBufferElementSize += (fbxMesh->HasNormals() ? sizeof(F32) * 3 : 0);
-			vertexBufferElementSize += (fbxMesh->HasTangentsAndBitangents() ? sizeof(F32) * 6 : 0);
-			vertexBufferElementSize += (fbxMesh->HasTextureCoords(0) ? sizeof(F32) * 2 : 0);
-			//vertexBufferSize += (fbxMesh->HasBones() ? sizeof(F32) * 8 : 0);
-
-			SStaticMeshFileHeader fileHeader;
-
-			fileHeader.AssetType = EAssetType::StaticMesh;
-			fileHeader.NameLength = fbxMesh->mName.length;
-			fileHeader.Name = fbxMesh->mName.C_Str();
-
-			fileHeader.NumberOfVertices = fbxMesh->mNumVertices;
-
-			const auto data = new F32[(vertexBufferElementSize / 4) * fbxMesh->mNumVertices];
-			for (U32 i = 0, dataIndex = 0; i < fbxMesh->mNumVertices; i++, dataIndex += (vertexBufferElementSize / 4))
+			constexpr F32 scaleModifier = 0.01f;
+			for (U32 i = 0; i < fbxMesh->mNumVertices; i++)
 			{
-				constexpr F32 scaleModifier = 0.01f;
-				aiVector3D& pos = fbxMesh->mVertices[i];
-				pos *= scaleModifier;
-				data[dataIndex] = pos.x;
-				data[dataIndex + 1] = pos.y;
-				data[dataIndex + 2] = pos.z;
+				switch (fileHeader.AssetType)
+				{
+				case EAssetType::StaticModel:
+				{
+					SStaticMeshVertex newVertex;
 
-				const aiVector3D& norm = fbxMesh->mNormals[i];
-				data[dataIndex + 3] = norm.x;
-				data[dataIndex + 4] = norm.y;
-				data[dataIndex + 5] = norm.z;
+					aiVector3D& pos = fbxMesh->mVertices[i];
+					pos *= scaleModifier;
+					newVertex.x = pos.x;
+					newVertex.y = pos.y;
+					newVertex.z = pos.z;
 
-				const aiVector3D& tangent = fbxMesh->mTangents[i];
-				data[dataIndex + 6] = tangent.x;
-				data[dataIndex + 7] = tangent.y;
-				data[dataIndex + 8] = tangent.z;
+					const aiVector3D& norm = fbxMesh->mNormals[i];
+					newVertex.nx = norm.x;
+					newVertex.ny = norm.y;
+					newVertex.nz = norm.z;
 
-				const aiVector3D& biTangent = fbxMesh->mBitangents[i];
-				data[dataIndex + 9] = biTangent.x;
-				data[dataIndex + 10] = biTangent.y;
-				data[dataIndex + 11] = biTangent.z;
+					const aiVector3D& tangent = fbxMesh->mTangents[i];
+					newVertex.tx = tangent.x;
+					newVertex.ty = tangent.y;
+					newVertex.tz = tangent.z;
 
-				data[dataIndex + 12] = fbxMesh->mTextureCoords[0][i].x;
-				data[dataIndex + 13] = fbxMesh->mTextureCoords[0][i].y;
+					const aiVector3D& biTangent = fbxMesh->mBitangents[i];
+					newVertex.bx = biTangent.x;
+					newVertex.by = biTangent.y;
+					newVertex.bz = biTangent.z;
+
+					newVertex.u = fbxMesh->mTextureCoords[0][i].x;
+					newVertex.v = fbxMesh->mTextureCoords[0][i].y;
+
+					fileHeaderMesh.Vertices.emplace_back(newVertex);
+				}
+					break;
+				case EAssetType::SkeletalMesh:
+					{
+						
+					}
+					break;
+				case EAssetType::Animation:
+					{
+						
+					}
+					break;
+				default:
+					return;
+				}
 			}
 
-			const U32 size = sizeof(SStaticMeshVertex) * fileHeader.NumberOfVertices;
-			const auto intermediateVector = new SStaticMeshVertex[fileHeader.NumberOfVertices];
-			memcpy(&intermediateVector[0], &data[0], size);
-			fileHeader.Vertices.assign(&intermediateVector[0], &intermediateVector[0] + fileHeader.NumberOfVertices);
-			delete[] data;
-
-			fileHeader.NumberOfIndices = 0;
 			for (U32 i = 0; i < fbxMesh->mNumFaces; i++)
 			{
-				fileHeader.NumberOfIndices += fbxMesh->mFaces[i].mNumIndices;
-				fileHeader.Indices.insert(fileHeader.Indices.end(), std::make_move_iterator(&fbxMesh->mFaces[i].mIndices[0]), std::make_move_iterator(&fbxMesh->mFaces[i].mIndices[fbxMesh->mFaces[i].mNumIndices]));
+				fileHeaderMesh.NumberOfIndices += fbxMesh->mFaces[i].mNumIndices;
+				fileHeaderMesh.Indices.insert(fileHeaderMesh.Indices.end(), std::make_move_iterator(&fbxMesh->mFaces[i].mIndices[0]), std::make_move_iterator(&fbxMesh->mFaces[i].mIndices[fbxMesh->mFaces[i].mNumIndices]));
 			}
-
-			std::string newFileName = fileName.substr(0, fileName.length() - 4);
-			newFileName.append(".hva");
-			const auto fileData = new char[fileHeader.GetSize()];
-			fileHeader.Serialize(fileData);
-			CEngine::GetInstance()->GetFileSystem()->Serialize(newFileName, &fileData[0], fileHeader.GetSize());
-
-
-
-
-
 
 			// Bone stuff
 			//std::vector<VertexBoneData> collectedBoneData;
@@ -160,6 +171,12 @@ namespace Havtorn
 			//		}
 			//	}
 		}
+
+		std::string newFileName = fileName.substr(0, fileName.length() - 4);
+		newFileName.append(".hva");
+		const auto fileData = new char[fileHeader.GetSize()];
+		fileHeader.Serialize(fileData);
+		CEngine::GetInstance()->GetFileSystem()->Serialize(newFileName, &fileData[0], fileHeader.GetSize());
 
 		//	bool hasPositions = false;
 		//	bool hasNormals = false;

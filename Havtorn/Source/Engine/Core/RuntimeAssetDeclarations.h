@@ -3,6 +3,7 @@
 #pragma once
 
 #include "FileSystem/FileHeaderDeclarations.h"
+#include "Graphics/GraphicsStructs.h"
 
 namespace Havtorn
 {
@@ -10,20 +11,19 @@ namespace Havtorn
 	{
 		SStaticMeshAsset() = default;
 
-		explicit SStaticMeshAsset(const SStaticMeshFileHeader assetFileData)
+		explicit SStaticMeshAsset(const SStaticModelFileHeader assetFileData)
 			: AssetType(assetFileData.AssetType)
 			, Name(assetFileData.Name)
-			, IndexCount(assetFileData.NumberOfIndices)
 		{
+			for (auto& mesh : assetFileData.Meshes)
+			{
+				DrawCallData.emplace_back();
+				DrawCallData.back().IndexCount = mesh.NumberOfIndices;
+			}
 		}
 
-		EAssetType AssetType = EAssetType::StaticMesh;
+		EAssetType AssetType = EAssetType::StaticModel;
 		std::string Name;
-		U32 IndexCount = 0;
-
-		U16 VertexBufferIndex = 0;
-		U16 IndexBufferIndex = 0;
-		U16 VertexStrideIndex = 0;
-		U16 VertexOffsetIndex = 0;
+		std::vector<SDrawCallData> DrawCallData;
 	};
 }

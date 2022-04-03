@@ -54,7 +54,7 @@ namespace Havtorn
 	// TODO.NR: Make primitive class containing verts (static getters for bindables?)
 	void CScene::InitDemoScene(CRenderManager* renderManager)
 	{
-		const std::string modelPath = "Assets/Tests/En_P_PendulumClock.hva";
+		const std::string modelPath = "Assets/Tests/Tree_1_env2.hva";
 
 		constexpr U8 cubeNumber = 2;
 

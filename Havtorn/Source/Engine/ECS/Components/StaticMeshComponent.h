@@ -2,6 +2,7 @@
 
 #pragma once
 #include "ECS/Component.h"
+#include "Graphics/GraphicsStructs.h"
 
 namespace Havtorn
 {
@@ -12,12 +13,7 @@ namespace Havtorn
 		{}
 
 		// Asset Data
-		U32 IndexCount = 0;
-
-		U16 VertexBufferIndex = 0;
-		U16 IndexBufferIndex = 0;
-		U16 VertexStrideIndex = 0;
-		U16 VertexOffsetIndex = 0;
+		std::vector<SDrawCallData> DrawCallData;
 
 		// Render Data
 		U8 VertexShaderIndex = 0;
