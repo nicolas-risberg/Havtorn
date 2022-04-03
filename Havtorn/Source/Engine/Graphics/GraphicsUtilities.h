@@ -2,10 +2,19 @@
 
 #pragma once
 #include <fstream>
+#include <DirectXTex/DirectXTex.h>
 #include "GraphicsFramework.h"
+
+#define ASSETPATH(path) std::string(path).c_str()
 
 namespace Havtorn
 {
+	enum class ETextureFormat
+	{
+		DDS,
+		TGA
+	};
+
 	namespace UGraphicsUtils
 	{
 		static bool CreateVertexShader(const std::string& filepath, const CGraphicsFramework* framework, ID3D11VertexShader** outVertexShader, std::string& outShaderData)
@@ -39,55 +48,69 @@ namespace Havtorn
 			return true;
 		}
 
-		//static ID3D11ShaderResourceView* TryGetShaderResourceView(ID3D11Device* aDevice, const std::string& aTexturePath)
-		//{
-		//	ID3D11ShaderResourceView* shaderResourceView;
+		static HRESULT CreateShaderResourceView(ID3D11Device* device, const std::string& filePath, ID3D11ShaderResourceView** outShaderResourceView)
+		{
+			DirectX::ScratchImage scratchImage;
+			DirectX::TexMetadata metaData = {};
 
-		//	wchar_t* widePath = new wchar_t[aTexturePath.length() + 1];
-		//	std::copy(aTexturePath.begin(), aTexturePath.end(), widePath);
-		//	widePath[aTexturePath.length()] = 0;
+			const auto widePath = new wchar_t[filePath.length() + 1];
+			std::ranges::copy(filePath, widePath);
+			widePath[filePath.length()] = 0;
 
-		//	HRESULT result;
-		//	result = DirectX::CreateDDSTextureFromFile(aDevice, widePath, nullptr, &shaderResourceView);
-		//	if (FAILED(result))
-		//	{
-		//		shaderResourceView = nullptr;
-		//	}
+			ETextureFormat format = {};
+			if (const std::string extension = filePath.substr(filePath.size() - 4); extension == ".dds")
+				format = ETextureFormat::DDS;
+			else if (extension == ".tga")
+				format = ETextureFormat::TGA;
 
-		//	delete[] widePath;
-		//	return shaderResourceView;
-		//}
+			switch (format)
+			{
+			case ETextureFormat::DDS:
+				GetMetadataFromDDSFile(widePath, DirectX::DDS_FLAGS_NONE, metaData);
+				LoadFromDDSFile(widePath, DirectX::DDS_FLAGS_NONE, &metaData, scratchImage);
+				break;
+			case ETextureFormat::TGA:
+				GetMetadataFromTGAFile(widePath, DirectX::TGA_FLAGS_NONE, metaData);
+				LoadFromTGAFile(widePath, DirectX::TGA_FLAGS_NONE, &metaData, scratchImage);
+				break;
+			}
+			delete[] widePath;
+			const DirectX::Image* image = scratchImage.GetImage(0, 0, 0);
 
-		//static ID3D11ShaderResourceView* GetShaderResourceView(ID3D11Device* aDevice, std::string aTexturePath)
-		//{
-		//	ID3D11ShaderResourceView* shaderResourceView;
+			return DirectX::CreateShaderResourceView(device, image, scratchImage.GetImageCount(), metaData, outShaderResourceView);
+		}
 
-		//	wchar_t* widePath = new wchar_t[aTexturePath.length() + 1];
-		//	std::copy(aTexturePath.begin(), aTexturePath.end(), widePath);
-		//	widePath[aTexturePath.length()] = 0;
+		static ID3D11ShaderResourceView* TryGetShaderResourceView(ID3D11Device* device, const std::string& texturePath)
+		{
+			ID3D11ShaderResourceView* shaderResourceView;
 
-		//	////==ENABLE FOR TEXTURE CHECKING==
-		//	//ENGINE_HR_MESSAGE(DirectX::CreateDDSTextureFromFile(aDevice, widePath, nullptr, &shaderResourceView), aTexturePath.append(" could not be found.").c_str());
-		//	////===============================
+			const HRESULT result = CreateShaderResourceView(device, texturePath, &shaderResourceView);
+			if (FAILED(result))
+			{
+				shaderResourceView = nullptr;
+			}
+			
+			return shaderResourceView;
+		}
 
-		//	//==DISABLE FOR TEXTURE CHECKING==
-		//	HRESULT result;
-		//	result = DirectX::CreateDDSTextureFromFile(aDevice, widePath, nullptr, &shaderResourceView);
-		//	if (FAILED(result))
-		//	{
-		//		std::string errorTexturePath = aTexturePath.substr(aTexturePath.length() - 6);
-		//		errorTexturePath = "Assets/ErrorTextures/Checkboard_128x128" + errorTexturePath;
+		static ID3D11ShaderResourceView* GetShaderResourceView(ID3D11Device* device, const std::string& texturePath)
+		{
+			ID3D11ShaderResourceView* shaderResourceView;
 
-		//		wchar_t* wideErrorPath = new wchar_t[errorTexturePath.length() + 1];
-		//		std::copy(errorTexturePath.begin(), errorTexturePath.end(), wideErrorPath);
-		//		wideErrorPath[errorTexturePath.length()] = 0;
+			////==ENABLE FOR TEXTURE CHECKING==
+			//ENGINE_HR_MESSAGE(CreateShaderResourceView(device, texturePath, &shaderResourceView), texturePath.append(" could not be found.").c_str());
+			////===============================
 
-		//		DirectX::CreateDDSTextureFromFile(aDevice, wideErrorPath, nullptr, &shaderResourceView);
-		//		delete[] wideErrorPath;
-		//	}
+			const HRESULT result = CreateShaderResourceView(device, texturePath, &shaderResourceView);
+			if (FAILED(result))
+			{
+				std::string errorTexturePath = texturePath.substr(texturePath.length() - 6);
+				errorTexturePath = "Assets/ErrorTextures/Checkboard_128x128" + errorTexturePath;
 
-		//	delete[] widePath;
-		//	return shaderResourceView;
-		//}
+				CreateShaderResourceView(device, errorTexturePath, &shaderResourceView);
+			}
+
+			return shaderResourceView;
+		}
 	}
 }

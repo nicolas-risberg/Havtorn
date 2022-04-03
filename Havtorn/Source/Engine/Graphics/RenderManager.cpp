@@ -104,13 +104,6 @@ namespace Havtorn
 
 		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
 
-		//DirectX::ScratchImage scratchImage;
-		//DirectX::TexMetadata metaData;
-		//GetMetadataFromDDSFile(L"Assets/Cubemap.dds", DirectX::DDS_FLAGS_NONE, metaData);
-		//LoadFromDDSFile(L"Assets/Cubemap.dds", DirectX::DDS_FLAGS_NONE, &metaData, scratchImage);
-		//const DirectX::Image* image = scratchImage.GetImage(0, 0, 0);
-		//DirectX::CreateShaderResourceView(Framework->GetDevice(), image, scratchImage.GetImageCount(), metaData, )
-
 		return true;
 	}
 

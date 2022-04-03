@@ -485,9 +485,9 @@ namespace Havtorn
 		return false;
 	}
 
-	void CDeferredRenderer::SetShaderResource(const int aMaterialID)
+	void CDeferredRenderer::SetShaderResource(const int /*aMaterialID*/)
 	{
-		SMaterialInstance materialInstance = myMaterialHandler->GetMaterialInstance(aMaterialID);
-		myContext->PSSetShaderResources(materialInstance.myStartSlot, materialInstance.myNumViews, materialInstance.myShaderResourceView[0].GetAddressOf());
+		//SMaterialInstance materialInstance = myMaterialHandler->GetMaterialInstance(aMaterialID);
+		//myContext->PSSetShaderResources(materialInstance.myStartSlot, materialInstance.myNumViews, materialInstance.myShaderResourceView[0].GetAddressOf());
 	}
 }

@@ -45,20 +45,24 @@ namespace Havtorn
 			aiMesh* fbxMesh = assimpScene->mMeshes[n];
 			//model->myMaterialIndices.push_back(fbxMesh->mMaterialIndex);
 
-			//U16 modelBluePrintType = 0;
+			bool hasPositions = false;
+			bool hasNormals = false;
+			bool hasTangents = false;
+			bool hasTextures = false;
+			bool hasBones = false;
 
-			//modelBluePrintType |= (fbxMesh->HasPositions() ? static_cast<U16>(EModelProperty::HasPositions) : 0);
-			//modelBluePrintType |= (fbxMesh->HasNormals() ? static_cast<U16>(EModelProperty::HasNormals) : 0);
-			//modelBluePrintType |= (fbxMesh->HasTangentsAndBitangents() ? static_cast<U16>(EModelProperty::HasTangentsAndBitangents) : 0);
-			//modelBluePrintType |= (fbxMesh->HasTextureCoords(0) ? static_cast<U16>(EModelProperty::HasUVs) : 0);
-			//modelBluePrintType |= (fbxMesh->HasBones() ? static_cast<U16>(EModelProperty::HasBones) : 0);
+			hasPositions = fbxMesh->HasPositions();
+			hasNormals = fbxMesh->HasNormals();
+			hasTangents = fbxMesh->HasTangentsAndBitangents();
+			hasTextures = fbxMesh->HasTextureCoords(0);
+			hasBones = fbxMesh->HasBones();
 
 			U32 vertexBufferSize = 0;
 			vertexBufferSize += (fbxMesh->HasPositions() ? sizeof(F32) * 4 : 0);
 			vertexBufferSize += (fbxMesh->HasNormals() ? sizeof(F32) * 4 : 0);
 			vertexBufferSize += (fbxMesh->HasTangentsAndBitangents() ? sizeof(F32) * 8 : 0);
 			vertexBufferSize += (fbxMesh->HasTextureCoords(0) ? sizeof(F32) * 2 : 0);
-			vertexBufferSize += (fbxMesh->HasBones() ? sizeof(F32) * 8 : 0);
+			//vertexBufferSize += (fbxMesh->HasBones() ? sizeof(F32) * 8 : 0);
 
 			SStaticMeshFileHeader fileHeader;
 
@@ -339,6 +343,6 @@ namespace Havtorn
 
 
 		//model->myGlobalInverseTransform = ConvertToEngineMatrix44(scene->mRootNode->mTransformation);
-		
+
 	}
 }
