@@ -2,10 +2,10 @@
 
 struct VertexInput
 {
-    float4 Position     : POSITION;
-    float4 Normal       : NORMAL;
-    float4 Tangent      : TANGENT;
-    float4 Bitangent    : BINORMAL;
+    float3 Position     : POSITION;
+    float3 Normal       : NORMAL;
+    float3 Tangent      : TANGENT;
+    float3 Bitangent    : BINORMAL;
     float2 UV           : UV;
 };
 
@@ -36,7 +36,7 @@ VertexToPixel main(VertexInput input)
 {
     VertexToPixel returnValue;
 
-    const float4 vertexObjectPos = input.Position.xyzw;
+    const float4 vertexObjectPos = float4(input.Position, 1.0f);
     const float4 vertexWorldPos = mul(toWorld, vertexObjectPos);
     const float4 vertexViewPos = mul(toCameraSpace, vertexWorldPos);
     const float4 vertexProjectionPos = mul(toProjectionSpace, vertexViewPos);

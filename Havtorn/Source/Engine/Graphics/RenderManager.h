@@ -41,7 +41,7 @@ namespace Havtorn
 
 	enum class EInputLayoutType
 	{
-		Pos4Nor4Tan4Bit4UV2
+		Pos3Nor3Tan3Bit3UV2
 	};
 
 	class CGraphicsFramework;

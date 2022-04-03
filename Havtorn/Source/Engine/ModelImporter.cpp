@@ -24,44 +24,35 @@ namespace Havtorn
 {
 	void CModelImporter::ImportFBX(const std::string& fileName)
 	{
-		const struct aiScene* assimpScene = nullptr;
-
 		if (!CFileSystem::DoesFileExist(fileName))
 			return;
 
-		assimpScene = aiImportFile(fileName.c_str(), aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
+		const aiScene* assimpScene = aiImportFile(fileName.c_str(), aiProcessPreset_TargetRealtime_Fast | aiProcess_ConvertToLeftHanded);
 
 		if (!assimpScene)
 		{
-			HV_LOG_ERROR("FBXImporter failed to import %s!", fileName.c_str());
+			HV_LOG_ERROR("ModelImporter failed to import %s!", fileName.c_str());
 			return;
 		}
 
 		// Load multiple meshes
 		//for (U8 n = 0; n < assimpScene->mNumMeshes; n++)
 		for (U8 n = 0; n < 1; n++)
-
 		{
-			aiMesh* fbxMesh = assimpScene->mMeshes[n];
+			const aiMesh* fbxMesh = assimpScene->mMeshes[n];
 			//model->myMaterialIndices.push_back(fbxMesh->mMaterialIndex);
 
-			bool hasPositions = false;
-			bool hasNormals = false;
-			bool hasTangents = false;
-			bool hasTextures = false;
-			bool hasBones = false;
+			//bool hasPositions = fbxMesh->HasPositions();
+			//bool hasNormals = fbxMesh->HasNormals();
+			//bool hasTangents = fbxMesh->HasTangentsAndBitangents();
+			//bool hasTextures = fbxMesh->HasTextureCoords(0);
+			//bool hasBones = fbxMesh->HasBones();
 
-			hasPositions = fbxMesh->HasPositions();
-			hasNormals = fbxMesh->HasNormals();
-			hasTangents = fbxMesh->HasTangentsAndBitangents();
-			hasTextures = fbxMesh->HasTextureCoords(0);
-			hasBones = fbxMesh->HasBones();
-
-			U32 vertexBufferSize = 0;
-			vertexBufferSize += (fbxMesh->HasPositions() ? sizeof(F32) * 4 : 0);
-			vertexBufferSize += (fbxMesh->HasNormals() ? sizeof(F32) * 4 : 0);
-			vertexBufferSize += (fbxMesh->HasTangentsAndBitangents() ? sizeof(F32) * 8 : 0);
-			vertexBufferSize += (fbxMesh->HasTextureCoords(0) ? sizeof(F32) * 2 : 0);
+			U32 vertexBufferElementSize = 0;
+			vertexBufferElementSize += (fbxMesh->HasPositions() ? sizeof(F32) * 3 : 0);
+			vertexBufferElementSize += (fbxMesh->HasNormals() ? sizeof(F32) * 3 : 0);
+			vertexBufferElementSize += (fbxMesh->HasTangentsAndBitangents() ? sizeof(F32) * 6 : 0);
+			vertexBufferElementSize += (fbxMesh->HasTextureCoords(0) ? sizeof(F32) * 2 : 0);
 			//vertexBufferSize += (fbxMesh->HasBones() ? sizeof(F32) * 8 : 0);
 
 			SStaticMeshFileHeader fileHeader;
@@ -72,8 +63,8 @@ namespace Havtorn
 
 			fileHeader.NumberOfVertices = fbxMesh->mNumVertices;
 
-			const auto data = new F32[(vertexBufferSize / 4) * fbxMesh->mNumVertices];
-			for (U32 i = 0, dataIndex = 0; i < fbxMesh->mNumVertices; i++, dataIndex += (vertexBufferSize / 4))
+			const auto data = new F32[(vertexBufferElementSize / 4) * fbxMesh->mNumVertices];
+			for (U32 i = 0, dataIndex = 0; i < fbxMesh->mNumVertices; i++, dataIndex += (vertexBufferElementSize / 4))
 			{
 				constexpr F32 scaleModifier = 0.01f;
 				aiVector3D& pos = fbxMesh->mVertices[i];
@@ -81,28 +72,24 @@ namespace Havtorn
 				data[dataIndex] = pos.x;
 				data[dataIndex + 1] = pos.y;
 				data[dataIndex + 2] = pos.z;
-				data[dataIndex + 3] = 1.0f;
 
 				const aiVector3D& norm = fbxMesh->mNormals[i];
-				data[dataIndex + 4] = norm.x;
-				data[dataIndex + 5] = norm.y;
-				data[dataIndex + 6] = norm.z;
-				data[dataIndex + 7] = 1.0f;
+				data[dataIndex + 3] = norm.x;
+				data[dataIndex + 4] = norm.y;
+				data[dataIndex + 5] = norm.z;
 
 				const aiVector3D& tangent = fbxMesh->mTangents[i];
-				data[dataIndex + 8] = tangent.x;
-				data[dataIndex + 9] = tangent.y;
-				data[dataIndex + 10] = tangent.z;
-				data[dataIndex + 11] = 1.0f;
+				data[dataIndex + 6] = tangent.x;
+				data[dataIndex + 7] = tangent.y;
+				data[dataIndex + 8] = tangent.z;
 
 				const aiVector3D& biTangent = fbxMesh->mBitangents[i];
-				data[dataIndex + 12] = biTangent.x;
-				data[dataIndex + 13] = biTangent.y;
-				data[dataIndex + 14] = biTangent.z;
-				data[dataIndex + 15] = 1.0f;
+				data[dataIndex + 9] = biTangent.x;
+				data[dataIndex + 10] = biTangent.y;
+				data[dataIndex + 11] = biTangent.z;
 
-				data[dataIndex + 16] = fbxMesh->mTextureCoords[0][i].x;
-				data[dataIndex + 17] = fbxMesh->mTextureCoords[0][i].y;
+				data[dataIndex + 12] = fbxMesh->mTextureCoords[0][i].x;
+				data[dataIndex + 13] = fbxMesh->mTextureCoords[0][i].y;
 			}
 
 			const U32 size = sizeof(SStaticMeshVertex) * fileHeader.NumberOfVertices;
