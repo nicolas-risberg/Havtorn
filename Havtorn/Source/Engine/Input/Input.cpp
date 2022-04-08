@@ -136,7 +136,7 @@ namespace Havtorn
 		// Raw Input
 		case WM_INPUT:
 		{
-			UINT size;
+			UINT size = 0;
 			if (GetRawInputData(
 				reinterpret_cast<HRAWINPUT>(lParam),
 				RID_INPUT,
