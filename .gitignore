@@ -45,6 +45,7 @@
 # Folders
 *premakeTest/
 *Havtorn/Source/_ReSharper.Caches
+*Havtorn/External/DirectXTex
 
 # Other/Intermediate
 *.ilk
