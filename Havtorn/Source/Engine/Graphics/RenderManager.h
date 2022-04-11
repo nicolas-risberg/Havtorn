@@ -16,7 +16,7 @@
 //#include "TextRenderer.h"
 //#include "ShadowRenderer.h"
 //#include "DecalRenderer.h"
-//#include "GBuffer.h"
+#include "GBuffer.h"
 #include <queue>
 
 #include "Core/RuntimeAssetDeclarations.h"
@@ -173,7 +173,7 @@ namespace Havtorn
 		//CFullscreenTexture myDownsampledDepth;
 		//CFullscreenTexture myTonemappedTexture;
 		//CFullscreenTexture myAntiAliasedTexture;
-		//CGBuffer myGBuffer;
+		CGBuffer GBuffer;
 		//CGBuffer myGBufferCopy;
 		CRenderCommandHeap RenderCommandsA;
 		CRenderCommandHeap RenderCommandsB;
@@ -201,6 +201,10 @@ namespace Havtorn
 		std::vector<U32> MeshVertexOffsets;
 
 		std::unordered_map<std::string, SStaticMeshAsset> LoadedStaticMeshes;
+
+		ID3D11ShaderResourceView* DefaultAlbedoTexture = nullptr;
+		ID3D11ShaderResourceView* DefaultNormalTexture = nullptr;
+		ID3D11ShaderResourceView* DefaultMaterialTexture = nullptr;
 	};
 
 	template <typename T>

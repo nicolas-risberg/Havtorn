@@ -18,15 +18,15 @@ GBufferOutput main(VertexModelToPixel input)
 {
     VertexToPixel vertToPixel;
     //vertToPixel.myPosition  = input.myPosition;
-    vertToPixel.myUV        = input.myUV;
+    vertToPixel.UV        = input.UV;
     
-    float3 albedo = PixelShader_Albedo(vertToPixel.myUV).rgb;
-    float3 normal = PixelShader_NormalForIsolatedRendering(vertToPixel.myUV).xyz;
+    float3 albedo = PixelShader_Albedo(vertToPixel.UV).rgb;
+    float3 normal = PixelShader_NormalForIsolatedRendering(vertToPixel.UV).xyz;
     
-    if (myNumberOfDetailNormals > 0)
+    if (NumberOfDetailNormals > 0)
     {
-        float detailNormalStrength = PixelShader_DetailNormalStrength(vertToPixel.myUV);
-        const float strengthMultiplier = DetailStrengthDistanceMultiplier(cameraPosition.xyz, input.myWorldPosition.xyz);
+        float detailNormalStrength = PixelShader_DetailNormalStrength(vertToPixel.UV);
+        const float strengthMultiplier = DetailStrengthDistanceMultiplier(cameraPosition.xyz, input.WorldPosition.xyz);
         float3 detailNormal;
 
         // Blend based on detail normal strength
@@ -40,22 +40,22 @@ GBufferOutput main(VertexModelToPixel input)
         // Make this better please
         if (detailNormalStrength > DETAILNORMAL_4_STR_RANGE_MIN)
         {
-            detailNormal = PixelShader_DetailNormal(vertToPixel.myUV, DETAILNORMAL_4).xyz;
+            detailNormal = PixelShader_DetailNormal(vertToPixel.UV, DETAILNORMAL_4).xyz;
             detailNormalStrength = (detailNormalStrength - DETAILNORMAL_4_STR_RANGE_MIN + 0.01f) / DETAILNORMAL_STR_RANGE_DIFF;
         }
         else if (detailNormalStrength > DETAILNORMAL_3_STR_RANGE_MIN)
         {
-            detailNormal = PixelShader_DetailNormal(vertToPixel.myUV, DETAILNORMAL_3).xyz;
+            detailNormal = PixelShader_DetailNormal(vertToPixel.UV, DETAILNORMAL_3).xyz;
             detailNormalStrength = (detailNormalStrength - DETAILNORMAL_3_STR_RANGE_MIN + 0.01f) / DETAILNORMAL_STR_RANGE_DIFF;
         }
         else if (detailNormalStrength > DETAILNORMAL_2_STR_RANGE_MIN)
         {
-            detailNormal = PixelShader_DetailNormal(vertToPixel.myUV, DETAILNORMAL_2).xyz;
+            detailNormal = PixelShader_DetailNormal(vertToPixel.UV, DETAILNORMAL_2).xyz;
             detailNormalStrength = (detailNormalStrength - DETAILNORMAL_2_STR_RANGE_MIN + 0.01f) / DETAILNORMAL_STR_RANGE_DIFF;
         }
         else
         {
-            detailNormal = PixelShader_DetailNormal(vertToPixel.myUV, DETAILNORMAL_1).xyz;
+            detailNormal = PixelShader_DetailNormal(vertToPixel.UV, DETAILNORMAL_1).xyz;
             detailNormalStrength = (detailNormalStrength - DETAILNORMAL_1_STR_RANGE_MIN + 0.01f) / DETAILNORMAL_STR_RANGE_DIFF;
         }
         
@@ -77,10 +77,10 @@ GBufferOutput main(VertexModelToPixel input)
         //}
     } // End of if
     
-    float ambientOcclusion      = PixelShader_AmbientOcclusion(vertToPixel.myUV);
-    float metalness             = PixelShader_Metalness(vertToPixel.myUV);
-    float perceptualRoughness   = PixelShader_PerceptualRoughness(vertToPixel.myUV);
-    float emissive              = PixelShader_Emissive(vertToPixel.myUV);
+    float ambientOcclusion      = PixelShader_AmbientOcclusion(vertToPixel.UV);
+    float metalness             = PixelShader_Metalness(vertToPixel.UV);
+    float perceptualRoughness   = PixelShader_PerceptualRoughness(vertToPixel.UV);
+    float emissive              = PixelShader_Emissive(vertToPixel.UV);
     
     // Original, using 8 textures
     //GBufferOutput output;
@@ -96,10 +96,10 @@ GBufferOutput main(VertexModelToPixel input)
     
     // Using 4 textures
     GBufferOutput output;
-    output.WorldPosition  = input.myWorldPosition;
+    output.WorldPosition  = input.WorldPosition;
     output.Albedo         = float4(albedo, 1.0f);
     output.Normal         = float4(normal, 1.0f);
-    output.VertexNormal   = float4(input.myNormal.xyz, 1.0f);
+    output.VertexNormal   = float4(input.Normal.xyz, 1.0f);
     
     output.WorldPosition.w = metalness;
     output.Albedo.w        = perceptualRoughness;

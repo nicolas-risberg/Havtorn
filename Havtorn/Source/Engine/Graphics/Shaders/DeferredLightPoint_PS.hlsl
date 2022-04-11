@@ -34,7 +34,7 @@ PixelOutput main(/*PointLightGeometryToPixel*/PointLightVertexToPixel input)
     toLight = normalize(toLight);
     const float3 radiance = EvaluatePointLight(diffuseColor, specularColor, normal, perceptualRoughness, pointLightColorAndIntensity.rgb * pointLightColorAndIntensity.a, pointLightPositionAndRange.w, toLight.xyz, lightDistance, toEye.xyz);
     
-    output.myColor.rgb = radiance;
-    output.myColor.a = 1.0f;
+    output.Color.rgb = radiance;
+    output.Color.a = 1.0f;
     return output;
 }

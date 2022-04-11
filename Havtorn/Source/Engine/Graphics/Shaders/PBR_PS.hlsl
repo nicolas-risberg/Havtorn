@@ -102,7 +102,7 @@ PixelOutPut main(VertexToPixel input)
     const float ambientocclusion = PixelShader_AmbientOcclusion(input).myColor.b;
     const float metalness = PixelShader_Metalness(input).myColor.r;
     float perceptualroughness = PixelShader_PerceptualRoughness(input).myColor.g;
-    perceptualroughness = pow(abs(perceptualroughness), 1.0f / 1.1f); // from tga modelviewer // To mimic substance painters more blury roughness
+    perceptualroughness = pow(abs(perceptualroughness), 1.0f / 1.1f); // from tga modelviewer // To mimic substance painters more blurry roughness
     const float emissivedata = PixelShader_Emissive(input).myColor.b;
 
     const float3 specularcolor = lerp((float3) 0.04, albedo.rgb, metalness);
@@ -119,7 +119,7 @@ PixelOutPut main(VertexToPixel input)
         pointLights += EvaluatePointLight(color, specularcolor, normal, perceptualroughness, currentLight.myColorAndRange.rgb, currentLight.myPositionAndIntensity.w, currentLight.myColorAndRange.a, currentLight.myPositionAndIntensity.xyz, toEye, input.myWorldPosition.xyz);
     }
 
-    const float3 emissive = albedo.rgb * emissivedata; // Maybe add cool multiplier?? // Aki 2021
+    const float3 emissive = albedo.rgb * emissivedata;
     const float3 radiance = ambience + directionallight * (1.0f - ShadowFactor(input.myWorldPosition.xyz, directionalLightPosition.xyz, toDirectionalLightView, toDirectionalLightProjection, shadowDepthTexture, shadowSampler, directionalLightShadowMapResolution)) + pointLights + emissive;
    
     output.myColor.rgb = /*LinearToGamma(*/radiance/*)*/;

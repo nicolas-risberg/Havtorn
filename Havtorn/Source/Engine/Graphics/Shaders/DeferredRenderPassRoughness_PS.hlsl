@@ -7,8 +7,8 @@ PixelOutput main(VertexToPixel input)
 {
     PixelOutput output;
 
-    const float perceptualRoughness = GBuffer_PerceptualRoughness(input.myUV);
-    output.myColor.rgb = perceptualRoughness;
-    output.myColor.a = 1.0f;
+    const float perceptualRoughness = GBuffer_PerceptualRoughness(input.UV);
+    output.Color.rgb = perceptualRoughness;
+    output.Color.a = 1.0f;
     return output;
 }

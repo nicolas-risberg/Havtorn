@@ -7,9 +7,9 @@ PixelOutput main(VertexToPixel input)
 {
     PixelOutput output;
 
-    float3 albedo = GBuffer_Albedo(input.myUV).rgb;
+    float3 albedo = GBuffer_Albedo(input.UV).rgb;
     albedo = GammaToLinear(albedo);
-    output.myColor.rgb = albedo;
-    output.myColor.a = 1.0f;
+    output.Color.rgb = albedo;
+    output.Color.a = 1.0f;
     return output;
 }

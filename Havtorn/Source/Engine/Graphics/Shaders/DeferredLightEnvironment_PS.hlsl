@@ -8,24 +8,24 @@ PixelOutput main(VertexToPixel input)
 {
     PixelOutput output;
 
-    const float depth = PixelShader_Exists(input.myUV).r;
+    const float depth = PixelShader_Exists(input.UV).r;
     if (depth == 1)
     {
-        output.myColor = GBuffer_Albedo(input.myUV);
+        output.Color = GBuffer_Albedo(input.UV);
         return output;
     }
     
-    float3 worldPosition = PixelShader_WorldPosition(input.myUV).rgb;
+    float3 worldPosition = PixelShader_WorldPosition(input.UV).rgb;
     float3 toEye = normalize( cameraPosition.xyz - worldPosition.xyz);
-    float3 albedo = GBuffer_Albedo(input.myUV).rgb;
+    float3 albedo = GBuffer_Albedo(input.UV).rgb;
     albedo = GammaToLinear(albedo);
-    const float3 normal = GBuffer_Normal(input.myUV).xyz;
-    const float3 vertexNormal = GBuffer_VertexNormal(input.myUV).xyz;
-    const float ambientOcclusion = GBuffer_AmbientOcclusion(input.myUV);
-    const float metalness = GBuffer_Metalness(input.myUV);
-    const float perceptualRoughness = GBuffer_PerceptualRoughness(input.myUV);
-    const float emissiveData = GBuffer_Emissive(input.myUV);
-    const float ssao = PixelShader_SSAO(input.myUV);
+    const float3 normal = GBuffer_Normal(input.UV).xyz;
+    const float3 vertexNormal = GBuffer_VertexNormal(input.UV).xyz;
+    const float ambientOcclusion = GBuffer_AmbientOcclusion(input.UV);
+    const float metalness = GBuffer_Metalness(input.UV);
+    const float perceptualRoughness = GBuffer_PerceptualRoughness(input.UV);
+    const float emissiveData = GBuffer_Emissive(input.UV);
+    const float ssao = PixelShader_SSAO(input.UV);
 
     const float3 specularColor = lerp((float3) 0.04, albedo, metalness);
     const float3 diffuseColor = lerp((float3) 0.00, albedo, 1 - metalness);
@@ -35,7 +35,7 @@ PixelOutput main(VertexToPixel input)
     const float3 emissive = albedo * emissiveData;
     const float3 radiance = (ambiance * ssao) + directionalLight * (1.0f - ShadowFactor(worldPosition, directionalLightPosition.xyz, toDirectionalLightView, toDirectionalLightProjection, shadowDepthTexture, shadowSampler, directionalLightShadowMapResolution)) + emissive;
 
-    output.myColor.rgb = radiance;
-    output.myColor.a = 1.0f;
+    output.Color.rgb = radiance;
+    output.Color.a = 1.0f;
     return output;
 }

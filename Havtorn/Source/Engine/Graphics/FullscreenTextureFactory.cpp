@@ -4,6 +4,7 @@
 #include "FullscreenTextureFactory.h"
 #include "FullscreenTexture.h"
 #include "GraphicsFramework.h"
+#include "GraphicsUtilities.h"
 #include "GBuffer.h"
 
 namespace Havtorn
@@ -98,7 +99,7 @@ namespace Havtorn
 		CFullscreenTexture returnTexture;
 		returnTexture = CreateTexture(texture);
 
-		ID3D11ShaderResourceView* shaderResource = GetShaderResourceView(Framework->GetDevice(), filePath);
+		ID3D11ShaderResourceView* shaderResource = UGraphicsUtils::GetShaderResourceView(Framework->GetDevice(), filePath);
 
 		returnTexture.myShaderResource = shaderResource;
 		return returnTexture;
@@ -197,29 +198,5 @@ namespace Havtorn
 		returnGBuffer.ShaderResources = std::move(shaderResources);
 		returnGBuffer.Viewport = viewport;
 		return returnGBuffer;
-	}
-
-	ID3D11ShaderResourceView* CFullscreenTextureFactory::GetShaderResourceView(ID3D11Device* /*aDevice*/, std::string /*aTexturePath*/)
-	{
-		//ID3D11ShaderResourceView* shaderResourceView;
-
-		//wchar_t* widePath = new wchar_t[aTexturePath.length() + 1];
-		//std::copy(aTexturePath.begin(), aTexturePath.end(), widePath);
-		//widePath[aTexturePath.length()] = 0;
-
-		////==ENABLE FOR TEXTURE CHECKING==
-		//ENGINE_HR_MESSAGE(DirectX::CreateDDSTextureFromFile(aDevice, widePath, nullptr, &shaderResourceView), aTexturePath.append(" could not be found.").c_str());
-		////===============================
-
-		//==DISABLE FOR TEXTURE CHECKING==
-		//HRESULT result;
-		//result = DirectX::CreateDDSTextureFromFile(aDevice, widePath, nullptr, &shaderResourceView);
-		//if (FAILED(result))
-		//	DirectX::CreateDDSTextureFromFile(aDevice, L"ErrorTexture.dds", nullptr, &shaderResourceView);
-		//================================
-
-		//delete[] widePath;
-		//return shaderResourceView;
-		return nullptr;
 	}
 }

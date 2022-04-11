@@ -7,8 +7,8 @@ PixelOutput main(VertexToPixel input)
 {
     PixelOutput output;
 
-    float ambientOcclusion = GBuffer_AmbientOcclusion(input.myUV);
-    output.myColor.rgb = ambientOcclusion.xxx;
-    output.myColor.a = 1.0f;
+    float ambientOcclusion = GBuffer_AmbientOcclusion(input.UV);
+    output.Color.rgb = ambientOcclusion.xxx;
+    output.Color.a = 1.0f;
     return output;
 }

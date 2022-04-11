@@ -19,8 +19,8 @@ VertexToPixel main(VertexInput input)
     };
     
     VertexToPixel returnValue;
-    returnValue.myPosition = positions[input.myIndex];
-    returnValue.myUV = uvs[input.myIndex];
+    returnValue.Position = positions[input.Index];
+    returnValue.UV = uvs[input.Index];
     
     return returnValue;
 }

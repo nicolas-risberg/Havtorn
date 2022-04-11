@@ -30,6 +30,7 @@
 
 #include "FileSystem/FileSystem.h"
 #include "Threading/ThreadManager.h"
+#include "MaterialHandler.h"
 
 #include "ModelImporter.h"
 
@@ -96,12 +97,22 @@ namespace Havtorn
 
 		// Load default resources
 		const std::string vsData = AddShader("Shaders/Demo_VS.cso", EShaderType::Vertex);
+		//const std::string vsData = AddShader("Shaders/DeferredModel_VS.cso", EShaderType::Vertex);
 		AddInputLayout(vsData, EInputLayoutType::Pos3Nor3Tan3Bit3UV2);
 		AddShader("Shaders/Demo_PS.cso", EShaderType::Pixel);
+		//AddShader("Shaders/GBuffer_PS.cso", EShaderType::Pixel);
 		AddSampler(ESamplerType::Wrap);
 		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		CModelImporter::ImportFBX("Assets/Tests/Tree_1_env2.fbx");
+		// For PBR Testing: Change Default Shaders, change loaded ShaderResource indices, change active render target
+		// Stuff to finish before PBR Testing: Cubemap texture, SSAO? Pipeline, Light Pass
+
+		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
+
+		auto defaultMaterials = CEngine::GetInstance()->GetMaterialHandler()->RequestMaterial("T_PendulumClock");
+		DefaultAlbedoTexture = defaultMaterials[0];
+		DefaultMaterialTexture = defaultMaterials[1];
+		DefaultNormalTexture = defaultMaterials[2];
 
 		return true;
 	}
@@ -147,7 +158,7 @@ namespace Havtorn
 
 		//myTonemappedTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
 		//myAntiAliasedTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myGBuffer = FullscreenTextureFactory.CreateGBuffer(aWindowHandler->GetResolution());
+		GBuffer = FullscreenTextureFactory.CreateGBuffer(windowHandler->GetResolution());
 		//myGBufferCopy = FullscreenTextureFactory.CreateGBuffer(aWindowHandler->GetResolution());
 	}
 
@@ -165,6 +176,7 @@ namespace Havtorn
 			RenderedScene.ClearTexture(ClearColor);
 			IntermediateDepth.ClearDepth();
 			RenderedScene.SetAsActiveTarget(&IntermediateDepth);
+			//GBuffer.SetAsActiveTarget(&IntermediateDepth);
 
 			ID3D11DeviceContext* context = Framework->GetContext();
 
@@ -206,6 +218,10 @@ namespace Havtorn
 
 					ID3D11SamplerState* sampler = Samplers[staticMeshComp->SamplerIndex];
 					context->PSSetSamplers(0, 1, &sampler);
+
+					context->PSSetShaderResources(0, 1, &DefaultAlbedoTexture);
+					context->PSSetShaderResources(1, 1, &DefaultMaterialTexture);
+					context->PSSetShaderResources(2, 1, &DefaultNormalTexture);
 
 					for (const auto& drawData : staticMeshComp->DrawCallData)
 					{

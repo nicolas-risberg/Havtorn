@@ -36,6 +36,7 @@ namespace Havtorn
 	class CSceneFactory;
 	class CGameObject;
 	class CFileSystem;
+	class CMaterialHandler;
 
 	namespace PostMaster 
 	{
@@ -64,6 +65,7 @@ namespace Havtorn
 		void EndFrame();
 		CWindowHandler* GetWindowHandler();
 		CFileSystem* GetFileSystem();
+		CMaterialHandler* GetMaterialHandler();
 		void InitWindowsImaging();
 		void CrashWithScreenShot(std::wstring& subPath);
 
@@ -111,6 +113,7 @@ namespace Havtorn
 		CThreadManager* ThreadManager;
 		CGraphicsFramework* Framework;
 		//CForwardRenderer* ForwardRenderer;
+		CMaterialHandler* MaterialHandler;
 #ifdef _DEBUG
 		CImguiManager* ImguiManager;
 #endif

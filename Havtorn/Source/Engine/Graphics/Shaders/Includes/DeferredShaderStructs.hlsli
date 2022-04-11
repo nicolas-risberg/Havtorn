@@ -2,61 +2,70 @@
 
 struct VertexInput
 {
-    unsigned int myIndex : SV_VertexID;
+    unsigned int Index : SV_VertexID;
+};
+
+struct StaticMeshVertexInput
+{
+    float3 Position     : POSITION;
+    float3 Normal       : NORMAL;
+    float3 Tangent      : TANGENT;
+    float3 Bitangent    : BINORMAL;
+    float2 UV           : UV;
 };
 
 struct VertexModelInput
 {
-    float4 myPosition   : POSITION;
-    float4 myNormal     : NORMAL;
-    float4 myTangent    : TANGENT;
-    float4 myBiTangent  : BITANGENT;
-    float2 myUV         : UV;
-    float4 myBoneID     : BONEID;
-    float4 myBoneWeight : BONEWEIGHT;
-    column_major float4x4 myTransform : INSTANCETRANSFORM;
+    float4 Position   : POSITION;
+    float4 Normal     : NORMAL;
+    float4 Tangent    : TANGENT;
+    float4 Bitangent  : BITANGENT;
+    float2 UV         : UV;
+    float4 BoneID     : BONEID;
+    float4 BoneWeight : BONEWEIGHT;
+    column_major float4x4 Transform : INSTANCETRANSFORM;
 };
 
 struct VertexPaintedModelInput
 {
-    float4 myPosition   : POSITION;
-    float4 myNormal     : NORMAL;
-    float4 myTangent    : TANGENT;
-    float4 myBinormal   : BINORMAL;
-    float2 myUV         : UV;
-    float3 myColor      : COLOR;
+    float4 Position   : POSITION;
+    float4 Normal     : NORMAL;
+    float4 Tangent    : TANGENT;
+    float4 Binormal   : BINORMAL;
+    float2 UV         : UV;
+    float3 Color      : COLOR;
 };
 
 struct VertexToPixel
 {
-    float4 myPosition   : SV_POSITION;
-    float2 myUV         : UV;
+    float4 Position   : SV_POSITION;
+    float2 UV         : UV;
 };
 
 struct VertexModelToPixel
 {
-    float4 myPosition       : SV_POSITION;
-    float4 myWorldPosition  : WORLDPOSITION;
-    float4 myNormal         : NORMAL;
-    float4 myTangent        : TANGENT;
-    float4 myBinormal       : BINORMAL;
-    float2 myUV             : UV;
+    float4 Position       : SV_POSITION;
+    float4 WorldPosition  : WORLDPOSITION;
+    float4 Normal         : NORMAL;
+    float4 Tangent        : TANGENT;
+    float4 Bitangent      : BITANGENT;
+    float2 UV             : UV;
 };
 
 struct VertexPaintModelToPixel
 {
-    float4 myPosition : SV_POSITION;
-    float4 myWorldPosition : WORLDPOSITION;
-    float4 myNormal : NORMAL;
-    float4 myTangent : TANGENT;
-    float4 myBinormal : BINORMAL;
-    float2 myUV : UV;
-    float3 myColor : COLOR;
+    float4 Position         : SV_POSITION;
+    float4 WorldPosition    : WORLDPOSITION;
+    float4 Normal           : NORMAL;
+    float4 Tangent          : TANGENT;
+    float4 Binormal         : BINORMAL;
+    float2 UV               : UV;
+    float3 Color            : COLOR;
 };
 
 struct PixelOutput
 {
-    float4 myColor : SV_TARGET;
+    float4 Color : SV_TARGET;
 };
 
 cbuffer FrameBuffer : register(b0)
@@ -71,8 +80,8 @@ cbuffer FrameBuffer : register(b0)
 cbuffer ObjectBuffer : register(b1)
 {
     float4x4 toWorld;
-    unsigned int myNumberOfDetailNormals;
-    unsigned int myNumberOfTextureSets;
+    unsigned int NumberOfDetailNormals;
+    unsigned int NumberOfTextureSets;
 }
 
 cbuffer LightBuffer : register(b2)
@@ -88,19 +97,19 @@ cbuffer LightBuffer : register(b2)
 
 cbuffer PointLightBuffer : register(b3)
 {
-    float4 myColorAndIntensity;
-    float4 myPositionAndRange;
+    float4 ColorAndIntensity;
+    float4 PositionAndRange;
 }
 
 cbuffer BoneBuffer : register(b4)
 {
-    matrix myBones[64];
+    matrix Bones[64];
 };
 
 cbuffer EmissiveBuffer : register(b5)
 {
-    float myEmissiveStrength;
-    float3 myPadding;
+    float EmissiveStrength;
+    float3 Padding;
 }
 
 // Cubemap used for environment light shading

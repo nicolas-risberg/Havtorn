@@ -42,7 +42,7 @@ PixelOutput main(SpotLightVertexToPixel input)
     const float3 radiance = EvaluatePointLight(diffuseColor * intensity, specularColor * intensity, normal, perceptualRoughness, spotLightColorAndIntensity.rgb * spotLightColorAndIntensity.a, spotLightPositionAndRange.w, toLight.xyz, lightDistance, toEye.xyz);
     //float3 radiance = EvaluateSpotLight(diffuseColor * intensity, specularColor * intensity, normal, perceptualRoughness, spotLightColorAndIntensity.rgb * spotLightColorAndIntensity.a, spotLightPositionAndRange.w, toLight.xyz, lightDistance, toEye.xyz, spotLightDirectionAndAngleExponent.xyz, spotLightDirectionAndAngleExponent.w, myInnerOuterAngle);
     
-    output.myColor.rgb = radiance;
-    output.myColor.a = 1.0f;
+    output.Color.rgb = radiance;
+    output.Color.a = 1.0f;
     return output;
 }

@@ -7,8 +7,8 @@ PixelOutput main(VertexToPixel input)
 {
     PixelOutput output;
 
-    const float emissiveData = GBuffer_Emissive(input.myUV);
-    output.myColor.rgb = emissiveData;
-    output.myColor.a = 1.0f;
+    const float emissiveData = GBuffer_Emissive(input.UV);
+    output.Color.rgb = emissiveData;
+    output.Color.a = 1.0f;
     return output;
 }

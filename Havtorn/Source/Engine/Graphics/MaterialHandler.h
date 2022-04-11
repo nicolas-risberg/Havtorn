@@ -37,11 +37,11 @@ namespace Havtorn
 	public:
 		std::array<ID3D11ShaderResourceView*, 3> RequestMaterial(const I32 materialID, const std::string& modelPath);
 		std::array<ID3D11ShaderResourceView*, 3> RequestMaterial(const I32 materialID);
-		std::array<ID3D11ShaderResourceView*, 3> RequestMaterial(const std::string& materialName);
+		//std::array<ID3D11ShaderResourceView*, 3> RequestMaterial(const std::string& materialName);
 		std::array<ID3D11ShaderResourceView*, 3> RequestMaterial(const std::string& materialName, I32& outMaterialID);
-		std::array<ID3D11ShaderResourceView*, 3> RequestDefualtMaterial(I32& outMaterialID);
+		std::array<ID3D11ShaderResourceView*, 3> RequestDefaultMaterial(I32& outMaterialID);
 
-		//std::array<ID3D11ShaderResourceView*, 3> RequestMaterial(const std::string& aMaterialName);
+		std::array<ID3D11ShaderResourceView*, 3> RequestMaterial(const std::string& materialName);
 		std::array<ID3D11ShaderResourceView*, 3> RequestDecal(const std::string& decalName);
 		std::array<ID3D11ShaderResourceView*, 9> GetVertexPaintMaterials(const std::vector<std::string>& materialNames);
 		void ReleaseMaterial(const std::string& materialName);
@@ -73,7 +73,6 @@ namespace Havtorn
 		std::map<I32, bool> TransparentMaterialMap;
 		std::map<std::string, std::array<WinComPtr<ID3D11ShaderResourceView>, 3>> Materials;
 		std::map<std::string, std::array<WinComPtr<ID3D11ShaderResourceView>, 9>> VertexPaintMaterials;
-
 
 		std::map<I32, std::vector<SVector>> VertexColors;
 		std::map<I32, ID3D11Buffer*> VertexColorBuffers;

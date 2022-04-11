@@ -32,17 +32,17 @@ namespace Havtorn
 			if (!texturePaths[0].empty())
 				newTextures[0] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH(texturePaths[0]));
 			else
-				newTextures[0] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH("Assets/Textures/ErrorTextures/Checkboard_128x128_c.dds"));
+				newTextures[0] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH("Assets/Checkboard_128x128_c.dds"));
 
 			if (!texturePaths[1].empty())
 				newTextures[1] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH(texturePaths[1]));
 			else
-				newTextures[1] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH("Assets/IronWrought/Texture/ErrorTextures/Checkboard_128x128_m.dds"));
+				newTextures[1] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH("Assets/Checkboard_128x128_m.dds"));
 
 			if (!texturePaths[2].empty())
 				newTextures[2] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH(texturePaths[2]));
 			else
-				newTextures[2] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH("Assets/IronWrought/Texture/ErrorTextures/Checkboard_128x128_n.dds"));
+				newTextures[2] = UGraphicsUtils::GetShaderResourceView(Device, ASSETPATH("Assets/Checkboard_128x128_n.dds"));
 
 			Materials.emplace(materialName, std::move(newTextures));
 			MaterialReferences.emplace(materialName, 0);
@@ -104,12 +104,12 @@ namespace Havtorn
 		return textures;
 	}
 
-	std::array<ID3D11ShaderResourceView*, 3> CMaterialHandler::RequestMaterial(const std::string& aMaterialName)
-	{
-		I32 materialID = 0;
-		TryGetMaterialID(aMaterialName, materialID);
-		return RequestMaterial(materialID);
-	}
+	//std::array<ID3D11ShaderResourceView*, 3> CMaterialHandler::RequestMaterial(const std::string& aMaterialName)
+	//{
+	//	I32 materialID = 0;
+	//	TryGetMaterialID(aMaterialName, materialID);
+	//	return RequestMaterial(materialID);
+	//}
 
 	std::array<ID3D11ShaderResourceView*, 3> CMaterialHandler::RequestMaterial(const std::string& aMaterialName, I32& anOutMaterialID)
 	{
@@ -118,7 +118,7 @@ namespace Havtorn
 		return RequestMaterial(anOutMaterialID);
 	}
 
-	std::array<ID3D11ShaderResourceView*, 3> CMaterialHandler::RequestDefualtMaterial(I32& anOutMaterialID)
+	std::array<ID3D11ShaderResourceView*, 3> CMaterialHandler::RequestDefaultMaterial(I32& anOutMaterialID)
 	{
 		return RequestMaterial("DefaultMaterial", anOutMaterialID);
 	}
@@ -159,6 +159,27 @@ namespace Havtorn
 
 
 
+
+	std::array<ID3D11ShaderResourceView*, 3> CMaterialHandler::RequestMaterial(const std::string& materialName)
+	{
+		if (!Materials.contains(materialName))
+		{
+			std::array<Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>, 3> newTextures;
+			newTextures[0] = UGraphicsUtils::TryGetShaderResourceView(Device, MaterialPath + materialName + "_c.dds");
+			newTextures[1] = UGraphicsUtils::TryGetShaderResourceView(Device, MaterialPath + materialName + "_m.dds");
+			newTextures[2] = UGraphicsUtils::TryGetShaderResourceView(Device, MaterialPath + materialName + "_n.dds");
+
+			Materials.emplace(materialName, std::move(newTextures));
+			MaterialReferences.emplace(materialName, 0);
+		}
+
+		MaterialReferences[materialName] += 1;
+		std::array<ID3D11ShaderResourceView*, 3> textures;
+		textures[0] = Materials[materialName][0].Get();
+		textures[1] = Materials[materialName][1].Get();
+		textures[2] = Materials[materialName][2].Get();
+		return textures;
+	}
 
 	std::array<ID3D11ShaderResourceView*, 3> CMaterialHandler::RequestDecal(const std::string& decalName)
 	{
@@ -452,7 +473,7 @@ namespace Havtorn
 
 	CMaterialHandler::CMaterialHandler()
 		: Device(nullptr)
-		, MaterialPath(ASSETPATH("Assets/IronWrought/Texture/"))
+		, MaterialPath(ASSETPATH("Assets/Textures/"))
 		, DecalPath(ASSETPATH("Assets/IronWrought/Texture/Decal_texture/"))
 		, VertexLinksPath(ASSETPATH("Assets/Generated/"))
 	{

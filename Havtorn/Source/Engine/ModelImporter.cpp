@@ -70,7 +70,7 @@ namespace Havtorn
 			fbxMesh = assimpScene->mMeshes[n];
 			//model->myMaterialIndices.push_back(fbxMesh->mMaterialIndex);
 
-			constexpr F32 scaleModifier = 0.01f;
+			constexpr F32 scaleModifier = 0.1f;
 			for (U32 i = 0; i < fbxMesh->mNumVertices; i++)
 			{
 				switch (fileHeader.AssetType)

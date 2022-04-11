@@ -15,7 +15,7 @@ PixelOutput main(BoxLightVertexToPixel input)
     const float depth = PixelShader_Exists(screenUV).r;
     if (depth == 1)
     {
-        output.myColor = GBuffer_Albedo(screenUV);
+        output.Color = GBuffer_Albedo(screenUV);
         return output;
     }
     
@@ -58,7 +58,7 @@ PixelOutput main(BoxLightVertexToPixel input)
     const float3 directionalLight = EvaluateBoxLight(diffuseColor, specularColor, normal, perceptualRoughness, boxLightColorAndIntensity.rgb * boxLightColorAndIntensity.w, boxLightPositionAndRange.w, toLight, lightDistance, toEye, boxLightDirection.xyz);
     const float3 radiance = directionalLight * (1.0f - ShadowFactor(worldPosition, boxLightPositionAndRange.xyz, toBoxLightView, toBoxLightProjection, shadowDepthTexture, shadowSampler, boxLightShadowmapResolution));
 
-    output.myColor.rgb = radiance;
-    output.myColor.a = 1.0f;
+    output.Color.rgb = radiance;
+    output.Color.a = 1.0f;
     return output;
 }

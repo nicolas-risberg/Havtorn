@@ -22,9 +22,6 @@ namespace Havtorn
 		class CGBuffer CreateGBuffer(SVector2<F32> size);
 
 	private:
-		ID3D11ShaderResourceView* GetShaderResourceView(ID3D11Device* device, std::string filePath);
-
-	private:
 		CGraphicsFramework* Framework;
 	};
 }
