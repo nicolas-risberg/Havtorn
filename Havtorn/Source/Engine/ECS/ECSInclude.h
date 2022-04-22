@@ -12,3 +12,6 @@
 #include "ECS/Components/TransformComponent.h"
 #include "ECS/Components/StaticMeshComponent.h"
 #include "ECS/Components/CameraComponent.h"
+#include "ECS/Components/DirectionalLightComponent.h"
+#include "ECS/Components/PointLightComponent.h"
+#include "ECS/Components/SpotLightComponent.h"

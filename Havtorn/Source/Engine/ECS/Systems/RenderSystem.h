@@ -11,7 +11,7 @@ namespace Havtorn
 	{
 	public:
 		CRenderSystem(CRenderManager* renderManager);
-		~CRenderSystem();
+		~CRenderSystem() override = default;
 
 		void Update(CScene* scene) override;
 	private:

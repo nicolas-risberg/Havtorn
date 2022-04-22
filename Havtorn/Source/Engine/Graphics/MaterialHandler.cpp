@@ -215,6 +215,16 @@ namespace Havtorn
 		return textures;
 	}
 
+	ID3D11ShaderResourceView* CMaterialHandler::RequestCubemap(const std::string& cubemapName)
+	{
+		if (!Cubemaps.contains(cubemapName))
+		{
+			Cubemaps.emplace(cubemapName, UGraphicsUtils::TryGetShaderResourceView(Device, CubemapPath + cubemapName + ".dds"));
+		}
+
+		return Cubemaps[cubemapName].Get();
+	}
+
 	void CMaterialHandler::ReleaseMaterial(const std::string& materialName)
 	{
 		if (Materials.contains(materialName))
@@ -474,7 +484,8 @@ namespace Havtorn
 	CMaterialHandler::CMaterialHandler()
 		: Device(nullptr)
 		, MaterialPath(ASSETPATH("Assets/Textures/"))
-		, DecalPath(ASSETPATH("Assets/IronWrought/Texture/Decal_texture/"))
+		, DecalPath(ASSETPATH("Assets/Textures/Decals/"))
+		, CubemapPath(ASSETPATH("Assets/Textures/Cubemaps/"))
 		, VertexLinksPath(ASSETPATH("Assets/Generated/"))
 	{
 	}

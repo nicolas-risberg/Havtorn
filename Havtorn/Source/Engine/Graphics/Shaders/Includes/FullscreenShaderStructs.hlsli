@@ -1,26 +1,30 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
-struct VertexInput {
+struct VertexInput
+{
     unsigned int myIndex : SV_VERTEXID;
 };
 
-struct VertexToPixel {
+struct VertexToPixel
+{
 	float4 myPosition : SV_POSITION;
 	float2 myUV : TEXCOORD;
 };
 
-struct PixelOutput {
+struct PixelOutput
+{
 	float4 myColor : SV_TARGET;
 };
 
-struct GBufferOutput {
+struct GBufferOutput
+{
     float3 myAlbedo         : SV_TARGET0;
     float3 myNormal         : SV_TARGET1;
     float3 myVertexNormal   : SV_TARGET2;
     float4 myMetalRoughAOEm : SV_TARGET3;
 };
 
-cbuffer FullscreenBuffer : register(b0)
+cbuffer FullscreenBuffer : register(b1)
 {
     float2 myResolution;
     float2 myNoiseScale;
@@ -54,6 +58,7 @@ Texture2D fullscreenTexture2 : register(t1);
 Texture2D fullscreenTexture3 : register(t2);
 Texture2D fullscreenTexture4 : register(t3);
 Texture2D fullscreenTexture5 : register(t4);
+Texture2D fullscreenDepthTexture : register(t5);
 SamplerState defaultSampler : register(s0); // Clamp Sampler
 SamplerState wrapSampler : register(s1);
 
@@ -71,4 +76,11 @@ float normpdf(in float x, in float sigma)
 float normpdf3(in float3 v, in float sigma)
 {
     return 0.39894 * exp(-0.5 * dot(v, v) / (sigma * sigma)) / sigma;
+}
+
+float4 PixelShader_Exists(float2 uv)
+{
+    float depth = fullscreenDepthTexture.Sample(defaultSampler, uv).r;
+
+    return float4(depth, 0.0f, 0.0f, 0.0f);
 }

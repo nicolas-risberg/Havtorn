@@ -65,6 +65,7 @@ float3 ACESApprox(const float3 x)
 PixelOutput main(VertexToPixel input)
 {
     PixelOutput returnValue;
+
     returnValue.myColor.rgba = 1.0f;
     const float3 resource = fullscreenTexture1.Sample(defaultSampler, input.myUV.xy).rgb;
 	

@@ -36,29 +36,29 @@ namespace Havtorn
         return true;
     }
 
-    void CRenderStateManager::SetBlendState(BlendStates aBlendState)
+    void CRenderStateManager::SetBlendState(EBlendStates aBlendState)
     {
         std::array<float, 4> blendFactors = { 0.5f, 0.5f, 0.5f, 0.5f };
         Context->OMSetBlendState(myBlendStates[(size_t)aBlendState], blendFactors.data(), 0xFFFFFFFFu);
     }
 
-    void CRenderStateManager::SetDepthStencilState(DepthStencilStates aDepthStencilState, UINT aStencilRef)
+    void CRenderStateManager::SetDepthStencilState(EDepthStencilStates aDepthStencilState, UINT aStencilRef)
     {
         Context->OMSetDepthStencilState(myDepthStencilStates[(size_t)aDepthStencilState], aStencilRef);
     }
 
-    void CRenderStateManager::SetRasterizerState(RasterizerStates aRasterizerState)
+    void CRenderStateManager::SetRasterizerState(ERasterizerStates aRasterizerState)
     {
         Context->RSSetState(myRasterizerStates[(size_t)aRasterizerState]);
     }
 
-    void CRenderStateManager::SetSamplerState(SamplerStates aSamplerState)
+    void CRenderStateManager::SetSamplerState(ESamplerStates aSamplerState)
     {
         Context->VSSetSamplers(0, 1, &mySamplerStates[(size_t)aSamplerState]);
         Context->PSSetSamplers(0, 1, &mySamplerStates[(size_t)aSamplerState]);
     }
 
-    void CRenderStateManager::SetAllStates(BlendStates aBlendState, DepthStencilStates aDepthStencilState, RasterizerStates aRasterizerState, SamplerStates aSamplerState)
+    void CRenderStateManager::SetAllStates(EBlendStates aBlendState, EDepthStencilStates aDepthStencilState, ERasterizerStates aRasterizerState, ESamplerStates aSamplerState)
     {
         SetBlendState(aBlendState);
         SetDepthStencilState(aDepthStencilState);
@@ -68,30 +68,30 @@ namespace Havtorn
 
     void CRenderStateManager::SetAllDefault()
     {
-        SetBlendState(BlendStates::BLENDSTATE_DISABLE);
-        SetDepthStencilState(DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-        SetRasterizerState(RasterizerStates::RASTERIZERSTATE_DEFAULT);
-        SetSamplerState(SamplerStates::SAMPLERSTATE_TRILINEAR);
+        SetBlendState(EBlendStates::Disable);
+        SetDepthStencilState(EDepthStencilStates::Default);
+        SetRasterizerState(ERasterizerStates::Default);
+        SetSamplerState(ESamplerStates::Trilinear);
     }
 
     void CRenderStateManager::Release()
     {
-        for (unsigned int i = 0; i < static_cast<unsigned int>(BlendStates::BLENDSTATE_COUNT); ++i)
+        for (unsigned int i = 0; i < static_cast<unsigned int>(EBlendStates::Count); ++i)
         {
             myBlendStates[i]->Release();
         }
 
-        for (unsigned int i = 0; i < static_cast<unsigned int>(DepthStencilStates::DEPTHSTENCILSTATE_COUNT); ++i)
+        for (unsigned int i = 0; i < static_cast<unsigned int>(EDepthStencilStates::Count); ++i)
         {
             myDepthStencilStates[i]->Release();
         }
 
-        for (unsigned int i = 0; i < static_cast<unsigned int>(RasterizerStates::RASTERIZERSTATE_COUNT); ++i)
+        for (unsigned int i = 0; i < static_cast<unsigned int>(ERasterizerStates::Count); ++i)
         {
             myRasterizerStates[i]->Release();
         }
 
-        for (unsigned int i = 0; i < static_cast<unsigned int>(SamplerStates::SAMPLERSTATE_COUNT); ++i)
+        for (unsigned int i = 0; i < static_cast<unsigned int>(ESamplerStates::Count); ++i)
         {
             mySamplerStates[i]->Release();
         }
@@ -142,10 +142,10 @@ namespace Havtorn
         ID3D11BlendState* gbufferBlendState;
         ENGINE_HR_MESSAGE(aDevice->CreateBlendState(&gbufferBlendDesc, &gbufferBlendState), "GBuffer Alpha Blend State could not be created");
 
-        myBlendStates[(size_t)BlendStates::BLENDSTATE_DISABLE] = nullptr;
-        myBlendStates[(size_t)BlendStates::BLENDSTATE_ALPHABLEND] = alphaBlendState;
-        myBlendStates[(size_t)BlendStates::BLENDSTATE_ADDITIVEBLEND] = additiveBlendState;
-        myBlendStates[(size_t)BlendStates::BLENDSTATE_GBUFFERALPHABLEND] = gbufferBlendState;
+        myBlendStates[(size_t)EBlendStates::Disable] = nullptr;
+        myBlendStates[(size_t)EBlendStates::AlphaBlend] = alphaBlendState;
+        myBlendStates[(size_t)EBlendStates::AdditiveBlend] = additiveBlendState;
+        myBlendStates[(size_t)EBlendStates::GBufferAlphaBlend] = gbufferBlendState;
 
         return true;
     }
@@ -198,11 +198,11 @@ namespace Havtorn
         ID3D11DepthStencilState* depthFirstStencilState;
         ENGINE_HR_MESSAGE(aDevice->CreateDepthStencilState(&depthFirstDesc, &depthFirstStencilState), "Depth First Stencil State could not be created.");
 
-        myDepthStencilStates[(size_t)DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT] = nullptr;
-        myDepthStencilStates[(size_t)DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD] = onlyreadDepthStencilState;
-        myDepthStencilStates[(size_t)DepthStencilStates::DEPTHSTENCILSTATE_STENCILWRITE] = writeDepthStencilState;
-        myDepthStencilStates[(size_t)DepthStencilStates::DEPTHSTENCILSTATE_STENCILMASK] = maskDepthStencilState;
-        myDepthStencilStates[(size_t)DepthStencilStates::DEPTHSTENCILSTATE_DEPTHFIRST] = depthFirstStencilState;
+        myDepthStencilStates[(size_t)EDepthStencilStates::Default] = nullptr;
+        myDepthStencilStates[(size_t)EDepthStencilStates::OnlyRead] = onlyreadDepthStencilState;
+        myDepthStencilStates[(size_t)EDepthStencilStates::StencilWrite] = writeDepthStencilState;
+        myDepthStencilStates[(size_t)EDepthStencilStates::StencilMask] = maskDepthStencilState;
+        myDepthStencilStates[(size_t)EDepthStencilStates::DepthFirst] = depthFirstStencilState;
 
         return true;
     }
@@ -233,10 +233,10 @@ namespace Havtorn
         ID3D11RasterizerState* noCullState;
         ENGINE_HR_MESSAGE(aDevice->CreateRasterizerState(&noCullDesc, &noCullState), "No Face culling Rasterizer State could not be created.");
 
-        myRasterizerStates[(size_t)RasterizerStates::RASTERIZERSTATE_DEFAULT] = nullptr;
-        myRasterizerStates[(size_t)RasterizerStates::RASTERIZERSTATE_WIREFRAME] = wireframeRasterizerState;
-        myRasterizerStates[(size_t)RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING] = frontFaceState;
-        myRasterizerStates[(size_t)RasterizerStates::RASTERIZERSTATE_NOFACECULLING] = noCullState;
+        myRasterizerStates[(size_t)ERasterizerStates::Default] = nullptr;
+        myRasterizerStates[(size_t)ERasterizerStates::Wireframe] = wireframeRasterizerState;
+        myRasterizerStates[(size_t)ERasterizerStates::FrontFaceCulling] = frontFaceState;
+        myRasterizerStates[(size_t)ERasterizerStates::NoFaceCulling] = noCullState;
 
         return true;
     }
@@ -267,9 +267,9 @@ namespace Havtorn
         ID3D11SamplerState* wrapSamplerState;
         ENGINE_HR_MESSAGE(aDevice->CreateSamplerState(&wrapSamplerDesc, &wrapSamplerState), "Wrap Sampler could not be created.");
 
-        mySamplerStates[(size_t)SamplerStates::SAMPLERSTATE_TRILINEAR] = nullptr;
-        mySamplerStates[(size_t)SamplerStates::SAMPLERSTATE_POINT] = pointSamplerState;
-        mySamplerStates[(size_t)SamplerStates::SAMPLERSTATE_WRAP] = wrapSamplerState;
+        mySamplerStates[(size_t)ESamplerStates::Trilinear] = nullptr;
+        mySamplerStates[(size_t)ESamplerStates::Point] = pointSamplerState;
+        mySamplerStates[(size_t)ESamplerStates::Wrap] = wrapSamplerState;
 
         return true;
     }

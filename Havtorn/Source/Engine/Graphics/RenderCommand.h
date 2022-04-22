@@ -44,7 +44,6 @@ namespace Havtorn
 		}
 
 		std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> Components;
-		//std::vector<Ref<SComponent>> Components;
 		ERenderCommandType Type;
 	};
 }

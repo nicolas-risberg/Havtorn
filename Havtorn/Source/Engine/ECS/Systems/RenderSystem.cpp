@@ -15,15 +15,12 @@ namespace Havtorn
 	{
 	}
 
-	CRenderSystem::~CRenderSystem()
-	{
-	}
-
 	void CRenderSystem::Update(CScene* scene)
 	{
 		const auto& staticMeshComponents = scene->GetStaticMeshComponents();
 		const auto& transformComponents = scene->GetTransformComponents();
 		const auto& cameraComponents = scene->GetCameraComponents();
+		const auto& directionalLightComponents = scene->GetDirectionalLightComponents();
 
 		if (!cameraComponents.empty())
 		{
@@ -61,6 +58,18 @@ namespace Havtorn
 			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
 			components[static_cast<U8>(EComponentType::StaticMeshComponent)] = staticMeshComponent;
 			SRenderCommand command(components, ERenderCommandType::GBufferData);
+			RenderManager->PushRenderCommand(command);
+		}
+
+		if (!directionalLightComponents.empty())
+		{
+			const I64 transformCompIndex = directionalLightComponents[0]->Entity->GetComponentIndex(EComponentType::TransformComponent);
+			auto& transformComp = transformComponents[transformCompIndex];
+
+			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
+			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
+			components[static_cast<U8>(EComponentType::DirectionalLightComponent)] = directionalLightComponents[0];
+			SRenderCommand command(components, ERenderCommandType::DeferredLighting);
 			RenderManager->PushRenderCommand(command);
 		}
 	}
