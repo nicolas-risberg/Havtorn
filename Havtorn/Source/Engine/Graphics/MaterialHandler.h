@@ -44,6 +44,9 @@ namespace Havtorn
 		std::array<ID3D11ShaderResourceView*, 3> RequestMaterial(const std::string& materialName);
 		std::array<ID3D11ShaderResourceView*, 3> RequestDecal(const std::string& decalName);
 		std::array<ID3D11ShaderResourceView*, 9> GetVertexPaintMaterials(const std::vector<std::string>& materialNames);
+
+		ID3D11ShaderResourceView* RequestCubemap(const std::string& cubemapName);
+		
 		void ReleaseMaterial(const std::string& materialName);
 
 		SVertexPaintData RequestVertexColorID(const std::vector<SVertexPaintColorData>::const_iterator& it, const std::string& modelPath, const std::vector<std::string>& materials);
@@ -79,9 +82,12 @@ namespace Havtorn
 		std::map<std::string, U32> MaterialReferences;
 		std::map<I32, U32> VertexColorReferences;
 
+		std::map<std::string, WinComPtr<ID3D11ShaderResourceView>> Cubemaps;
+
 		ID3D11Device* Device;
 		const std::string MaterialPath;
 		const std::string DecalPath;
+		const std::string CubemapPath;
 		const std::string VertexLinksPath;
 
 	private:

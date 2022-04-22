@@ -41,18 +41,20 @@ namespace Havtorn
 	unsigned int CRenderManager::NumberOfDrawCallsThisFrame = 0;
 
 	CRenderManager::CRenderManager()
-		: DoFullRender(true)
-		, UseAntiAliasing(true)
-		, UseBrokenScreenPass(false)
-		, PushToCommands(&RenderCommandsA)
-		, PopFromCommands(&RenderCommandsB)
-		, ClearColor(0.5f, 0.5f, 0.5f, 1.0f)
-		, RenderPassIndex(0)
-		, Framework(nullptr)
-		, Context(nullptr)
-		, FrameBuffer(nullptr)
-		, ObjectBuffer(nullptr)
-	{}
+		: Framework(nullptr)
+	    , Context(nullptr)
+	    , FrameBuffer(nullptr)
+	    , ObjectBuffer(nullptr)
+	    , LightBuffer(nullptr)
+	    , PushToCommands(&RenderCommandsA)
+	    , PopFromCommands(&RenderCommandsB)
+	    , ClearColor(0.5f, 0.5f, 0.5f, 1.0f)
+	    , RenderPassIndex(0)
+	    , DoFullRender(true)
+	    , UseAntiAliasing(true)
+	    , UseBrokenScreenPass(false)
+	{
+	}
 
 	CRenderManager::~CRenderManager()
 	{
@@ -75,6 +77,9 @@ namespace Havtorn
 		bufferDescription.ByteWidth = sizeof(SObjectBufferData);
 		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &ObjectBuffer), "Object Buffer could not be created.");
 
+		bufferDescription.ByteWidth = sizeof(SDirectionalLightBufferData);
+		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &LightBuffer), "Light Buffer could not be created.");
+
 		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myDeferredRenderer.Init(aFramework, &CMainSingleton::MaterialHandler()), "Failed to Init Deferred Renderer.");
@@ -96,12 +101,17 @@ namespace Havtorn
 		InitRenderTextures(windowHandler);
 
 		// Load default resources
-		const std::string vsData = AddShader("Shaders/Demo_VS.cso", EShaderType::Vertex);
-		//const std::string vsData = AddShader("Shaders/DeferredModel_VS.cso", EShaderType::Vertex);
+		//const std::string vsData = AddShader("Shaders/Demo_VS.cso", EShaderType::Vertex);
+		const std::string vsData = AddShader("Shaders/DeferredModel_VS.cso", EShaderType::Vertex);
 		AddInputLayout(vsData, EInputLayoutType::Pos3Nor3Tan3Bit3UV2);
-		AddShader("Shaders/Demo_PS.cso", EShaderType::Pixel);
-		//AddShader("Shaders/GBuffer_PS.cso", EShaderType::Pixel);
+		AddShader("Shaders/DeferredVertexShader_VS.cso", EShaderType::Vertex);
+
+		//AddShader("Shaders/Demo_PS.cso", EShaderType::Pixel);
+		AddShader("Shaders/GBuffer_PS.cso", EShaderType::Pixel);
+		AddShader("Shaders/DeferredLightEnvironment_PS.cso", EShaderType::Pixel);
+
 		AddSampler(ESamplerType::Wrap);
+		AddSampler(ESamplerType::Border);
 		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		// For PBR Testing: Change Default Shaders, change loaded ShaderResource indices, change active render target
@@ -134,9 +144,12 @@ namespace Havtorn
 	{
 		RenderedScene = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
 		IntermediateDepth = FullscreenTextureFactory.CreateDepth(windowHandler->GetResolution(), DXGI_FORMAT_R24G8_TYPELESS);
-		//myEnvironmentShadowDepth = FullscreenTextureFactory.CreateDepth({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R32_TYPELESS);
+
+		DefaultCubemap = CEngine::GetInstance()->GetMaterialHandler()->RequestCubemap("ForestCubemap");
+
+		EnvironmentShadowDepth = FullscreenTextureFactory.CreateDepth({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R32_TYPELESS);
 		//myBoxLightShadowDepth = FullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_TYPELESS);
-		//myDepthCopy = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_FLOAT);
+		DepthCopy = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R32_FLOAT);
 		//myDownsampledDepth = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R32_FLOAT);
 
 		//myIntermediateTexture = FullscreenTextureFactory.CreateTexture({ 2048.0f * 1.0f, 2048.0f * 1.0f }, DXGI_FORMAT_R16G16B16A16_FLOAT);
@@ -153,11 +166,11 @@ namespace Havtorn
 		//myVolumetricAccumulationBuffer = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		//myVolumetricBlurTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
-		//mySSAOBuffer = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//mySSAOBlurTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		SSAOBuffer = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		SSAOBlurTexture = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
 
-		//myTonemappedTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
-		//myAntiAliasedTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		TonemappedTexture = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
+		AntiAliasedTexture = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
 		GBuffer = FullscreenTextureFactory.CreateGBuffer(windowHandler->GetResolution());
 		//myGBufferCopy = FullscreenTextureFactory.CreateGBuffer(aWindowHandler->GetResolution());
 	}
@@ -172,15 +185,20 @@ namespace Havtorn
 
 			CRenderManager::NumberOfDrawCallsThisFrame = 0;
 			RenderStateManager.SetAllDefault();
-			
-			RenderedScene.ClearTexture(ClearColor);
+
+			Backbuffer.ClearTexture();
+			EnvironmentShadowDepth.ClearDepth();
+			SSAOBuffer.ClearTexture();
+
+			RenderedScene.ClearTexture();
 			IntermediateDepth.ClearDepth();
-			RenderedScene.SetAsActiveTarget(&IntermediateDepth);
-			//GBuffer.SetAsActiveTarget(&IntermediateDepth);
+			GBuffer.ClearTextures(ClearColor);
+			GBuffer.SetAsActiveTarget(&IntermediateDepth);
 
 			ID3D11DeviceContext* context = Framework->GetContext();
 
-			for (U16 i = 0; i < PopFromCommands->size(); ++i)
+			const U16 commandsInHeap = static_cast<U16>(PopFromCommands->size());
+			for (U16 i = 0; i < commandsInHeap; ++i)
 			{
 				SRenderCommand currentCommand = PopFromCommands->top();
 				switch (currentCommand.Type)
@@ -201,6 +219,7 @@ namespace Havtorn
 					context->PSSetConstantBuffers(0, 1, &FrameBuffer);
 				}
 				break;
+
 				case ERenderCommandType::GBufferData:
 				{
 					const auto transformComp = currentCommand.GetComponent(TransformComponent);
@@ -219,9 +238,9 @@ namespace Havtorn
 					ID3D11SamplerState* sampler = Samplers[staticMeshComp->SamplerIndex];
 					context->PSSetSamplers(0, 1, &sampler);
 
-					context->PSSetShaderResources(0, 1, &DefaultAlbedoTexture);
-					context->PSSetShaderResources(1, 1, &DefaultMaterialTexture);
-					context->PSSetShaderResources(2, 1, &DefaultNormalTexture);
+					context->PSSetShaderResources(5, 1, &DefaultAlbedoTexture);
+					context->PSSetShaderResources(6, 1, &DefaultMaterialTexture);
+					context->PSSetShaderResources(7, 1, &DefaultNormalTexture);
 
 					for (const auto& drawData : staticMeshComp->DrawCallData)
 					{
@@ -233,12 +252,100 @@ namespace Havtorn
 					}
 				}
 				break;
+
+				case ERenderCommandType::DeferredLighting:
+				{
+					//DepthCopy.SetAsActiveTarget();
+					//IntermediateDepth.SetAsResourceOnSlot(0);
+					//FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::CopyDepth);
+
+					// === SSAO ===
+					SSAOBuffer.SetAsActiveTarget();
+					GBuffer.SetAsResourceOnSlot(CGBuffer::EGBufferTextures::Normal, 2);
+					IntermediateDepth.SetAsResourceOnSlot(21);
+					FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::SSAO);
+					RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable);
+			
+					SSAOBlurTexture.SetAsActiveTarget();
+					SSAOBuffer.SetAsResourceOnSlot(0);
+					FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::SSAOBlur);
+					// === !SSAO ===
+
+					RenderedScene.SetAsActiveTarget();
+					GBuffer.SetAllAsResources(1);
+					IntermediateDepth.SetAsResourceOnSlot(21);
+					RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AdditiveBlend);
+
+					//EnvironmentShadowDepth.SetAsResourceOnSlot(22);
+					SSAOBlurTexture.SetAsResourceOnSlot(23);
+					Context->PSSetShaderResources(0, 1, &DefaultCubemap);
+
+					const auto directionalLightComp = currentCommand.GetComponent(DirectionalLightComponent);
+					// Update lightbufferdata and fill lightbuffer
+					DirectionalLightBufferData.DirectionalLightDirection = directionalLightComp->Direction;
+					DirectionalLightBufferData.DirectionalLightColor = directionalLightComp->Color;
+					DirectionalLightBufferData.DirectionalLightPosition = directionalLightComp->ShadowPosition;
+					DirectionalLightBufferData.ToDirectionalLightView = directionalLightComp->ShadowViewMatrix;
+					DirectionalLightBufferData.ToDirectionalLightProjection = directionalLightComp->ShadowProjectionMatrix;
+					DirectionalLightBufferData.DirectionalLightShadowMapResolution = { 2048.0f * 4.0f, 2048.0f * 4.0f };
+					BindBuffer(LightBuffer, DirectionalLightBufferData, "Light Buffer");
+					Context->PSSetConstantBuffers(2, 1, &LightBuffer);
+
+					// Emissive Post Processing 
+					//EmissiveBufferData.EmissiveStrength = GetPostProcessingBufferData().EmissiveStrength;
+					//BindBuffer(EmissiveBuffer, EmissiveBufferData, "Emissive Buffer");
+					//Context->PSSetConstantBuffers(5, 1, &EmissiveBuffer);
+
+					Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+					Context->IASetInputLayout(nullptr);
+					Context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+					Context->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
+
+					Context->GSSetShader(nullptr, nullptr, 0);
+
+					Context->VSSetShader(VertexShaders[1], nullptr, 0);
+
+					Context->PSSetShader(PixelShaders[1], nullptr, 0);
+
+					Context->PSSetSamplers(0, 1, &Samplers[0]);
+					Context->PSSetSamplers(1, 1, &Samplers[1]);
+
+					Context->Draw(3, 0);
+					CRenderManager::NumberOfDrawCallsThisFrame++;
+				}
+				break;
+
 				default:
 					break;
 				}
 				PopFromCommands->pop();
 			}
 
+			RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable);
+			RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::Default);
+	
+			// Bloom
+			//RenderBloom();
+
+			// For PixelExists checking in fullscreen shaders
+			IntermediateDepth.SetAsResourceOnSlot(5);
+
+			// Tonemapping
+			TonemappedTexture.SetAsActiveTarget();
+			RenderedScene.SetAsResourceOnSlot(0);
+			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::Tonemap);
+	
+			// Anti-aliasing
+			AntiAliasedTexture.SetAsActiveTarget();
+			TonemappedTexture.SetAsResourceOnSlot(0);
+			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::FXAA);
+
+			// Gamma correction
+			RenderedScene.SetAsActiveTarget();
+			AntiAliasedTexture.SetAsResourceOnSlot(0);
+			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::GammaCorrection);
+
+			// RenderedScene should be complete as that is the texture we send to the viewport
 			Backbuffer.SetAsActiveTarget();
 			RenderedScene.SetAsResourceOnSlot(0);
 			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::Copy);
@@ -346,8 +453,8 @@ namespace Havtorn
 		//		myIntermediateDepth.SetAsResourceOnSlot(0);
 		//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::CopyDepth);
 		//
-		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
-		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::OnlyRead);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AlphaBlend);
 		//		myGBuffer.SetAsActiveTarget(&myIntermediateDepth);
 		//		myDepthCopy.SetAsResourceOnSlot(21);
 		//		myDecalRenderer.Render(maincamera, gameObjects);
@@ -357,7 +464,7 @@ namespace Havtorn
 		//		myGBuffer.SetAsResourceOnSlot(CGBuffer::EGBufferTextures::NORMAL, 2);
 		//		myIntermediateDepth.SetAsResourceOnSlot(21);
 		//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::SSAO);
-		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable);
 		//
 		//		mySSAOBlurTexture.SetAsActiveTarget();
 		//		mySSAOBuffer.SetAsResourceOnSlot(0);
@@ -367,7 +474,7 @@ namespace Havtorn
 		//		myDeferredLightingTexture.SetAsActiveTarget();
 		//		myGBuffer.SetAllAsResources();
 		//		myDepthCopy.SetAsResourceOnSlot(21);
-		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AdditiveBlend);
 		//		std::vector<CPointLight*> onlyPointLights;
 		//		onlyPointLights = aScene.CullPointLights(gameObjects);
 		//		std::vector<CSpotLight*> onlySpotLights;
@@ -383,7 +490,7 @@ namespace Havtorn
 		//			mySSAOBlurTexture.SetAsResourceOnSlot(23);
 		//			myLightRenderer.Render(maincamera, environmentlight);
 		//
-		//			RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
+		//			RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::FrontFaceCulling);
 		//
 		//			myLightRenderer.Render(maincamera, onlySpotLights);
 		//			myLightRenderer.Render(maincamera, onlyPointLights);
@@ -417,14 +524,14 @@ namespace Havtorn
 		//#pragma endregion
 		//
 		//		// Skybox
-		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable);
 		//		myDeferredLightingTexture.SetAsActiveTarget(&myIntermediateDepth);
 		//
-		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEPTHFIRST);
-		//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_FRONTFACECULLING);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::DepthFirst);
+		//		RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::FrontFaceCulling);
 		//		myDeferredRenderer.RenderSkybox(maincamera, environmentlight);
-		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-		//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::Default);
+		//		RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::Default);
 		//
 		//		// Render Lines
 		//		const std::vector<CLineInstance*>& lineInstances = aScene.CullLineInstances();
@@ -435,10 +542,10 @@ namespace Havtorn
 		//		// All relevant objects are moved to deferred now
 		//
 		//		//// Alpha stage for objects in World 3D space
-		//		////RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
-		//		//RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE); // Alpha clipped
-		//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
-		//		////RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+		//		////RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AlphaBlend);
+		//		//RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable); // Alpha clipped
+		//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::Default);
+		//		////RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::OnlyRead);
 		//
 		//		//std::vector<LightPair> pointlights;
 		//		//std::vector<LightPair> pointLightsInstanced;
@@ -467,20 +574,20 @@ namespace Havtorn
 		//	//		// Volumetric Lighting
 		//	//		myVolumetricAccumulationBuffer.SetAsActiveTarget();
 		//	//		myDepthCopy.SetAsResourceOnSlot(21);
-		//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
-		//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
+		//	//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AdditiveBlend);
+		//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::NoFaceCulling);
 		//	//
 		//	//		myLightRenderer.RenderVolumetric(maincamera, onlyPointLights);
 		//	//		myLightRenderer.RenderVolumetric(maincamera, onlySpotLights);
 		//	//		myBoxLightShadowDepth.SetAsResourceOnSlot(22);
 		//	//		myLightRenderer.RenderVolumetric(maincamera, onlyBoxLights);
-		//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+		//	//		RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::Default);
 		//	//		myEnvironmentShadowDepth.SetAsResourceOnSlot(22);
 		//	//		myLightRenderer.RenderVolumetric(maincamera, environmentlight);
 		//	//		myLightRenderer.RenderVolumetric(maincamera, onlySecondaryEnvironmentLights);
 		//	//
 		//	//		// Downsampling and Blur
-		//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
+		//	//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable);
 		//	//		myDownsampledDepth.SetAsActiveTarget();
 		//	//		myIntermediateDepth.SetAsResourceOnSlot(0);
 		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::DownsampleDepth);
@@ -519,7 +626,7 @@ namespace Havtorn
 		//	//		myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::BilateralVertical);
 		//	//
 		//	//		// Upsampling
-		//	//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
+		//	//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AdditiveBlend);
 		//	//		myDeferredLightingTexture.SetAsActiveTarget();
 		//	//		myVolumetricAccumulationBuffer.SetAsResourceOnSlot(0);
 		//	//		myDownsampledDepth.SetAsResourceOnSlot(1);
@@ -530,16 +637,16 @@ namespace Havtorn
 		//
 		//		//VFX
 		//		myDeferredLightingTexture.SetAsActiveTarget(&myIntermediateDepth);
-		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ADDITIVEBLEND);
-		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
-		//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_NOFACECULLING);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AdditiveBlend);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::OnlyRead);
+		//		RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::NoFaceCulling);
 		//		myVFXRenderer.Render(maincamera, gameObjects);
-		//		RenderStateManager.SetRasterizerState(CRenderStateManager::RasterizerStates::RASTERIZERSTATE_DEFAULT);
+		//		RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::Default);
 		//
 		//		myParticleRenderer.Render(maincamera, gameObjects);
 		//
-		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-		//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable);
+		//		//RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::Default);
 		//
 		//		// Bloom
 		//		RenderBloom();
@@ -596,8 +703,8 @@ namespace Havtorn
 		//
 		//		//Backbuffer.SetAsActiveTarget();
 		//
-		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_ALPHABLEND);
-		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_ONLYREAD);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AlphaBlend);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::OnlyRead);
 		//
 		//		std::vector<CSpriteInstance*> sprites;
 		//		std::vector<CSpriteInstance*> animatedUIFrames;
@@ -623,8 +730,8 @@ namespace Havtorn
 		//		// Text
 		//		CMainSingleton::PopupTextService().EmplaceTexts(textsToRender);
 		//		CMainSingleton::DialogueSystem().EmplaceTexts(textsToRender);
-		//		RenderStateManager.SetBlendState(CRenderStateManager::BlendStates::BLENDSTATE_DISABLE);
-		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::DepthStencilStates::DEPTHSTENCILSTATE_DEFAULT);
+		//		RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable);
+		//		RenderStateManager.SetDepthStencilState(CRenderStateManager::EDepthStencilStates::Default);
 		//		myTextRenderer.Render(textsToRender);
 	}
 
@@ -971,7 +1078,8 @@ namespace Havtorn
 	void CRenderManager::AddSampler(ESamplerType samplerType)
 	{
 		// TODO.NR: Extend to different LOD levels and filters
-		D3D11_SAMPLER_DESC samplerDesc = {};
+		D3D11_SAMPLER_DESC samplerDesc = CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} };
+		samplerDesc.BorderColor[0] = 1.0f;
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		samplerDesc.MinLOD = 0;
 		samplerDesc.MaxLOD = 10;

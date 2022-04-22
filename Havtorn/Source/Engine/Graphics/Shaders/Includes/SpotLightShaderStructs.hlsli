@@ -60,5 +60,5 @@ cbuffer SpotLightValueBuffer : register(b3)
     float4 myDownLeftCorner;
     float4 myDownRightCorner;
     float2 myInnerOuterAngle;
-    float2 padding;
+    float2 spotlightPadding;
 }

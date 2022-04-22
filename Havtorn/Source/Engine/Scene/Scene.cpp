@@ -3,6 +3,7 @@
 #include "Scene.h"
 
 #include "ECS/ECSInclude.h"
+#include "ECS/Components/DirectionalLightComponent.h"
 #include "Graphics/RenderManager.h"
 
 namespace Havtorn
@@ -14,10 +15,6 @@ namespace Havtorn
 	//	, Systems()
 	//{}
 
-	CScene::~CScene()
-	{
-	}
-
 	bool CScene::Init(CRenderManager* renderManager)
 	{
 		// Setup systems
@@ -27,16 +24,24 @@ namespace Havtorn
 		// Create entities
 		Entities.emplace_back(std::make_shared<SEntity>(1, "Camera"));
 		auto cameraEntity = Entities[0];
+		Entities.emplace_back(std::make_shared<SEntity>(2, "DirectionalLight"));
+		auto directionalLightEntity = Entities[1];
 
 		// Setup entities (create components)
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(cameraEntity, EComponentType::TransformComponent));
 		cameraEntity->AddComponent(EComponentType::TransformComponent, 0);
-		TransformComponents.back()->Transform.GetMatrix().Translation({ 0.0f, 0.0f, -5.0f });
+		TransformComponents.back()->Transform.GetMatrix().Translation({ 0.0f, 0.0f, -15.0f });
+
+		TransformComponents.emplace_back(std::make_shared<STransformComponent>(directionalLightEntity, EComponentType::TransformComponent));
+		directionalLightEntity->AddComponent(EComponentType::TransformComponent, 1);
 
 		CameraComponents.emplace_back(std::make_shared<SCameraComponent>(cameraEntity, EComponentType::CameraComponent));
 		cameraEntity->AddComponent(EComponentType::CameraComponent, 0);
 		CameraComponents.back()->ProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(70.0f), (16.0f / 9.0f), 0.1f, 1000.0f);
 		CameraComponents.back()->ViewMatrix = SMatrix::LookAtLH(SVector::Zero, SVector::Forward, SVector::Up);
+
+		DirectionalLightComponents.emplace_back(std::make_shared<SDirectionalLightComponent>(directionalLightEntity, EComponentType::DirectionalLightComponent));
+		directionalLightEntity->AddComponent(EComponentType::DirectionalLightComponent, 0);
 
 		InitDemoScene(renderManager);
 
@@ -45,7 +50,7 @@ namespace Havtorn
 
 	void CScene::Update()
 	{
-		for (auto& system : Systems)
+		for (const auto& system : Systems)
 		{
 			system->Update(this);
 		}
@@ -70,7 +75,7 @@ namespace Havtorn
 			auto cubeEntity = Entities.back();
 
 			TransformComponents.emplace_back(std::make_shared<STransformComponent>(cubeEntity, EComponentType::TransformComponent));
-			cubeEntity->AddComponent(EComponentType::TransformComponent, i + 1);
+			cubeEntity->AddComponent(EComponentType::TransformComponent, i + 2);
 			auto& transform = TransformComponents.back()->Transform;
 			transform.GetMatrix().Translation(SVector::Random(minTranslation, maxTranslation));
 			transform.Rotate(SVector::Random(minEulerRotation, maxEulerRotation));
@@ -82,14 +87,22 @@ namespace Havtorn
 
 		std::vector<SVector> corners;
 		constexpr F32 cornerRadius = 15.0f;
+		//corners.emplace_back(SVector(cornerRadius, cornerRadius, cornerRadius));
+		//corners.emplace_back(SVector(-cornerRadius, cornerRadius, cornerRadius));
+		//corners.emplace_back(SVector(cornerRadius, -cornerRadius, cornerRadius));
+		//corners.emplace_back(SVector(cornerRadius, cornerRadius, -cornerRadius));
+		//corners.emplace_back(SVector(-cornerRadius, -cornerRadius, cornerRadius));
+		//corners.emplace_back(SVector(cornerRadius, -cornerRadius, -cornerRadius));
+		//corners.emplace_back(SVector(-cornerRadius, cornerRadius, -cornerRadius));
+		//corners.emplace_back(SVector(-cornerRadius, -cornerRadius, -cornerRadius));
 		corners.emplace_back(SVector(cornerRadius, cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(-cornerRadius, cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius, -cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius, cornerRadius, -cornerRadius));
-		corners.emplace_back(SVector(-cornerRadius, -cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius, -cornerRadius, -cornerRadius));
-		corners.emplace_back(SVector(-cornerRadius, cornerRadius, -cornerRadius));
-		corners.emplace_back(SVector(-cornerRadius, -cornerRadius, -cornerRadius));
+		corners.emplace_back(SVector(cornerRadius+4.0f, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius+8.0f, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius+12.0f, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius+16.0f, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius+20.0f, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius+24.0f, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius+28.0f, cornerRadius, cornerRadius));
 
 		for (U8 i = 0; i < 8; i++)
 		{
@@ -98,7 +111,7 @@ namespace Havtorn
 			auto cubeEntity = Entities.back();
 
 			TransformComponents.emplace_back(std::make_shared<STransformComponent>(cubeEntity, EComponentType::TransformComponent));
-			cubeEntity->AddComponent(EComponentType::TransformComponent, cubeNumber + i + 1);
+			cubeEntity->AddComponent(EComponentType::TransformComponent, cubeNumber + i + 2);
 			auto& transform = TransformComponents.back()->Transform;
 			transform.GetMatrix().Translation(corners[i]);
 

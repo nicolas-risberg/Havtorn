@@ -133,11 +133,25 @@ namespace Havtorn
 		} ObjectBufferData;
 		HV_ASSERT_BUFFER(SObjectBufferData)
 
+		struct SDirectionalLightBufferData
+		{
+			SMatrix ToDirectionalLightView;
+			SMatrix ToDirectionalLightProjection;
+			SVector4 DirectionalLightPosition;
+			SVector4 DirectionalLightDirection;
+			SVector4 DirectionalLightColor;
+			SVector2<F32> DirectionalLightShadowMapResolution;
+			SVector2<F32> Padding;
+		} DirectionalLightBufferData;
+		static_assert((sizeof(SDirectionalLightBufferData) % 16) == 0, "CB size not padded correctly");
+		HV_ASSERT_BUFFER(SDirectionalLightBufferData)
+
 	private:
 		CGraphicsFramework* Framework;
 		ID3D11DeviceContext* Context;
 		ID3D11Buffer* FrameBuffer;
 		ID3D11Buffer* ObjectBuffer;
+		ID3D11Buffer* LightBuffer;
 		CRenderStateManager RenderStateManager;
 		//CForwardRenderer ForwardRenderer;
 		//CDeferredRenderer myDeferredRenderer;
@@ -155,9 +169,9 @@ namespace Havtorn
 		CFullscreenTexture Backbuffer;
 		//CFullscreenTexture myIntermediateTexture;
 		CFullscreenTexture IntermediateDepth;
-		//CFullscreenTexture myEnvironmentShadowDepth;
+		CFullscreenTexture EnvironmentShadowDepth;
 		//CFullscreenTexture myBoxLightShadowDepth;
-		//CFullscreenTexture myDepthCopy;
+		CFullscreenTexture DepthCopy;
 		//CFullscreenTexture myLuminanceTexture;
 		//CFullscreenTexture myHalfSizeTexture;
 		//CFullscreenTexture myQuarterSizeTexture;
@@ -168,11 +182,11 @@ namespace Havtorn
 		//CFullscreenTexture myDeferredLightingTexture;
 		//CFullscreenTexture myVolumetricAccumulationBuffer;
 		//CFullscreenTexture myVolumetricBlurTexture;
-		//CFullscreenTexture mySSAOBuffer;
-		//CFullscreenTexture mySSAOBlurTexture;
+		CFullscreenTexture SSAOBuffer;
+		CFullscreenTexture SSAOBlurTexture;
 		//CFullscreenTexture myDownsampledDepth;
-		//CFullscreenTexture myTonemappedTexture;
-		//CFullscreenTexture myAntiAliasedTexture;
+		CFullscreenTexture TonemappedTexture;
+		CFullscreenTexture AntiAliasedTexture;
 		CGBuffer GBuffer;
 		//CGBuffer myGBufferCopy;
 		CRenderCommandHeap RenderCommandsA;
@@ -205,6 +219,8 @@ namespace Havtorn
 		ID3D11ShaderResourceView* DefaultAlbedoTexture = nullptr;
 		ID3D11ShaderResourceView* DefaultNormalTexture = nullptr;
 		ID3D11ShaderResourceView* DefaultMaterialTexture = nullptr;
+
+		ID3D11ShaderResourceView* DefaultCubemap = nullptr;
 	};
 
 	template <typename T>

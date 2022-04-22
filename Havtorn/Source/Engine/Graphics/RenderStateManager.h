@@ -8,40 +8,40 @@ namespace Havtorn
 	class CRenderStateManager
 	{
 	public:
-		enum class BlendStates
+		enum class EBlendStates
 		{
-			BLENDSTATE_DISABLE,
-			BLENDSTATE_ALPHABLEND,
-			BLENDSTATE_ADDITIVEBLEND,
-			BLENDSTATE_GBUFFERALPHABLEND,
-			BLENDSTATE_COUNT
+			Disable,
+			AlphaBlend,
+			AdditiveBlend,
+			GBufferAlphaBlend,
+			Count
 		};
 
-		enum class DepthStencilStates
+		enum class EDepthStencilStates
 		{
-			DEPTHSTENCILSTATE_DEFAULT,
-			DEPTHSTENCILSTATE_ONLYREAD,
-			DEPTHSTENCILSTATE_STENCILWRITE,
-			DEPTHSTENCILSTATE_STENCILMASK,
-			DEPTHSTENCILSTATE_DEPTHFIRST,
-			DEPTHSTENCILSTATE_COUNT
+			Default,
+			OnlyRead,
+			StencilWrite,
+			StencilMask,
+			DepthFirst,
+			Count
 		};
 
-		enum class RasterizerStates
+		enum class ERasterizerStates
 		{
-			RASTERIZERSTATE_DEFAULT,//Uses backface culling.
-			RASTERIZERSTATE_WIREFRAME,
-			RASTERIZERSTATE_FRONTFACECULLING,
-			RASTERIZERSTATE_NOFACECULLING,
-			RASTERIZERSTATE_COUNT
+			Default,//Uses backface culling.
+			Wireframe,
+			FrontFaceCulling,
+			NoFaceCulling,
+			Count
 		};
 
-		enum class SamplerStates
+		enum class ESamplerStates
 		{
-			SAMPLERSTATE_TRILINEAR,
-			SAMPLERSTATE_POINT,
-			SAMPLERSTATE_WRAP,
-			SAMPLERSTATE_COUNT
+			Trilinear,
+			Point,
+			Wrap,
+			Count
 		};
 
 	public:
@@ -50,11 +50,11 @@ namespace Havtorn
 
 		bool Init(class CGraphicsFramework* aFramework);
 
-		void SetBlendState(BlendStates aBlendstate);
-		void SetDepthStencilState(DepthStencilStates aDepthStencilState, UINT aStencilRef = 0);
-		void SetRasterizerState(RasterizerStates aRasterizerState);
-		void SetSamplerState(SamplerStates aSamplerState);
-		void SetAllStates(BlendStates aBlendState, DepthStencilStates aDepthStencilState, RasterizerStates aRasterizerState, SamplerStates aSamplerState);
+		void SetBlendState(EBlendStates aBlendstate);
+		void SetDepthStencilState(EDepthStencilStates aDepthStencilState, UINT aStencilRef = 0);
+		void SetRasterizerState(ERasterizerStates aRasterizerState);
+		void SetSamplerState(ESamplerStates aSamplerState);
+		void SetAllStates(EBlendStates aBlendState, EDepthStencilStates aDepthStencilState, ERasterizerStates aRasterizerState, ESamplerStates aSamplerState);
 		void SetAllDefault();
 
 		void Release();
@@ -67,9 +67,9 @@ namespace Havtorn
 
 	private:
 		ID3D11DeviceContext* Context;
-		std::array<ID3D11BlendState*, (size_t)BlendStates::BLENDSTATE_COUNT> myBlendStates;
-		std::array<ID3D11DepthStencilState*, (size_t)DepthStencilStates::DEPTHSTENCILSTATE_COUNT> myDepthStencilStates;
-		std::array<ID3D11RasterizerState*, (size_t)RasterizerStates::RASTERIZERSTATE_COUNT> myRasterizerStates;
-		std::array<ID3D11SamplerState*, (size_t)SamplerStates::SAMPLERSTATE_COUNT> mySamplerStates;
+		std::array<ID3D11BlendState*, (size_t)EBlendStates::Count> myBlendStates;
+		std::array<ID3D11DepthStencilState*, (size_t)EDepthStencilStates::Count> myDepthStencilStates;
+		std::array<ID3D11RasterizerState*, (size_t)ERasterizerStates::Count> myRasterizerStates;
+		std::array<ID3D11SamplerState*, (size_t)ESamplerStates::Count> mySamplerStates;
 	};
 }

@@ -190,9 +190,9 @@ namespace Havtorn
 		PostProcessingBufferData.WhitePointColor = { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 1.0f };
 		PostProcessingBufferData.WhitePointIntensity = 1.0f;
 		PostProcessingBufferData.Exposure = 1.1f;
-		PostProcessingBufferData.IsReinhard = false;
+		PostProcessingBufferData.IsReinhard = true;
 		PostProcessingBufferData.IsUncharted = false;
-		PostProcessingBufferData.IsACES = true;
+		PostProcessingBufferData.IsACES = false;
 
 		PostProcessingBufferData.SSAORadius = 0.6f;
 		PostProcessingBufferData.SSAOSampleBias = 0.2420f;
@@ -215,18 +215,9 @@ namespace Havtorn
 		memcpy(&FullscreenData.SampleKernel[0], &Kernel[0], sizeof(Kernel));
 		BindBuffer(FullscreenDataBuffer, FullscreenData, "Fullscreen Data Buffer");
 
-		//CCameraComponent* camera = IRONWROUGHT->GetActiveScene().MainCamera();
-		//SM::Matrix& cameraMatrix = camera->GameObject().myTransform->Transform();
-		//FrameBufferData.CameraPosition = SM::Vector4{ cameraMatrix._41, cameraMatrix._42, cameraMatrix._43, 1.f };
-		//FrameBufferData.ToCameraSpace = cameraMatrix.Invert();
-		//FrameBufferData.ToWorldFromCamera = cameraMatrix;
-		//FrameBufferData.ToProjectionSpace = camera->GetProjection();
-		//FrameBufferData.ToCameraFromProjection = camera->GetProjection().Invert();
-		//BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
-
 		BindBuffer(PostProcessingBuffer, PostProcessingBufferData, "Post Processing Buffer");
 
-		Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+		//Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
 
 		Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		Context->IASetInputLayout(nullptr);
@@ -237,8 +228,7 @@ namespace Havtorn
 		Context->PSSetShader(PixelShaders[static_cast<size_t>(effect)], nullptr, 0);
 		Context->PSSetSamplers(0, 1, &ClampSampler);
 		Context->PSSetSamplers(1, 1, &WrapSampler);
-		Context->PSSetConstantBuffers(0, 1, &FullscreenDataBuffer);
-		Context->PSSetConstantBuffers(1, 1, &FrameBuffer);
+		Context->PSSetConstantBuffers(1, 1, &FullscreenDataBuffer);
 		Context->PSSetConstantBuffers(2, 1, &PostProcessingBuffer);
 		Context->PSSetShaderResources(23, 1, &NoiseTexture);
 

@@ -5,7 +5,7 @@
 Texture2D depthTexture : register(t21);
 Texture2D noiseTexture : register(t23);
 
-cbuffer FrameBuffer : register(b1)
+cbuffer FrameBuffer : register(b0)
 {
     float4x4 toCameraSpace;
     float4x4 toWorldFromCamera;
