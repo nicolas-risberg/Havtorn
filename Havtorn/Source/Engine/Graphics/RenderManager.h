@@ -39,6 +39,11 @@ namespace Havtorn
 		Wrap
 	};
 
+	enum class EMaterialConfiguration
+	{
+		AlbedoMaterialNormal_Packed
+	};
+
 	enum class EInputLayoutType
 	{
 		Pos3Nor3Tan3Bit3UV2
@@ -48,6 +53,7 @@ namespace Havtorn
 	class CWindowHandler;
 	struct SRenderCommand;
 	struct SStaticMeshComponent;
+	struct SMaterialComponent;
 
 	struct SRenderCommandComparer
 	{
@@ -68,7 +74,8 @@ namespace Havtorn
 		void Release();
 
 		void WriteAssetFile(const std::string& fileName, EAssetType assetType);
-		void LoadStaticMesh(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent);
+		void LoadStaticMeshComponent(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent);
+		void LoadMaterialComponent(const std::vector<std::string>& materialNames, SMaterialComponent* outMaterialComponent);
 
 	public:
 		const CFullscreenTexture& GetRenderedSceneTexture() const;
@@ -102,6 +109,8 @@ namespace Havtorn
 		void AddInputLayout(const std::string& vsData, EInputLayoutType layoutType);
 		void AddSampler(ESamplerType samplerType);
 		void AddTopology(D3D11_PRIMITIVE_TOPOLOGY topology);
+
+		std::vector<U16> AddMaterial(const std::string& materialName, EMaterialConfiguration configuration);
 
 	private:
 		template<class T>
@@ -195,7 +204,6 @@ namespace Havtorn
 		CRenderCommandHeap* PushToCommands;
 		CRenderCommandHeap* PopFromCommands;
 
-
 		SVector4 ClearColor;
 
 		I8 RenderPassIndex;
@@ -204,6 +212,8 @@ namespace Havtorn
 		bool UseAntiAliasing;
 		bool UseBrokenScreenPass;
 
+		std::vector<std::string> MaterialNames;
+		std::vector<ID3D11ShaderResourceView*> Textures;
 		std::vector<ID3D11VertexShader*> VertexShaders;
 		std::vector<ID3D11PixelShader*> PixelShaders;
 		std::vector<ID3D11SamplerState*> Samplers;
@@ -221,6 +231,9 @@ namespace Havtorn
 		ID3D11ShaderResourceView* DefaultMaterialTexture = nullptr;
 
 		ID3D11ShaderResourceView* DefaultCubemap = nullptr;
+		
+		EMaterialConfiguration MaterialConfiguration = EMaterialConfiguration::AlbedoMaterialNormal_Packed;
+		U8 TexturesPerMaterial = 3;
 	};
 
 	template <typename T>

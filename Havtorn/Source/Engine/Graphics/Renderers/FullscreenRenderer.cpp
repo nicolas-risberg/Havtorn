@@ -241,9 +241,9 @@ namespace Havtorn
 		Context->PSSetShaderResources(2, 1, &nullView);
 		Context->PSSetShaderResources(3, 1, &nullView);
 		Context->PSSetShaderResources(4, 1, &nullView);
-		Context->PSSetShaderResources(5, 1, &nullView);
-		Context->PSSetShaderResources(6, 1, &nullView);
-		Context->PSSetShaderResources(7, 1, &nullView);
+		//Context->PSSetShaderResources(5, 1, &nullView);
+		//Context->PSSetShaderResources(6, 1, &nullView);
+		//Context->PSSetShaderResources(7, 1, &nullView);
 		Context->PSSetShaderResources(8, 1, &nullView);
 		Context->PSSetShaderResources(9, 1, &nullView);
 		Context->PSSetShaderResources(21, 1, &nullView);

@@ -70,6 +70,7 @@ namespace Havtorn
 			fbxMesh = assimpScene->mMeshes[n];
 			//model->myMaterialIndices.push_back(fbxMesh->mMaterialIndex);
 
+			// Vertices
 			constexpr F32 scaleModifier = 0.1f;
 			for (U32 i = 0; i < fbxMesh->mNumVertices; i++)
 			{
@@ -121,11 +122,13 @@ namespace Havtorn
 				}
 			}
 
+			// Indices
 			for (U32 i = 0; i < fbxMesh->mNumFaces; i++)
 			{
 				fileHeaderMesh.NumberOfIndices += fbxMesh->mFaces[i].mNumIndices;
 				fileHeaderMesh.Indices.insert(fileHeaderMesh.Indices.end(), std::make_move_iterator(&fbxMesh->mFaces[i].mIndices[0]), std::make_move_iterator(&fbxMesh->mFaces[i].mIndices[fbxMesh->mFaces[i].mNumIndices]));
 			}
+
 
 			// Bone stuff
 			//std::vector<VertexBoneData> collectedBoneData;

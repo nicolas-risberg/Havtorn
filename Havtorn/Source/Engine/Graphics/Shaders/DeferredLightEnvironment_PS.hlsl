@@ -26,7 +26,6 @@ PixelOutput main(VertexToPixel input)
     const float perceptualRoughness = GBuffer_PerceptualRoughness(input.UV);
     const float emissiveData = GBuffer_Emissive(input.UV);
     const float ssao = PixelShader_SSAO(input.UV);
-    //const float ssao = 1.0f;
 
     const float3 specularColor = lerp((float3) 0.04, albedo, metalness);
     const float3 diffuseColor = lerp((float3) 0.00, albedo, 1 - metalness);

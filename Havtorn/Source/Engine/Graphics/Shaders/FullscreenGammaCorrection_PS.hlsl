@@ -17,9 +17,7 @@ PixelOutput main(VertexToPixel input)
     PixelOutput returnValue;
 
     const float3 resource = fullscreenTexture1.Sample(defaultSampler, input.myUV.xy).rgb;
-    const float3 gammaCorrected = LinearToGamma(resource);
-    //returnValue.myColor.rgb = LinearToGamma(resource);
-    returnValue.myColor.rgb = gammaCorrected;
+    returnValue.myColor.rgb = LinearToGamma(resource);
     returnValue.myColor.a = 1.0f;
     return returnValue;
 }

@@ -9,6 +9,7 @@ namespace Havtorn
 		TransformComponent,
 		StaticMeshComponent,
 		CameraComponent,
+		MaterialComponent,
 		DirectionalLightComponent,
 		PointLightComponent,
 		SpotLightComponent,

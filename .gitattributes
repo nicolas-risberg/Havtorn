@@ -1,0 +1,5 @@
+git lfs track "*.fbx"
+git lfs track "*.dds"
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.dds filter=lfs diff=lfs merge=lfs -text
+*.DDS filter=lfs diff=lfs merge=lfs -text

@@ -114,15 +114,18 @@ namespace Havtorn
 		AddSampler(ESamplerType::Border);
 		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		// For PBR Testing: Change Default Shaders, change loaded ShaderResource indices, change active render target
-		// Stuff to finish before PBR Testing: Cubemap texture, SSAO? Pipeline, Light Pass
+		//CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
+		CModelImporter::ImportFBX("Assets/Tests/En_P_Bed.fbx");
 
-		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
-
-		auto defaultMaterials = CEngine::GetInstance()->GetMaterialHandler()->RequestMaterial("T_PendulumClock");
-		DefaultAlbedoTexture = defaultMaterials[0];
-		DefaultMaterialTexture = defaultMaterials[1];
-		DefaultNormalTexture = defaultMaterials[2];
+		//auto defaultMaterials = CEngine::GetInstance()->GetMaterialHandler()->RequestMaterial("T_PendulumClock");
+		//DefaultAlbedoTexture = defaultMaterials[0];
+		//DefaultMaterialTexture = defaultMaterials[1];
+		//DefaultNormalTexture = defaultMaterials[2];
+		
+		//Context->PSSetShaderResources(5, 3, defaultMaterials.data());
+		//Context->PSSetShaderResources(5, 1, &DefaultAlbedoTexture);
+		//Context->PSSetShaderResources(6, 1, &DefaultMaterialTexture);
+		//Context->PSSetShaderResources(7, 1, &DefaultNormalTexture);
 
 		return true;
 	}
@@ -181,7 +184,7 @@ namespace Havtorn
 		{
 			std::unique_lock<std::mutex> uniqueLock(CThreadManager::RenderMutex);
 			CThreadManager::RenderCondition.wait(uniqueLock, [] 
-				{return CThreadManager::RenderThreadStatus == ERenderThreadStatus::ReadyToRender; });
+				{ return CThreadManager::RenderThreadStatus == ERenderThreadStatus::ReadyToRender; });
 
 			CRenderManager::NumberOfDrawCallsThisFrame = 0;
 			RenderStateManager.SetAllDefault();
@@ -224,6 +227,7 @@ namespace Havtorn
 				{
 					const auto transformComp = currentCommand.GetComponent(TransformComponent);
 					const auto staticMeshComp = currentCommand.GetComponent(StaticMeshComponent);
+					const auto materialComp = currentCommand.GetComponent(MaterialComponent);
 
 					ObjectBufferData.ToWorldFromObject = transformComp->Transform.GetMatrix();
 					BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
@@ -238,12 +242,18 @@ namespace Havtorn
 					ID3D11SamplerState* sampler = Samplers[staticMeshComp->SamplerIndex];
 					context->PSSetSamplers(0, 1, &sampler);
 
-					context->PSSetShaderResources(5, 1, &DefaultAlbedoTexture);
-					context->PSSetShaderResources(6, 1, &DefaultMaterialTexture);
-					context->PSSetShaderResources(7, 1, &DefaultNormalTexture);
-
-					for (const auto& drawData : staticMeshComp->DrawCallData)
+					for (U8 drawCallIndex = 0; drawCallIndex < static_cast<U8>(staticMeshComp->DrawCallData.size()); drawCallIndex++)
 					{
+						// Load Textures
+						std::vector<ID3D11ShaderResourceView*> resourceViewPointers;
+						resourceViewPointers.resize(TexturesPerMaterial);
+						for (U8 textureIndex = 0, pointerTracker = 0; textureIndex < TexturesPerMaterial; textureIndex++, pointerTracker++)
+						{
+							resourceViewPointers[pointerTracker] = Textures[materialComp->MaterialReferences[textureIndex + drawCallIndex * TexturesPerMaterial]];
+						}
+						context->PSSetShaderResources(5, TexturesPerMaterial, resourceViewPointers.data());
+
+						SDrawCallData& drawData = staticMeshComp->DrawCallData[drawCallIndex];
 						ID3D11Buffer* vertexBuffer = VertexBuffers[drawData.VertexBufferIndex];
 						context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
 						context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
@@ -255,10 +265,6 @@ namespace Havtorn
 
 				case ERenderCommandType::DeferredLighting:
 				{
-					//DepthCopy.SetAsActiveTarget();
-					//IntermediateDepth.SetAsResourceOnSlot(0);
-					//FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::CopyDepth);
-
 					// === SSAO ===
 					SSAOBuffer.SetAsActiveTarget();
 					GBuffer.SetAsResourceOnSlot(CGBuffer::EGBufferTextures::Normal, 2);
@@ -326,9 +332,6 @@ namespace Havtorn
 	
 			// Bloom
 			//RenderBloom();
-
-			// For PixelExists checking in fullscreen shaders
-			IntermediateDepth.SetAsResourceOnSlot(5);
 
 			// Tonemapping
 			TonemappedTexture.SetAsActiveTarget();
@@ -849,7 +852,7 @@ namespace Havtorn
 		}
 	}
 
-	void CRenderManager::LoadStaticMesh(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent)
+	void CRenderManager::LoadStaticMeshComponent(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent)
 	{
 		SStaticMeshAsset asset;
 		if (!LoadedStaticMeshes.contains(fileName))
@@ -881,11 +884,18 @@ namespace Havtorn
 
 		// Geometry
 		outStaticMeshComponent->DrawCallData = asset.DrawCallData;
-		//outStaticMeshComponent->IndexCount = asset.IndexCount;
-		//outStaticMeshComponent->VertexBufferIndex = asset.VertexBufferIndex;
-		//outStaticMeshComponent->IndexBufferIndex = asset.IndexBufferIndex;
-		//outStaticMeshComponent->VertexStrideIndex = asset.VertexStrideIndex;
-		//outStaticMeshComponent->VertexOffsetIndex = asset.VertexOffsetIndex;
+	}
+
+	void CRenderManager::LoadMaterialComponent(const std::vector<std::string>& materialNames, SMaterialComponent* outMaterialComponent)
+	{
+		outMaterialComponent->MaterialReferences.clear();
+		for (const std::string& materialName : materialNames)
+		{
+			std::vector<U16> references = AddMaterial(materialName, MaterialConfiguration);
+			
+			for (U16 reference : references)
+				outMaterialComponent->MaterialReferences.emplace_back(reference);
+		}
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
@@ -1116,6 +1126,40 @@ namespace Havtorn
 	void CRenderManager::AddTopology(D3D11_PRIMITIVE_TOPOLOGY topology)
 	{
 		Topologies.emplace_back(topology);
+	}
+
+	std::vector<U16> CRenderManager::AddMaterial(const std::string& materialName, EMaterialConfiguration configuration)
+	{
+		std::vector<U16> references;
+		
+		switch (configuration)
+		{
+		case EMaterialConfiguration::AlbedoMaterialNormal_Packed:
+		{
+			auto textures = CEngine::GetInstance()->GetMaterialHandler()->RequestMaterial(materialName);
+			auto it = std::find(MaterialNames.begin(), MaterialNames.end(), materialName);
+			if (it == MaterialNames.end())
+			{
+				Textures.emplace_back(std::move(textures[0]));
+				references.emplace_back(static_cast<U16>(Textures.size() - 1));
+				Textures.emplace_back(std::move(textures[1]));
+				references.emplace_back(static_cast<U16>(Textures.size() - 1));
+				Textures.emplace_back(std::move(textures[2]));
+				references.emplace_back(static_cast<U16>(Textures.size() - 1));
+				MaterialNames.emplace_back(materialName);
+			}
+			else
+			{
+				U16 materialTextureStartIndex = static_cast<U16>(std::distance(MaterialNames.begin(), it)) * TexturesPerMaterial;
+				references.emplace_back(static_cast<U16>(materialTextureStartIndex));
+				references.emplace_back(static_cast<U16>(materialTextureStartIndex + 1));
+				references.emplace_back(static_cast<U16>(materialTextureStartIndex + 2));
+			}
+		}
+			break;
+		}
+
+		return references;
 	}
 
 	bool SRenderCommandComparer::operator()(const SRenderCommand& a, const SRenderCommand& b) const

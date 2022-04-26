@@ -30,7 +30,7 @@ namespace Havtorn
 		// Setup entities (create components)
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(cameraEntity, EComponentType::TransformComponent));
 		cameraEntity->AddComponent(EComponentType::TransformComponent, 0);
-		TransformComponents.back()->Transform.GetMatrix().Translation({ 0.0f, 0.0f, -15.0f });
+		TransformComponents.back()->Transform.GetMatrix().Translation({ 0.0f, 10.0f, -40.0f });
 
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(directionalLightEntity, EComponentType::TransformComponent));
 		directionalLightEntity->AddComponent(EComponentType::TransformComponent, 1);
@@ -59,9 +59,12 @@ namespace Havtorn
 	// TODO.NR: Make primitive class containing verts (static getters for bindables?)
 	void CScene::InitDemoScene(CRenderManager* renderManager)
 	{
-		const std::string modelPath = "Assets/Tests/En_P_PendulumClock.hva";
+		//const std::string modelPath = "Assets/Tests/En_P_PendulumClock.hva";
+		//const std::vector<std::string> materialNames = { "T_PendulumClock", "T_Metal" };
+		const std::string modelPath = "Assets/Tests/En_P_Bed.hva";
+		const std::vector<std::string> materialNames = { "T_Bed", "T_Bedsheet" };
 
-		constexpr U8 cubeNumber = 2;
+		constexpr U8 cubeNumber = 0;
 
 		const SVector minTranslation = { -4.0f, -4.0f, -4.0f };
 		const SVector maxTranslation = { 4.0f, 4.0f, 4.0f };
@@ -81,12 +84,16 @@ namespace Havtorn
 			transform.Rotate(SVector::Random(minEulerRotation, maxEulerRotation));
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMesh(modelPath, StaticMeshComponents.back().get());
+			renderManager->LoadStaticMeshComponent(modelPath, StaticMeshComponents.back().get());
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, i);
+
+			MaterialComponents.emplace_back(std::make_shared<SMaterialComponent>(cubeEntity, EComponentType::MaterialComponent));
+			renderManager->LoadMaterialComponent(materialNames, MaterialComponents.back().get());
+			cubeEntity->AddComponent(EComponentType::MaterialComponent, i);
 		}
 
 		std::vector<SVector> corners;
-		constexpr F32 cornerRadius = 15.0f;
+		constexpr F32 cornerRadius = 0.0f;
 		//corners.emplace_back(SVector(cornerRadius, cornerRadius, cornerRadius));
 		//corners.emplace_back(SVector(-cornerRadius, cornerRadius, cornerRadius));
 		//corners.emplace_back(SVector(cornerRadius, -cornerRadius, cornerRadius));
@@ -96,15 +103,10 @@ namespace Havtorn
 		//corners.emplace_back(SVector(-cornerRadius, cornerRadius, -cornerRadius));
 		//corners.emplace_back(SVector(-cornerRadius, -cornerRadius, -cornerRadius));
 		corners.emplace_back(SVector(cornerRadius, cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius+4.0f, cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius+8.0f, cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius+12.0f, cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius+16.0f, cornerRadius, cornerRadius));
 		corners.emplace_back(SVector(cornerRadius+20.0f, cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius+24.0f, cornerRadius, cornerRadius));
-		corners.emplace_back(SVector(cornerRadius+28.0f, cornerRadius, cornerRadius));
+		corners.emplace_back(SVector(cornerRadius+40.0f, cornerRadius, cornerRadius));
 
-		for (U8 i = 0; i < 8; i++)
+		for (U8 i = 0; i < corners.size(); i++)
 		{
 			U64 newID = Entities.back()->ID + 1;
 			Entities.emplace_back(std::make_shared<SEntity>(newID, "Cube"));
@@ -116,8 +118,12 @@ namespace Havtorn
 			transform.GetMatrix().Translation(corners[i]);
 
 			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(cubeEntity, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMesh(modelPath, StaticMeshComponents.back().get());
+			renderManager->LoadStaticMeshComponent(modelPath, StaticMeshComponents.back().get());
 			cubeEntity->AddComponent(EComponentType::StaticMeshComponent, cubeNumber + i);
+
+			MaterialComponents.emplace_back(std::make_shared<SMaterialComponent>(cubeEntity, EComponentType::MaterialComponent));
+			renderManager->LoadMaterialComponent(materialNames, MaterialComponents.back().get());
+			cubeEntity->AddComponent(EComponentType::MaterialComponent, cubeNumber + i);
 		}
 	}
 }

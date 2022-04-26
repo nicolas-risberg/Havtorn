@@ -11,6 +11,7 @@ namespace Havtorn
 	struct STransformComponent;
 	struct SStaticMeshComponent;
 	struct SCameraComponent;
+	struct SMaterialComponent;
 	struct SDirectionalLightComponent;
 	struct SPointLightComponent;
 	struct SSpotLightComponent;
@@ -31,6 +32,7 @@ namespace Havtorn
 		std::vector<Ref<STransformComponent>>& GetTransformComponents() { return TransformComponents; }
 		std::vector<Ref<SStaticMeshComponent>>& GetStaticMeshComponents() { return StaticMeshComponents; }
 		std::vector<Ref<SCameraComponent>>& GetCameraComponents() { return CameraComponents; }
+		COMPONENT_VECTOR_GETTER(MaterialComponent)
 		std::vector<Ref<SDirectionalLightComponent>>& GetDirectionalLightComponents() { return DirectionalLightComponents; }
 		COMPONENT_VECTOR_GETTER(PointLightComponent)
 		std::vector<Ref<SSpotLightComponent>>& GetSpotLightComponents() { return SpotLightComponents; }
@@ -42,6 +44,7 @@ namespace Havtorn
 		std::vector<Ref<STransformComponent>> TransformComponents;
 		std::vector<Ref<SStaticMeshComponent>> StaticMeshComponents;
 		std::vector<Ref<SCameraComponent>> CameraComponents;
+		COMPONENT_VECTOR_DECLARATION(MaterialComponent)
 		std::vector<Ref<SDirectionalLightComponent>> DirectionalLightComponents;
 		COMPONENT_VECTOR_DECLARATION(PointLightComponent)
 		std::vector<Ref<SSpotLightComponent>> SpotLightComponents;

@@ -20,6 +20,7 @@ namespace Havtorn
 		const auto& staticMeshComponents = scene->GetStaticMeshComponents();
 		const auto& transformComponents = scene->GetTransformComponents();
 		const auto& cameraComponents = scene->GetCameraComponents();
+		const auto& materialComponents = scene->GetMaterialComponents();
 		const auto& directionalLightComponents = scene->GetDirectionalLightComponents();
 
 		if (!cameraComponents.empty())
@@ -41,8 +42,14 @@ namespace Havtorn
 			if (!staticMeshComponent->Entity->HasComponent(EComponentType::TransformComponent))
 				continue;
 
+			if (!staticMeshComponent->Entity->HasComponent(EComponentType::MaterialComponent))
+				continue;
+
 			const I64 transformCompIndex = staticMeshComponent->Entity->GetComponentIndex(EComponentType::TransformComponent);
 			auto& transformComp = transformComponents[transformCompIndex];
+
+			const I64 materialCompIndex = staticMeshComponent->Entity->GetComponentIndex(EComponentType::MaterialComponent);
+			auto& materialComp = materialComponents[materialCompIndex];
 
 			const F32 dt = CTimer::Dt();
 			if (CInput::GetInstance()->IsKeyPressed('J'))
@@ -57,6 +64,7 @@ namespace Havtorn
 			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
 			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
 			components[static_cast<U8>(EComponentType::StaticMeshComponent)] = staticMeshComponent;
+			components[static_cast<U8>(EComponentType::MaterialComponent)] = materialComp;
 			SRenderCommand command(components, ERenderCommandType::GBufferData);
 			RenderManager->PushRenderCommand(command);
 		}
