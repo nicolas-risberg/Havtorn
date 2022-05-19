@@ -84,11 +84,8 @@ namespace Havtorn
 		{
 			ID3D11ShaderResourceView* shaderResourceView;
 
-			const HRESULT result = CreateShaderResourceView(device, texturePath, &shaderResourceView);
-			if (FAILED(result))
-			{
-				shaderResourceView = nullptr;
-			}
+			const std::string errorString = "Texture with the following path could not be loaded: " + texturePath;
+			ENGINE_HR_MESSAGE(CreateShaderResourceView(device, texturePath, &shaderResourceView), errorString.c_str());
 			
 			return shaderResourceView;
 		}

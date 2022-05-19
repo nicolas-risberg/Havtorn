@@ -16,5 +16,9 @@ namespace Havtorn
 		SVector4 ShadowPosition = SVector4::Zero;
 		SVector4 Direction = SVector4::Up;
 		SVector4 Color = SVector4(1.0f, 1.0f, 1.0f, 1.0f);
+		SVector2<F32> ShadowmapResolution = { 8192.0f, 8192.0f };
+		SVector2<F32> ShadowViewSize = { 128.0f, 128.0f };
+
+		U16 ShadowmapViewportIndex = 0;
 	};
 }

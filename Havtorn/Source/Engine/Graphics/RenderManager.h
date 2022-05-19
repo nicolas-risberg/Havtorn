@@ -62,7 +62,7 @@ namespace Havtorn
 
 	using CRenderCommandHeap = std::priority_queue<SRenderCommand, std::vector<SRenderCommand>, SRenderCommandComparer>;
 
-	class CRenderManager 
+	class CRenderManager
 	{
 	public:
 		CRenderManager();
@@ -78,7 +78,7 @@ namespace Havtorn
 		void LoadMaterialComponent(const std::vector<std::string>& materialNames, SMaterialComponent* outMaterialComponent);
 
 	public:
-		const CFullscreenTexture& GetRenderedSceneTexture() const;
+		[[nodiscard]] const CFullscreenTexture& GetRenderedSceneTexture() const;
 		void PushRenderCommand(SRenderCommand& command);
 		void SwapRenderCommandBuffers();
 		//void SetBrokenScreen(bool aShouldSetBrokenScreen);
@@ -92,6 +92,9 @@ namespace Havtorn
 	private:
 		void Clear(SVector4 clearColor);
 		void InitRenderTextures(CWindowHandler* windowHandler);
+		void InitShadowmapAtlas(SVector2<F32> atlasResolution);
+		void InitShadowmapLOD(SVector2<F32> topLeftCoordinate, const SVector2<F32>& widthAndHeight, const SVector2<F32>& depth, U16 mapsInLod, U16 startIndex);
+		void LoadDemoSceneResources();
 
 	private:
 		void RenderBloom();
@@ -109,6 +112,7 @@ namespace Havtorn
 		void AddInputLayout(const std::string& vsData, EInputLayoutType layoutType);
 		void AddSampler(ESamplerType samplerType);
 		void AddTopology(D3D11_PRIMITIVE_TOPOLOGY topology);
+		void AddViewport(SVector2<F32> topLeftCoordinate, SVector2<F32> widthAndHeight, SVector2<F32> depth);
 
 		std::vector<U16> AddMaterial(const std::string& materialName, EMaterialConfiguration configuration);
 
@@ -176,9 +180,9 @@ namespace Havtorn
 		CFullscreenTextureFactory FullscreenTextureFactory;
 		CFullscreenTexture RenderedScene;
 		CFullscreenTexture Backbuffer;
-		//CFullscreenTexture myIntermediateTexture;
+		CFullscreenTexture IntermediateTexture;
 		CFullscreenTexture IntermediateDepth;
-		CFullscreenTexture EnvironmentShadowDepth;
+		CFullscreenTexture ShadowAtlasDepth;
 		//CFullscreenTexture myBoxLightShadowDepth;
 		CFullscreenTexture DepthCopy;
 		//CFullscreenTexture myLuminanceTexture;
@@ -221,6 +225,7 @@ namespace Havtorn
 		std::vector<ID3D11Buffer*> IndexBuffers;
 		std::vector<ID3D11InputLayout*> InputLayouts;
 		std::vector<D3D11_PRIMITIVE_TOPOLOGY> Topologies;
+		std::vector<D3D11_VIEWPORT> Viewports;
 		std::vector<U32> MeshVertexStrides;
 		std::vector<U32> MeshVertexOffsets;
 

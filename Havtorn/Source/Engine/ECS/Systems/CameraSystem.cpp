@@ -12,8 +12,6 @@ namespace Havtorn
 {
 	CCameraSystem::CCameraSystem()
 		: CSystem()
-		, CameraMoveInput(SVector::Zero)
-		, CameraRotateInput(SVector::Zero)
 	{
 		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Up).AddMember(this, &CCameraSystem::HandleAxisInput);
 		CEngine::GetInstance()->GetInput()->GetAxisDelegate(EInputAxisEvent::Right).AddMember(this, &CCameraSystem::HandleAxisInput);
@@ -28,12 +26,12 @@ namespace Havtorn
 
 	void CCameraSystem::Update(CScene* scene)
 	{
-		auto& transformComponents = scene->GetTransformComponents();
-		auto& cameraComponents = scene->GetCameraComponents();
+		const auto& transformComponents = scene->GetTransformComponents();
+		const auto& cameraComponents = scene->GetCameraComponents();
 		if (cameraComponents.empty())
 			return;
 
-		I64 transformCompIndex = cameraComponents[0]->Entity->GetComponentIndex(EComponentType::TransformComponent);
+		const I64 transformCompIndex = cameraComponents[0]->Entity->GetComponentIndex(EComponentType::TransformComponent);
 		auto& transformComp = transformComponents[transformCompIndex];
 
 		const F32 dt = CTimer::Dt();
@@ -49,13 +47,13 @@ namespace Havtorn
 		switch (payload.Event)
 		{
 			case EInputAxisEvent::Right: 
-				CameraMoveInput += SVector::Right * payload.AxisValue * 10.0f;
+				CameraMoveInput += SVector::Right * payload.AxisValue;
 				return;
 			case EInputAxisEvent::Up:
-				CameraMoveInput += SVector::Up * payload.AxisValue * 10.0f;
+				CameraMoveInput += SVector::Up * payload.AxisValue;
 				return;
 			case EInputAxisEvent::Forward:
-				CameraMoveInput += SVector::Forward * payload.AxisValue * 10.0f;
+				CameraMoveInput += SVector::Forward * payload.AxisValue;
 				return;
 			case EInputAxisEvent::Pitch:
 				CameraRotateInput.X += UMath::DegToRad(90.0f) * payload.AxisValue;

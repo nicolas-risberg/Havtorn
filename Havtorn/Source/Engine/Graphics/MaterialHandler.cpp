@@ -464,10 +464,6 @@ namespace Havtorn
 		{
 			return false;
 		}
-		std::array<ID3D11ShaderResourceView*, 3> defaultMatInit = RequestMaterial("DefaultMaterial");
-		defaultMatInit[0] = nullptr;
-		defaultMatInit[1] = nullptr;
-		defaultMatInit[2] = nullptr;
 		return true;
 	}
 

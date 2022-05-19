@@ -61,6 +61,16 @@ namespace Havtorn
 
 			//transformComp->Transform.Orbit({ 0.0f, 0.0f, 0.0f }, SMatrix::CreateRotationAroundY(UMath::DegToRad(90.0f) * dt));
 
+			if (!directionalLightComponents.empty())
+			{
+				std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
+				components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
+				components[static_cast<U8>(EComponentType::StaticMeshComponent)] = staticMeshComponent;
+				components[static_cast<U8>(EComponentType::DirectionalLightComponent)] = directionalLightComponents[0];
+				SRenderCommand command(components, ERenderCommandType::ShadowAtlasPrePass);
+				RenderManager->PushRenderCommand(command);
+			}
+
 			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
 			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
 			components[static_cast<U8>(EComponentType::StaticMeshComponent)] = staticMeshComponent;

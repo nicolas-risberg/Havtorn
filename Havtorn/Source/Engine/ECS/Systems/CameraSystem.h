@@ -6,7 +6,6 @@
 
 namespace Havtorn 
 {
-	
 	class CCameraSystem final : public CSystem {
 	public:
 		CCameraSystem();
@@ -16,7 +15,7 @@ namespace Havtorn
 		void HandleAxisInput(const SInputAxisPayload payload);
 
 	private:
-		SVector CameraMoveInput;
-		SVector CameraRotateInput;
+		SVector CameraMoveInput = SVector::Zero;
+		SVector CameraRotateInput = SVector::Zero;
 	};
 }

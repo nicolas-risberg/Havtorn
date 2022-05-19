@@ -11,6 +11,7 @@ namespace Havtorn
 			: SComponent(std::move(entity), type)
 		{}
 
-
+		SVector4 ColorAndIntensity;
+		F32 Range;
 	};
 }

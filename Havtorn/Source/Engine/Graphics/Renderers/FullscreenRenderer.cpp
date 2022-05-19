@@ -190,8 +190,8 @@ namespace Havtorn
 		PostProcessingBufferData.WhitePointColor = { 255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 1.0f };
 		PostProcessingBufferData.WhitePointIntensity = 1.0f;
 		PostProcessingBufferData.Exposure = 1.1f;
-		PostProcessingBufferData.IsReinhard = true;
-		PostProcessingBufferData.IsUncharted = false;
+		PostProcessingBufferData.IsReinhard = false;
+		PostProcessingBufferData.IsUncharted = true;
 		PostProcessingBufferData.IsACES = false;
 
 		PostProcessingBufferData.SSAORadius = 0.6f;

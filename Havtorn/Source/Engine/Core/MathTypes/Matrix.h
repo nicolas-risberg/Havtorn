@@ -34,6 +34,7 @@ namespace Havtorn
 		static SMatrix CreateRotationAroundAxis(F32 angleInRadians, SVector axis);
 		static SMatrix CreateRotationFromEuler(F32 pitch, F32 yaw, F32 roll);
 		static SMatrix CreateRotationFromQuaternion(SQuaternion quaternion);
+		static SMatrix CreateRotationFromAxisAngle(const SVector& axis, F32 angleInRadians);
 		// Static function for creating a transpose of a matrix.
 		static SMatrix Transpose(const SMatrix& matrixToTranspose);
 		// Negates rotation and negates + rotates translation
@@ -84,6 +85,7 @@ namespace Havtorn
 		inline bool operator==(const SMatrix& matrix) const;
 
 		static SMatrix PerspectiveFovLH(F32 fovAngleY, F32 aspectRatio, F32 nearZ, F32 farZ);
+		static SMatrix OrthographicLH(F32 viewWidth, F32 viewHeight, F32 nearZ, F32 farZ);
 		static SMatrix LookAtLH(SVector eyePosition, SVector focusPosition, SVector upDirection);
 		static SMatrix LookToLH(SVector eyePosition, SVector eyeDirection, SVector upDirection);
 	};
@@ -711,6 +713,37 @@ namespace Havtorn
 		matrix(3, 1) = 0.0f;
 		matrix(3, 2) = fRange * nearZ * -1.0f;
 		matrix(3, 3) = 0.0f;
+		return matrix;
+	}
+
+	inline SMatrix SMatrix::OrthographicLH(F32 viewWidth, F32 viewHeight, F32 nearZ, F32 farZ)
+	{
+		assert(!UMath::NearlyEqual(viewWidth, 0.0f, 0.00001f));
+		assert(!UMath::NearlyEqual(viewHeight, 0.0f, 0.00001f));
+		assert(!UMath::NearlyEqual(farZ, nearZ, 0.00001f));
+
+		F32 range = 1.0f / (farZ - nearZ);
+
+		SMatrix matrix;
+		matrix(0, 0) = 2.0f / viewWidth;
+		matrix(0, 1) = 0.0f;
+		matrix(0, 2) = 0.0f;
+		matrix(0, 3) = 0.0f;
+			  
+		matrix(1, 0) = 0.0f;
+		matrix(1, 1) = 2.0f / viewHeight;
+		matrix(1, 2) = 0.0f;
+		matrix(1, 3) = 0.0f;
+			  
+		matrix(2, 0) = 0.0f;
+		matrix(2, 1) = 0.0f;
+		matrix(2, 2) = range;
+		matrix(2, 3) = 0.0f;
+			  
+		matrix(3, 0) = 0.0f;
+		matrix(3, 1) = 0.0f;
+		matrix(3, 2) = -range * nearZ;
+		matrix(3, 3) = 1.0f;
 		return matrix;
 	}
 }

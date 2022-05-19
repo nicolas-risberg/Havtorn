@@ -46,10 +46,9 @@ float3 ShadowFactor(float3 worldPosition, float3 lightPosition, float4x4 lightVi
     {
         for (float y = -1.0; y < 1.5f; y += 1.0f)
         {
-            //2048.0f * 4.0f,
             float3 off;
-            off.x = x / shadowMapResolution.x/*(2048.0f * 4.0f)*/;
-            off.y = y / shadowMapResolution.y/*(2048.0f * 4.0f)*/;
+            off.x = x / shadowMapResolution.x;
+            off.y = y / shadowMapResolution.y;
             off.z = 0.0f;
             total += SampleShadowPos(viewCoords + off, shadowDepthTexture, shadowSampler);
         }

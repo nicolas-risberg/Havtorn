@@ -71,7 +71,7 @@ namespace Havtorn
 			//model->myMaterialIndices.push_back(fbxMesh->mMaterialIndex);
 
 			// Vertices
-			constexpr F32 scaleModifier = 0.1f;
+			constexpr F32 scaleModifier = 0.01f;
 			for (U32 i = 0; i < fbxMesh->mNumVertices; i++)
 			{
 				switch (fileHeader.AssetType)

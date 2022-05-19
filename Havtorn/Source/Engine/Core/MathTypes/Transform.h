@@ -72,9 +72,9 @@ namespace Havtorn
 		if (eulerAngles.IsEqual(SVector::Zero))
 			return;
 
-		SMatrix rightRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.X, LocalMatrix.Right());
-		SMatrix upRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.Y, LocalMatrix.Up());
-		SMatrix forwardRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.Z, LocalMatrix.Forward());
+		const SMatrix rightRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.X, LocalMatrix.Right());
+		const SMatrix upRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.Y, LocalMatrix.Up());
+		const SMatrix forwardRotation = SMatrix::CreateRotationAroundAxis(eulerAngles.Z, LocalMatrix.Forward());
 		SMatrix finalRotation = LocalMatrix.GetRotationMatrix();
 		finalRotation *= rightRotation;
 		finalRotation *= upRotation;

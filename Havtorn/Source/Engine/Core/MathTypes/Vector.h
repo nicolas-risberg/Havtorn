@@ -7,6 +7,7 @@
 
 namespace Havtorn
 {
+	struct SVector4;
 
 #define VECTOR_COMPARISON_EPSILON 1.e-4f
 #define VECTOR_NORMALIZED_EPSILON 1.e-1f
@@ -29,6 +30,7 @@ namespace Havtorn
 		inline SVector(F32 a);
 		inline SVector(F32 x, F32 y);
 		inline SVector(F32 x, F32 y, F32 z);
+
 		SVector(const SVector& other) = default;
 		~SVector() = default;
 
@@ -435,7 +437,7 @@ namespace Havtorn
 		inline SVector2 Projection(const SVector2& other) const;
 		inline SVector2 Mirrored(const SVector2& mirrorNormal) const;
 
-		inline std::string ToString();
+		inline std::string ToString() const;
 	};
 
 	template<typename T>
@@ -699,7 +701,7 @@ namespace Havtorn
 	}
 
 	template<typename T>
-	inline std::string SVector2<T>::ToString()
+	inline std::string SVector2<T>::ToString() const
 	{
 		char buffer[32];
 		sprintf_s(buffer, "{X: %.1f, Y: %.1f}", X, Y);
@@ -795,7 +797,7 @@ namespace Havtorn
 
 		static inline SVector4 Random(SVector& lowerBound, SVector& upperBound, F32 w);
 
-		inline std::string ToString();
+		inline std::string ToString() const;
 	};
 
 	SVector4::SVector4() : X(0), Y(0), Z(0), W(0) {}
@@ -1078,7 +1080,7 @@ namespace Havtorn
 		return SVector4(vector3.X, vector3.Y, vector3.Z, w);
 	}
 
-	inline std::string SVector4::ToString()
+	inline std::string SVector4::ToString() const
 	{
 		char buffer[64];
 		sprintf_s(buffer, "{X: %.1f, Y: %.1f, Z: %.1f, W: %.1f}", X, Y, Z, W);
