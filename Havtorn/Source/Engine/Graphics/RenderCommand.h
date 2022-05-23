@@ -17,7 +17,10 @@ namespace Havtorn
 		GBufferData,
 		GBufferDataInstanced,
 		DeferredDecal,
-		DeferredLighting,
+		PreLightingPass,
+		DeferredLightingDirectional,
+		DeferredLightingPoint,
+		DeferredLightingSpot,
 		ForwardTransparency,
 		OutlineMask,
 		Outline

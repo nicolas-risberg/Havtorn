@@ -46,7 +46,8 @@ namespace Havtorn
 
 	enum class EInputLayoutType
 	{
-		Pos3Nor3Tan3Bit3UV2
+		Pos3Nor3Tan3Bit3UV2,
+		Pos4
 	};
 
 	class CGraphicsFramework;
@@ -95,6 +96,7 @@ namespace Havtorn
 		void InitShadowmapAtlas(SVector2<F32> atlasResolution);
 		void InitShadowmapLOD(SVector2<F32> topLeftCoordinate, const SVector2<F32>& widthAndHeight, const SVector2<F32>& depth, U16 mapsInLod, U16 startIndex);
 		void LoadDemoSceneResources();
+		void InitPointLightResources();
 
 	private:
 		void RenderBloom();
@@ -156,15 +158,24 @@ namespace Havtorn
 			SVector2<F32> DirectionalLightShadowMapResolution;
 			SVector2<F32> Padding;
 		} DirectionalLightBufferData;
-		static_assert((sizeof(SDirectionalLightBufferData) % 16) == 0, "CB size not padded correctly");
 		HV_ASSERT_BUFFER(SDirectionalLightBufferData)
+
+		struct SPointLightBufferData
+		{
+			SMatrix ToWorldFromObject;
+			SVector4 ColorAndIntensity;
+			SVector4 PositionAndRange;
+		} PointLightBufferData;
+		HV_ASSERT_BUFFER(SPointLightBufferData)
 
 	private:
 		CGraphicsFramework* Framework;
 		ID3D11DeviceContext* Context;
 		ID3D11Buffer* FrameBuffer;
 		ID3D11Buffer* ObjectBuffer;
-		ID3D11Buffer* LightBuffer;
+		ID3D11Buffer* DirectionalLightBuffer;
+		ID3D11Buffer* PointLightBuffer;
+		ID3D11Buffer* SpotLightBuffer;
 		CRenderStateManager RenderStateManager;
 		//CForwardRenderer ForwardRenderer;
 		//CDeferredRenderer myDeferredRenderer;

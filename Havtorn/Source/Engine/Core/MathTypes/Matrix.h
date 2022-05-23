@@ -192,6 +192,7 @@ namespace Havtorn
 		SMatrix rotation = Transpose(this->GetRotationMatrix());
 		SVector4 translation = SVector4(this->Translation(), 1.0f);
 		translation *= -1.0f;
+		translation.W *= -1.0f;
 		translation = translation * rotation;
 
 		SMatrix result;
@@ -621,13 +622,13 @@ namespace Havtorn
 		V1[3] = SVector4(D2.W, D1.X, D1.W, D2.Z);
 
 		SVector4 C1 = C0 - (V0[0] * V1[0]);
-		C0 = C0 - (V0[0] * V1[0]);
-		SVector4 C3 = C2 - (V0[1] * V1[1]);
+		C0 = (V0[0] * V1[0]) + C0;
+		SVector4 C3 = (V0[1] * V1[1]) + C2;
 		C2 = C2 - (V0[1] * V1[1]);
 		SVector4 C5 = C4 - (V0[2] * V1[2]);
-		C4 = C4 - (V0[2] * V1[2]);
-		SVector4 C7 = C6 - (V0[3] * V1[3]);
-		C6 = C6 - (V0[3], V1[3]);
+		C4 = (V0[2] * V1[2]) + C4;
+		SVector4 C7 = (V0[3] * V1[3]) + C6;
+		C6 = C6 - (V0[3] * V1[3]);
 
 		SMatrix R;
 		R.Row(0, { C0.X, C1.Y, C0.Z, C1.W });
@@ -636,13 +637,13 @@ namespace Havtorn
 		R.Row(3, { C6.X, C7.Y, C6.Z, C7.W });
 
 		F32 determinant = R.Row(0).Dot(matrixTranspose.Row(0));
-		SVector4 reciprocal = SVector4(1.0f / determinant);
+		SVector4 reciprocal = SVector4(SVector(1.0f / determinant), 1.0f / determinant);
 
 		SMatrix result;
-		result.Row(0) = R.Row(0) * reciprocal;
-		result.Row(1) = R.Row(1) * reciprocal;
-		result.Row(2) = R.Row(2) * reciprocal;
-		result.Row(3) = R.Row(3) * reciprocal;
+		result.Row(0, R.Row(0) * reciprocal);
+		result.Row(1, R.Row(1) * reciprocal);
+		result.Row(2, R.Row(2) * reciprocal);
+		result.Row(3, R.Row(3) * reciprocal);
 		return result;
 	}
 

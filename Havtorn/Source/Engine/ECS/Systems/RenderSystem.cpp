@@ -22,6 +22,7 @@ namespace Havtorn
 		const auto& cameraComponents = scene->GetCameraComponents();
 		const auto& materialComponents = scene->GetMaterialComponents();
 		const auto& directionalLightComponents = scene->GetDirectionalLightComponents();
+		const auto& pointLightComponents = scene->GetPointLightComponents();
 
 		if (!cameraComponents.empty())
 		{
@@ -71,11 +72,26 @@ namespace Havtorn
 				RenderManager->PushRenderCommand(command);
 			}
 
+			//if (!pointLightComponents.empty())
+			//{
+			//	std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
+			//	components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
+			//	components[static_cast<U8>(EComponentType::StaticMeshComponent)] = staticMeshComponent;
+			//	components[static_cast<U8>(EComponentType::PointLightComponent)] = pointLightComponents[0];
+			//	SRenderCommand command(components, ERenderCommandType::ShadowAtlasPrePass);
+			//	RenderManager->PushRenderCommand(command);
+			//}
+
 			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
 			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
 			components[static_cast<U8>(EComponentType::StaticMeshComponent)] = staticMeshComponent;
 			components[static_cast<U8>(EComponentType::MaterialComponent)] = materialComp;
 			SRenderCommand command(components, ERenderCommandType::GBufferData);
+			RenderManager->PushRenderCommand(command);
+		}
+
+		{
+			SRenderCommand command(std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)>{}, ERenderCommandType::PreLightingPass);
 			RenderManager->PushRenderCommand(command);
 		}
 
@@ -87,7 +103,19 @@ namespace Havtorn
 			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
 			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
 			components[static_cast<U8>(EComponentType::DirectionalLightComponent)] = directionalLightComponents[0];
-			SRenderCommand command(components, ERenderCommandType::DeferredLighting);
+			SRenderCommand command(components, ERenderCommandType::DeferredLightingDirectional);
+			RenderManager->PushRenderCommand(command);
+		}
+
+		if (!pointLightComponents.empty())
+		{
+			const I64 transformCompIndex = pointLightComponents[0]->Entity->GetComponentIndex(EComponentType::PointLightComponent);
+			auto& transformComp = transformComponents[2];
+
+			std::array<Ref<SComponent>, static_cast<size_t>(EComponentType::Count)> components;
+			components[static_cast<U8>(EComponentType::TransformComponent)] = transformComp;
+			components[static_cast<U8>(EComponentType::PointLightComponent)] = pointLightComponents[0];
+			SRenderCommand command(components, ERenderCommandType::DeferredLightingPoint);
 			RenderManager->PushRenderCommand(command);
 		}
 	}

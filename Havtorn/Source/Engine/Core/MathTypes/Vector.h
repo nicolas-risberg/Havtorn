@@ -807,17 +807,17 @@ namespace Havtorn
 
 	inline SVector4 SVector4::operator+(F32 a) const
 	{
-		return SVector4(X + a, Y + a, Z + a, W);
+		return SVector4(X + a, Y + a, Z + a, W + a);
 	}
 
 	inline SVector4 SVector4::operator-(F32 a) const
 	{
-		return SVector4(X - a, Y - a, Z - a, W);
+		return SVector4(X - a, Y - a, Z - a, W - a);
 	}
 
 	inline SVector4 SVector4::operator*(F32 a) const
 	{
-		return SVector4(X * a, Y * a, Z * a, W);
+		return SVector4(X * a, Y * a, Z * a, W * a);
 	}
 
 	inline SVector4 SVector4::operator/(F32 a) const
@@ -827,7 +827,7 @@ namespace Havtorn
 			return SVector4();
 
 		const F32 scale = 1 / a;
-		return SVector4(X * scale, Y * scale, Z * scale, W);
+		return SVector4(X * scale, Y * scale, Z * scale, W * scale);
 	}
 
 	// Never add two points (W=1, positions) together
@@ -845,33 +845,33 @@ namespace Havtorn
 	// Hadamard multiplication
 	inline SVector4 SVector4::operator*(const SVector4& other) const
 	{
-		return SVector4(X * other.X, Y * other.Y, Z * other.Z, W);
+		return SVector4(X * other.X, Y * other.Y, Z * other.Z, W * other.W);
 	}
 
 	inline SVector4 SVector4::operator/(const SVector4& other) const
 	{
 		// TODO.NR: Print out error message about div with zero
-		if (other.X == 0 || other.Y == 0 || other.Z == 0)
+		if (other.X == 0 || other.Y == 0 || other.Z == 0 || other.W == 0)
 			return SVector4();
 
-		return SVector4(X / other.X, Y / other.Y, Z / other.Z, W);
+		return SVector4(X / other.X, Y / other.Y, Z / other.Z, W / other.W);
 	}
 
 	inline SVector4 SVector4::operator+=(F32 a)
 	{
-		X += a; Y += a; Z += a;
+		X += a; Y += a; Z += a; W += a;
 		return *this;
 	}
 
 	inline SVector4 SVector4::operator-=(F32 a)
 	{
-		X -= a; Y -= a; Z -= a;
+		X -= a; Y -= a; Z -= a; W -= a;
 		return *this;
 	}
 
 	inline SVector4 SVector4::operator*=(F32 a)
 	{
-		X *= a; Y *= a; Z *= a;
+		X *= a; Y *= a; Z *= a; W *= a;
 		return *this;
 	}
 
@@ -882,7 +882,7 @@ namespace Havtorn
 			return SVector4();
 
 		F32 scale = 1 / a;
-		X *= scale; Y *= scale; Z *= scale;
+		X *= scale; Y *= scale; Z *= scale; W *= scale;
 		return *this;
 	}
 
@@ -903,33 +903,33 @@ namespace Havtorn
 	// Hadamard multiplication
 	inline SVector4 SVector4::operator*=(const SVector4& other)
 	{
-		X *= other.X; Y *= other.Y; Z *= other.Z;
+		X *= other.X; Y *= other.Y; Z *= other.Z; W *= other.W;
 		return *this;
 	}
 
 	inline SVector4 SVector4::operator/=(const SVector4& other)
 	{
 		// TODO.NR: Print out error message about div with zero 
-		if (other.X == 0 || other.Y == 0 || other.Z == 0)
+		if (other.X == 0 || other.Y == 0 || other.Z == 0 || other.W == 0)
 			return SVector4();
 
-		X /= other.X; Y /= other.Y; Z /= other.Z;
+		X /= other.X; Y /= other.Y; Z /= other.Z; W /= other.W;
 		return *this;
 	}
 
 	inline bool SVector4::operator==(const SVector4& other) const
 	{
-		return X == other.X && Y == other.Y && Z == other.Z;
+		return X == other.X && Y == other.Y && Z == other.Z && W == other.W;
 	}
 
 	inline bool SVector4::operator!=(const SVector4& other) const
 	{
-		return X != other.X || Y != other.Y || Z != other.Z;
+		return X != other.X || Y != other.Y || Z != other.Z || W != other.W;
 	}
 
 	inline SVector4 SVector4::operator-() const
 	{
-		return SVector4(-X, -Y, -Z, W);
+		return SVector4(-X, -Y, -Z, -W);
 	}
 
 	inline F32 SVector4::Dot(const SVector4& other) const
@@ -950,12 +950,12 @@ namespace Havtorn
 
 	inline F32 SVector4::Length() const
 	{
-		return UMath::Sqrt(X * X + Y * Y + Z * Z);
+		return UMath::Sqrt(X * X + Y * Y + Z * Z + W * W);
 	}
 
 	inline F32 SVector4::LengthSquared() const
 	{
-		return (X * X + Y * Y + Z * Z);
+		return (X * X + Y * Y + Z * Z + W * W);
 	}
 
 	inline F32 SVector4::Size() const
@@ -1007,7 +1007,7 @@ namespace Havtorn
 
 	inline bool SVector4::IsEqual(const SVector4& other, F32 tolerance) const
 	{
-		return UMath::Abs(X - other.X) <= tolerance && UMath::Abs(Y - other.Y) <= tolerance && UMath::Abs(Z - other.Z) <= tolerance;
+		return UMath::Abs(X - other.X) <= tolerance && UMath::Abs(Y - other.Y) <= tolerance && UMath::Abs(Z - other.Z) <= tolerance && UMath::Abs(W - other.W);
 	}
 
 	inline bool SVector4::IsPosition() const
@@ -1020,6 +1020,7 @@ namespace Havtorn
 		return W == 0.0f;
 	}
 
+	// Assumes W is 0 or 1 (doesn't use it)
 	inline void SVector4::ToDirectionAndLength(SVector4& outDirection, F32& outLength) const
 	{
 		outLength = Size();
@@ -1041,7 +1042,7 @@ namespace Havtorn
 
 	inline F32 SVector4::DistanceSquared(const SVector4& other) const
 	{
-		return UMath::Square(X - other.X) + UMath::Square(Y - other.Y) + UMath::Square(Z - other.Z);
+		return UMath::Square(X - other.X) + UMath::Square(Y - other.Y) + UMath::Square(Z - other.Z) + UMath::Square(W - other.W);
 	}
 
 	inline F32 SVector4::Distance2D(const SVector4& other) const

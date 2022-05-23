@@ -23,6 +23,7 @@
 //#include "BoxLight.h"
 #include "ECS/ECSInclude.h"
 #include "GraphicsStructs.h"
+#include "GeometryPrimitives.h"
 #include "FileSystem/FileHeaderDeclarations.h"
 
 #include <algorithm>
@@ -45,7 +46,9 @@ namespace Havtorn
 	    , Context(nullptr)
 	    , FrameBuffer(nullptr)
 	    , ObjectBuffer(nullptr)
-	    , LightBuffer(nullptr)
+	    , DirectionalLightBuffer(nullptr)
+		, PointLightBuffer(nullptr)
+		, SpotLightBuffer(nullptr)
 	    , PushToCommands(&RenderCommandsA)
 	    , PopFromCommands(&RenderCommandsB)
 	    , ClearColor(0.5f, 0.5f, 0.5f, 1.0f)
@@ -78,7 +81,10 @@ namespace Havtorn
 		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &ObjectBuffer), "Object Buffer could not be created.");
 
 		bufferDescription.ByteWidth = sizeof(SDirectionalLightBufferData);
-		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &LightBuffer), "Light Buffer could not be created.");
+		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &DirectionalLightBuffer), "Directional Light Buffer could not be created.");
+
+		bufferDescription.ByteWidth = sizeof(SPointLightBufferData);
+		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &PointLightBuffer), "Point Light Buffer could not be created.");
 
 		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
@@ -114,6 +120,7 @@ namespace Havtorn
 		AddSampler(ESamplerType::Border);
 		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+		InitPointLightResources();
 		LoadDemoSceneResources();
 
 		return true;
@@ -137,7 +144,7 @@ namespace Havtorn
 		RenderedScene = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
 		IntermediateDepth = FullscreenTextureFactory.CreateDepth(windowHandler->GetResolution(), DXGI_FORMAT_R24G8_TYPELESS);
 
-		DefaultCubemap = CEngine::GetInstance()->GetMaterialHandler()->RequestCubemap("ForestCubemap");
+		DefaultCubemap = CEngine::GetInstance()->GetMaterialHandler()->RequestCubemap("CubemapTheVisit");
 
 		const SVector2<F32> shadowAtlasResolution = {8192.0f, 8192.0f};
 		InitShadowmapAtlas(shadowAtlasResolution);
@@ -216,6 +223,20 @@ namespace Havtorn
 		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
 		CModelImporter::ImportFBX("Assets/Tests/En_P_Bed.fbx");
 		CModelImporter::ImportFBX("Assets/Tests/Quad.fbx");
+	}
+
+	void CRenderManager::InitPointLightResources()
+	{
+		AddVertexBuffer<SPositionVertex>(PointLightCube);
+		AddIndexBuffer(PointLightCubeIndices);
+
+		AddMeshVertexStride(sizeof(SPositionVertex));
+		AddMeshVertexOffset(0);
+
+		const std::string vsData = AddShader("Shaders/PointLight_VS.cso", EShaderType::Vertex);
+		AddInputLayout(vsData, EInputLayoutType::Pos4);
+
+		AddShader("Shaders/DeferredLightPoint_PS.cso", EShaderType::Pixel);
 	}
 
 	void CRenderManager::Render()
@@ -345,7 +366,7 @@ namespace Havtorn
 				}
 				break;
 
-				case ERenderCommandType::DeferredLighting:
+				case ERenderCommandType::PreLightingPass:
 				{
 					// === SSAO ===
 					SSAOBuffer.SetAsActiveTarget();
@@ -353,12 +374,16 @@ namespace Havtorn
 					IntermediateDepth.SetAsResourceOnSlot(21);
 					FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::SSAO);
 					RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::Disable);
-			
+
 					SSAOBlurTexture.SetAsActiveTarget();
 					SSAOBuffer.SetAsResourceOnSlot(0);
 					FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::SSAOBlur);
 					// === !SSAO ===
+				}
+				break;
 
+				case ERenderCommandType::DeferredLightingDirectional:
+				{
 					RenderedScene.SetAsActiveTarget();
 					GBuffer.SetAllAsResources(1);
 					IntermediateDepth.SetAsResourceOnSlot(21);
@@ -371,6 +396,7 @@ namespace Havtorn
 					Context->PSSetShaderResources(0, 1, &DefaultCubemap);
 
 					const auto directionalLightComp = currentCommand.GetComponent(DirectionalLightComponent);
+
 					// Update lightbufferdata and fill lightbuffer
 					DirectionalLightBufferData.DirectionalLightDirection = directionalLightComp->Direction;
 					DirectionalLightBufferData.DirectionalLightColor = directionalLightComp->Color;
@@ -378,8 +404,8 @@ namespace Havtorn
 					DirectionalLightBufferData.ToDirectionalLightView = directionalLightComp->ShadowViewMatrix;
 					DirectionalLightBufferData.ToDirectionalLightProjection = directionalLightComp->ShadowProjectionMatrix;
 					DirectionalLightBufferData.DirectionalLightShadowMapResolution = directionalLightComp->ShadowmapResolution;
-					BindBuffer(LightBuffer, DirectionalLightBufferData, "Light Buffer");
-					Context->PSSetConstantBuffers(2, 1, &LightBuffer);
+					BindBuffer(DirectionalLightBuffer, DirectionalLightBufferData, "Light Buffer");
+					Context->PSSetConstantBuffers(2, 1, &DirectionalLightBuffer);
 
 					// Emissive Post Processing 
 					//EmissiveBufferData.EmissiveStrength = GetPostProcessingBufferData().EmissiveStrength;
@@ -391,10 +417,8 @@ namespace Havtorn
 					Context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
 					Context->IASetIndexBuffer(nullptr, DXGI_FORMAT_UNKNOWN, 0);
 
-					Context->GSSetShader(nullptr, nullptr, 0);
-
 					Context->VSSetShader(VertexShaders[1], nullptr, 0);
-
+					Context->GSSetShader(nullptr, nullptr, 0);
 					Context->PSSetShader(PixelShaders[1], nullptr, 0);
 
 					Context->PSSetSamplers(0, 1, &Samplers[0]);
@@ -402,6 +426,44 @@ namespace Havtorn
 
 					Context->Draw(3, 0);
 					CRenderManager::NumberOfDrawCallsThisFrame++;
+				}
+				break;
+
+				case ERenderCommandType::DeferredLightingPoint: 
+				{
+					RenderedScene.SetAsActiveTarget();
+					GBuffer.SetAllAsResources(1);
+					IntermediateDepth.SetAsResourceOnSlot(21);
+					RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AdditiveBlend);
+
+					ShadowAtlasDepth.SetAsResourceOnSlot(22);
+					RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::FrontFaceCulling);
+
+					// Update lightbufferdata and fill lightbuffer
+					const auto pointLightComp = currentCommand.GetComponent(PointLightComponent);
+					const auto transformComponent = currentCommand.GetComponent(TransformComponent);
+					SVector position = transformComponent->Transform.GetMatrix().Translation();
+					PointLightBufferData.ToWorldFromObject = transformComponent->Transform.GetMatrix();
+					PointLightBufferData.ColorAndIntensity = pointLightComp->ColorAndIntensity;
+					PointLightBufferData.PositionAndRange = { position.X, position.Y, position.Z, pointLightComp->Range };
+					BindBuffer(PointLightBuffer, PointLightBufferData, "Point Light Buffer");
+					Context->VSSetConstantBuffers(3, 1, &PointLightBuffer);
+					Context->PSSetConstantBuffers(3, 1, &PointLightBuffer);
+
+					Context->IASetPrimitiveTopology(Topologies[0]);
+					Context->IASetInputLayout(InputLayouts[1]);
+					Context->IASetVertexBuffers(0, 1, &VertexBuffers[0], &MeshVertexStrides[0], &MeshVertexOffsets[0]);
+					Context->IASetIndexBuffer(IndexBuffers[0], DXGI_FORMAT_R32_UINT, 0);
+
+					Context->VSSetShader(VertexShaders[2], nullptr, 0);
+					Context->PSSetShader(PixelShaders[2], nullptr, 0);
+
+					Context->PSSetSamplers(0, 1, &Samplers[0]);
+					Context->PSSetSamplers(1, 1, &Samplers[1]);
+
+					Context->DrawIndexed(36, 0, 0);
+					CRenderManager::NumberOfDrawCallsThisFrame++;
+					RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::Default);
 				}
 				break;
 
@@ -1173,6 +1235,13 @@ namespace Havtorn
 				{"TANGENT"  ,   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 				{"BINORMAL" ,   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
 				{"UV"		,   0, DXGI_FORMAT_R32G32_FLOAT,	0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+			};
+			break;
+
+		case EInputLayoutType::Pos4:
+			layout =
+			{
+				{"POSITION"	,	0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 			};
 			break;
 		}

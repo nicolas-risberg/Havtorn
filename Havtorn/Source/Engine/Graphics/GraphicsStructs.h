@@ -4,6 +4,11 @@
 
 namespace Havtorn
 {
+	struct SPositionVertex
+	{
+		F32 x, y, z, w;
+	};
+
 	struct SStaticMeshVertex
 	{
 		// Position

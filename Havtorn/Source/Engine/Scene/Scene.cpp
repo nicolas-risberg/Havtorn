@@ -39,6 +39,7 @@ namespace Havtorn
 		DirectionalLightComponents.emplace_back(std::make_shared<SDirectionalLightComponent>(directionalLightEntity, EComponentType::DirectionalLightComponent));
 		directionalLightEntity->AddComponent(EComponentType::DirectionalLightComponent, 0);
 		DirectionalLightComponents.back()->Direction = { 0.0f, 1.0f, -1.0f, 0.0f };
+		DirectionalLightComponents.back()->Color = { 212.0f / 255.0f, 175.0f / 255.0f, 55.0f / 255.0f, 0.25f };
 
 		InitDemoScene(renderManager);
 
@@ -55,6 +56,21 @@ namespace Havtorn
 
 	void CScene::InitDemoScene(CRenderManager* renderManager)
 	{
+		U64 newID = Entities.back()->ID + 1;
+		Entities.emplace_back(std::make_shared<SEntity>(newID, "Point Light"));
+		auto pointLightEntity = Entities.back();
+
+		// Setup entities (create components)
+		TransformComponents.emplace_back(std::make_shared<STransformComponent>(pointLightEntity, EComponentType::TransformComponent));
+		pointLightEntity->AddComponent(EComponentType::TransformComponent, 2);
+		TransformComponents.back()->Transform.GetMatrix().Translation({ 0.0f, 1.0f, 0.0f });
+
+		PointLightComponents.emplace_back(std::make_shared<SPointLightComponent>(pointLightEntity, EComponentType::PointLightComponent));
+		pointLightEntity->AddComponent(EComponentType::PointLightComponent, 0);
+		const auto& pointLightComp = PointLightComponents.back();
+		pointLightComp->ColorAndIntensity = { 0.0f, 1.0f, 1.0f, 10.0f };
+		pointLightComp->Range = 1.0f;
+
 		const std::string modelPath1 = "Assets/Tests/En_P_PendulumClock.hva";
 		const std::vector<std::string> materialNames1 = { "T_PendulumClock", "Checkboard_128x128" };
 		const std::string modelPath2 = "Assets/Tests/En_P_Bed.hva";
@@ -63,12 +79,12 @@ namespace Havtorn
 		const std::vector<std::string> materialNames3 = { "T_Quad" };
 
 		// === Pendulum ===
-		U64 newID = Entities.back()->ID + 1;
+		newID = Entities.back()->ID + 1;
 		Entities.emplace_back(std::make_shared<SEntity>(newID, "Clock"));
 		auto pendulum = Entities.back();
 
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(pendulum, EComponentType::TransformComponent));
-		pendulum->AddComponent(EComponentType::TransformComponent, 2);
+		pendulum->AddComponent(EComponentType::TransformComponent, 3);
 		auto& transform1 = TransformComponents.back()->Transform;
 		transform1.GetMatrix().Translation({1.75f, 0.0f, 0.25f});
 
@@ -87,7 +103,7 @@ namespace Havtorn
 		auto bed = Entities.back();
 
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(bed, EComponentType::TransformComponent));
-		bed->AddComponent(EComponentType::TransformComponent, 3);
+		bed->AddComponent(EComponentType::TransformComponent, 4);
 		auto& transform2 = TransformComponents.back()->Transform;
 		transform2.GetMatrix().Translation({ 0.25f, 0.0f, 0.25f });
 
@@ -123,7 +139,7 @@ namespace Havtorn
 			auto floor = Entities.back();
 
 			TransformComponents.emplace_back(std::make_shared<STransformComponent>(floor, EComponentType::TransformComponent));
-			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 2);
+			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 3);
 			auto& transform3 = TransformComponents.back()->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)));
@@ -162,7 +178,7 @@ namespace Havtorn
 			auto floor = Entities.back();
 
 			TransformComponents.emplace_back(std::make_shared<STransformComponent>(floor, EComponentType::TransformComponent));
-			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 2);
+			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 3);
 			auto& transform3 = TransformComponents.back()->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundX(UMath::DegToRad(-90.0f)));
@@ -198,7 +214,7 @@ namespace Havtorn
 			auto floor = Entities.back();
 
 			TransformComponents.emplace_back(std::make_shared<STransformComponent>(floor, EComponentType::TransformComponent));
-			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 2);
+			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 3);
 			auto& transform3 = TransformComponents.back()->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundX(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundY(UMath::DegToRad(-90.0f)));
