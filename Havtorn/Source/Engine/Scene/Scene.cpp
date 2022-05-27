@@ -40,6 +40,7 @@ namespace Havtorn
 		directionalLightEntity->AddComponent(EComponentType::DirectionalLightComponent, 0);
 		DirectionalLightComponents.back()->Direction = { 0.0f, 1.0f, -1.0f, 0.0f };
 		DirectionalLightComponents.back()->Color = { 212.0f / 255.0f, 175.0f / 255.0f, 55.0f / 255.0f, 0.25f };
+		DirectionalLightComponents.back()->ShadowmapView.ShadowmapViewportIndex = 0;
 
 		InitDemoScene(renderManager);
 
@@ -70,6 +71,45 @@ namespace Havtorn
 		const auto& pointLightComp = PointLightComponents.back();
 		pointLightComp->ColorAndIntensity = { 0.0f, 1.0f, 1.0f, 10.0f };
 		pointLightComp->Range = 1.0f;
+
+		const SMatrix constantProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.01f, pointLightComp->Range*100.0f);
+		const SVector4 constantPosition = TransformComponents.back()->Transform.GetMatrix().Translation4();
+
+		SShadowmapViewData& view1 = pointLightComp->ShadowmapViews[0];
+		view1.ShadowPosition = constantPosition;
+		view1.ShadowmapViewportIndex = 1;
+		view1.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Forward).ToVector3(), SVector::Up);
+		view1.ShadowProjectionMatrix = constantProjectionMatrix;
+
+		SShadowmapViewData& view2 = pointLightComp->ShadowmapViews[1];
+		view2.ShadowPosition = constantPosition;
+		view2.ShadowmapViewportIndex = 2;
+		view2.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Right).ToVector3(), SVector::Up);
+		view2.ShadowProjectionMatrix = constantProjectionMatrix;
+
+		SShadowmapViewData& view3 = pointLightComp->ShadowmapViews[2];
+		view3.ShadowPosition = constantPosition;
+		view3.ShadowmapViewportIndex = 3;
+		view3.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Backward).ToVector3(), SVector::Up);
+		view3.ShadowProjectionMatrix = constantProjectionMatrix;
+
+		SShadowmapViewData& view4 = pointLightComp->ShadowmapViews[3];
+		view4.ShadowPosition = constantPosition;
+		view4.ShadowmapViewportIndex = 4;
+		view4.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Left).ToVector3(), SVector::Up);
+		view4.ShadowProjectionMatrix = constantProjectionMatrix;
+
+		SShadowmapViewData& view5 = pointLightComp->ShadowmapViews[4];
+		view5.ShadowPosition = constantPosition;
+		view5.ShadowmapViewportIndex = 5;
+		view5.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Up).ToVector3(), SVector::Backward);
+		view5.ShadowProjectionMatrix = constantProjectionMatrix;
+
+		SShadowmapViewData& view6 = pointLightComp->ShadowmapViews[5];
+		view6.ShadowPosition = constantPosition;
+		view6.ShadowmapViewportIndex = 6;
+		view6.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Down).ToVector3(), SVector::Forward);
+		view6.ShadowProjectionMatrix = constantProjectionMatrix;
 
 		const std::string modelPath1 = "Assets/Tests/En_P_PendulumClock.hva";
 		const std::vector<std::string> materialNames1 = { "T_PendulumClock", "Checkboard_128x128" };

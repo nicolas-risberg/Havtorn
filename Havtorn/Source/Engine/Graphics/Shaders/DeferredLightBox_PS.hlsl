@@ -30,16 +30,16 @@ PixelOutput main(BoxLightVertexToPixel input)
     float x = screenUV.x * 2.0f - 1;
     float y = (1 - screenUV.y) * 2.0f - 1;
     const float4 projectedPos = float4(x, y, z, 1.0f);
-    float4 viewSpacePos = mul(toCameraFromProjection, projectedPos);
+    float4 viewSpacePos = mul(ToCameraFromProjection, projectedPos);
     viewSpacePos /= viewSpacePos.w;
-    const float4 worldPosFromDepth = mul(toWorldFromCamera, viewSpacePos);
+    const float4 worldPosFromDepth = mul(ToWorldFromCamera, viewSpacePos);
     
     float4 objectPosition = mul(toBoxLightObject, worldPosFromDepth);
     
     clip(0.5f - abs(objectPosition.xy));
     clip(1.0f - /*abs*/(objectPosition.z));
 
-    const float3 toEye = normalize(cameraPosition.xyz - worldPosition.xyz);
+    const float3 toEye = normalize(CameraPosition.xyz - worldPosition.xyz);
     float3 albedo = GBuffer_Albedo(screenUV).rgb;
     albedo = GammaToLinear(albedo);
     const float3 normal = GBuffer_Normal(screenUV).xyz;
@@ -56,7 +56,7 @@ PixelOutput main(BoxLightVertexToPixel input)
     const float lightDistance = length(toLight);
     toLight = normalize(toLight);
     const float3 directionalLight = EvaluateBoxLight(diffuseColor, specularColor, normal, perceptualRoughness, boxLightColorAndIntensity.rgb * boxLightColorAndIntensity.w, boxLightPositionAndRange.w, toLight, lightDistance, toEye, boxLightDirection.xyz);
-    const float3 radiance = directionalLight * (1.0f - ShadowFactor(worldPosition, boxLightPositionAndRange.xyz, toBoxLightView, toBoxLightProjection, shadowDepthTexture, shadowSampler, boxLightShadowmapResolution));
+    const float3 radiance = directionalLight * (1.0f - ShadowFactor(worldPosition, ShadowmapPosition.xyz, ToShadowMapView, ToShadowMapProjection, shadowDepthTexture, shadowSampler, ShadowmapResolution, ShadowAtlasResolution, ShadowmapStartingUV));
 
     output.Color.rgb = radiance;
     output.Color.a = 1.0f;

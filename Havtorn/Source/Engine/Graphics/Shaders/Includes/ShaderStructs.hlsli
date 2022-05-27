@@ -21,7 +21,7 @@ cbuffer FrameBuffer : register(b0)
     float4 toDirectionalLight; //16
     float4 directionalLightColor; //16
     
-    float4x4 toDirectionalLightView;
+    float4x4 ToDirectionalLightView;
     float4x4 toDirectionalLightProjection;
     float4 directionalLightPosition;
     float2 directionalLightShadowMapResolution;

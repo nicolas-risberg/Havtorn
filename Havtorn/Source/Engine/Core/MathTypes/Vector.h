@@ -736,6 +736,8 @@ namespace Havtorn
 		SVector4(const SVector4& other) = default;
 		~SVector4() = default;
 
+		SVector ToVector3() const;
+
 		inline SVector4 operator+(F32 a) const;
 		inline SVector4 operator-(F32 a) const;
 		inline SVector4 operator*(F32 a) const;

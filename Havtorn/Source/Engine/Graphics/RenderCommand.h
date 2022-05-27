@@ -12,7 +12,9 @@ namespace Havtorn
 
 	enum class ERenderCommandType
 	{
-		ShadowAtlasPrePass,
+		ShadowAtlasPrePassDirectional,
+		ShadowAtlasPrePassPoint,
+		ShadowAtlasPrePassSpot,
 		CameraDataStorage,
 		GBufferData,
 		GBufferDataInstanced,

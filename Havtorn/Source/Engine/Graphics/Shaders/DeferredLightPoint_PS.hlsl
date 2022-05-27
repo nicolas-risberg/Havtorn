@@ -19,7 +19,7 @@ PixelOutput main(/*PointLightGeometryToPixel*/PointLightVertexToPixel input)
     }
     
     float3 worldPosition = PixelShader_WorldPosition(screenUV).rgb;
-    float3 toEye = normalize(cameraPosition.xyz - worldPosition.xyz);
+    float3 toEye = normalize(CameraPosition.xyz - worldPosition.xyz);
     float3 albedo = GBuffer_Albedo(screenUV).rgb;
     albedo = GammaToLinear(albedo);
     const float3 normal = GBuffer_Normal(screenUV).xyz;

@@ -26,7 +26,7 @@ GBufferOutput main(VertexModelToPixel input)
     if (NumberOfDetailNormals > 0)
     {
         float detailNormalStrength = PixelShader_DetailNormalStrength(vertToPixel.UV);
-        const float strengthMultiplier = DetailStrengthDistanceMultiplier(cameraPosition.xyz, input.WorldPosition.xyz);
+        const float strengthMultiplier = DetailStrengthDistanceMultiplier(CameraPosition.xyz, input.WorldPosition.xyz);
         float3 detailNormal;
 
         // Blend based on detail normal strength

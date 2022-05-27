@@ -94,7 +94,7 @@ namespace Havtorn
 		void Clear(SVector4 clearColor);
 		void InitRenderTextures(CWindowHandler* windowHandler);
 		void InitShadowmapAtlas(SVector2<F32> atlasResolution);
-		void InitShadowmapLOD(SVector2<F32> topLeftCoordinate, const SVector2<F32>& widthAndHeight, const SVector2<F32>& depth, U16 mapsInLod, U16 startIndex);
+		void InitShadowmapLOD(SVector2<F32> topLeftCoordinate, const SVector2<F32>& widthAndHeight, const SVector2<F32>& depth, const SVector2<F32>& atlasResolution, U16 mapsInLod, U16 startIndex);
 		void LoadDemoSceneResources();
 		void InitPointLightResources();
 
@@ -168,6 +168,17 @@ namespace Havtorn
 		} PointLightBufferData;
 		HV_ASSERT_BUFFER(SPointLightBufferData)
 
+		struct SShadowmapBufferData
+		{
+			SMatrix ToShadowmapView;
+			SMatrix ToShadowmapProjection;
+			SVector4 ShadowmapPosition;
+			SVector2<F32> ShadowmapResolution;
+			SVector2<F32> ShadowAtlasResolution;
+			SVector2<F32> ShadowmapStartingUV;
+		} ShadowmapBufferData;
+		HV_ASSERT_BUFFER(SShadowmapBufferData)
+
 	private:
 		CGraphicsFramework* Framework;
 		ID3D11DeviceContext* Context;
@@ -176,6 +187,7 @@ namespace Havtorn
 		ID3D11Buffer* DirectionalLightBuffer;
 		ID3D11Buffer* PointLightBuffer;
 		ID3D11Buffer* SpotLightBuffer;
+		ID3D11Buffer* ShadowmapBuffer;
 		CRenderStateManager RenderStateManager;
 		//CForwardRenderer ForwardRenderer;
 		//CDeferredRenderer myDeferredRenderer;
@@ -250,6 +262,8 @@ namespace Havtorn
 		
 		EMaterialConfiguration MaterialConfiguration = EMaterialConfiguration::AlbedoMaterialNormal_Packed;
 		U8 TexturesPerMaterial = 3;
+
+		SVector2<F32> ShadowAtlasResolution = SVector2<F32>::Zero;
 	};
 
 	template <typename T>

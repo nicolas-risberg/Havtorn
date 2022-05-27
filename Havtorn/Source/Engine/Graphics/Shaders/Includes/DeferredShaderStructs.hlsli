@@ -70,11 +70,11 @@ struct PixelOutput
 
 cbuffer FrameBuffer : register(b0)
 {
-    float4x4 toCameraSpace;
-    float4x4 toWorldFromCamera;
-    float4x4 toProjectionSpace;
-    float4x4 toCameraFromProjection;
-    float4 cameraPosition;
+    float4x4 ToCameraSpace;
+    float4x4 ToWorldFromCamera;
+    float4x4 ToProjectionSpace;
+    float4x4 ToCameraFromProjection;
+    float4 CameraPosition;
 }
 
 cbuffer ObjectBuffer : register(b1)
@@ -84,15 +84,15 @@ cbuffer ObjectBuffer : register(b1)
     unsigned int NumberOfTextureSets;
 }
 
-cbuffer LightBuffer : register(b2)
+cbuffer DirectionalLightBuffer : register(b2)
 {
-    float4x4 toDirectionalLightView;
-    float4x4 toDirectionalLightProjection;
-    float4 directionalLightPosition; // For shadow calculations
-    float4 toDirectionalLight;
-    float4 directionalLightColor;
-    float2 directionalLightShadowMapResolution;
-    float2 directionalLightPadding;
+    float4x4 ToDirectionalLightView;
+    float4x4 ToDirectionalLightProjection;
+    float4 DirectionalLightPosition; // For shadow calculations
+    float4 ToDirectionalLight;
+    float4 DirectionalLightColor;
+    float2 DirectionalLightShadowMapResolution;
+    float2 DirectionalLightPadding;
 }
 
 cbuffer PointLightBuffer : register(b3)
@@ -101,12 +101,40 @@ cbuffer PointLightBuffer : register(b3)
     float4 PositionAndRange;
 }
 
-cbuffer BoneBuffer : register(b4)
+cbuffer SpotLightBuffer : register(b4)
+{
+    float4x4 SpotLightToWorld;
+    float4x4 SpotLightToView;
+    float4x4 SpotLightToProjection;
+    float4 SpotLightColorAndIntensity;
+    float4 SpotLightPositionAndRange;
+    float4 SpotLightDirectionAndAngleExponent;
+    float4 SpotLightDirectionNormal1;
+    float4 SpotLightDirectionNormal2;
+    float4 UpLeftCorner;
+    float4 UpRightCorner;
+    float4 DownLeftCorner;
+    float4 DownRightCorner;
+    float2 InnerOuterAngle;
+    float2 SpotLightPadding;
+}
+
+cbuffer ShadowmapBuffer : register(b5)
+{
+    float4x4 ToShadowMapView;
+    float4x4 ToShadowMapProjection;
+    float4 ShadowmapPosition;
+    float2 ShadowmapResolution;
+    float2 ShadowAtlasResolution;
+    float2 ShadowmapStartingUV;
+}
+
+cbuffer BoneBuffer : register(b6)
 {
     matrix Bones[64];
 };
 
-cbuffer EmissiveBuffer : register(b5)
+cbuffer EmissiveBuffer : register(b7)
 {
     float EmissiveStrength;
     float3 Padding;

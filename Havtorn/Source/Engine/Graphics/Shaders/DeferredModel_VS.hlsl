@@ -8,8 +8,8 @@ VertexModelToPixel main(StaticMeshVertexInput input)
 
     const float4 vertexObjectPos      = float4(input.Position.xyz, 1.0f);
     const float4 vertexWorldPos       = mul(toWorld, vertexObjectPos);
-    const float4 vertexViewPos        = mul(toCameraSpace, vertexWorldPos);
-    const float4 vertexProjectionPos  = mul(toProjectionSpace, vertexViewPos);
+    const float4 vertexViewPos        = mul(ToCameraSpace, vertexWorldPos);
+    const float4 vertexProjectionPos  = mul(ToProjectionSpace, vertexViewPos);
 
     const float3x3 toWorldRotation    = (float3x3) toWorld;
     float3 vertexWorldNormal          = mul(toWorldRotation, input.Normal.xyz);

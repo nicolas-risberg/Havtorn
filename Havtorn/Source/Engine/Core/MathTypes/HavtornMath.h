@@ -10,6 +10,11 @@
 
 namespace Havtorn
 {
+	inline SVector SVector4::ToVector3() const
+	{
+		return { X, Y, Z };
+	}
+
 	SVector4 SVector4::operator*=(const SMatrix& other)
 	{
 		const SVector4 temp = other * (*this);

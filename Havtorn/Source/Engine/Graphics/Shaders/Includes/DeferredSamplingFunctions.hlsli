@@ -14,9 +14,9 @@ float4 PixelShader_WorldPosition(float2 uv)
     float x = uv.x * 2.0f - 1;
     float y = (1 - uv.y) * 2.0f - 1;
     const float4 projectedPos = float4(x, y, z, 1.0f);
-    float4 viewSpacePos = mul(toCameraFromProjection, projectedPos);
+    float4 viewSpacePos = mul(ToCameraFromProjection, projectedPos);
     viewSpacePos /= viewSpacePos.w;
-    float4 worldPos = mul(toWorldFromCamera, viewSpacePos);
+    float4 worldPos = mul(ToWorldFromCamera, viewSpacePos);
 
     worldPos.a = 1.0f;
     return worldPos;

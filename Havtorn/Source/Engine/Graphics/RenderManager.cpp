@@ -86,6 +86,9 @@ namespace Havtorn
 		bufferDescription.ByteWidth = sizeof(SPointLightBufferData);
 		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &PointLightBuffer), "Point Light Buffer could not be created.");
 
+		bufferDescription.ByteWidth = sizeof(SShadowmapBufferData);
+		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &ShadowmapBuffer), "Shadowmap Buffer could not be created.");
+
 		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myLightRenderer.Init(aFramework), "Failed to Init Light Renderer.");
 		//ENGINE_ERROR_BOOL_MESSAGE(myDeferredRenderer.Init(aFramework, &CMainSingleton::MaterialHandler()), "Failed to Init Deferred Renderer.");
@@ -102,17 +105,14 @@ namespace Havtorn
 		ID3D11Texture2D* backbufferTexture = framework->GetBackbufferTexture();
 		ENGINE_ERROR_BOOL_MESSAGE(backbufferTexture, "Backbuffer Texture is null.");
 
-		//RenderedScene = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		Backbuffer = FullscreenTextureFactory.CreateTexture(backbufferTexture);
 		InitRenderTextures(windowHandler);
 
 		// Load default resources
-		//const std::string vsData = AddShader("Shaders/Demo_VS.cso", EShaderType::Vertex);
 		const std::string vsData = AddShader("Shaders/DeferredModel_VS.cso", EShaderType::Vertex);
 		AddInputLayout(vsData, EInputLayoutType::Pos3Nor3Tan3Bit3UV2);
 		AddShader("Shaders/DeferredVertexShader_VS.cso", EShaderType::Vertex);
 
-		//AddShader("Shaders/Demo_PS.cso", EShaderType::Pixel);
 		AddShader("Shaders/GBuffer_PS.cso", EShaderType::Pixel);
 		AddShader("Shaders/DeferredLightEnvironment_PS.cso", EShaderType::Pixel);
 
@@ -146,13 +146,13 @@ namespace Havtorn
 
 		DefaultCubemap = CEngine::GetInstance()->GetMaterialHandler()->RequestCubemap("CubemapTheVisit");
 
-		const SVector2<F32> shadowAtlasResolution = {8192.0f, 8192.0f};
-		InitShadowmapAtlas(shadowAtlasResolution);
+		ShadowAtlasResolution = {8192.0f, 8192.0f};
+		InitShadowmapAtlas(ShadowAtlasResolution);
 		//myBoxLightShadowDepth = FullscreenTextureFactory.CreateDepth(aWindowHandler->GetResolution(), DXGI_FORMAT_R32_TYPELESS);
 		DepthCopy = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R32_FLOAT);
 		//myDownsampledDepth = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R32_FLOAT);
 
-		IntermediateTexture = FullscreenTextureFactory.CreateTexture(shadowAtlasResolution, DXGI_FORMAT_R16G16B16A16_FLOAT);
+		IntermediateTexture = FullscreenTextureFactory.CreateTexture(ShadowAtlasResolution, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		//myLuminanceTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
 		//myHalfSizeTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 2.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
 		//myQuarterSizeTexture = FullscreenTextureFactory.CreateTexture(aWindowHandler->GetResolution() / 4.0f, DXGI_FORMAT_R16G16B16A16_FLOAT);
@@ -184,31 +184,31 @@ namespace Havtorn
 		SVector2<F32> topLeftCoordinate = SVector2<F32>::Zero;
 		SVector2<F32> widthAndHeight = atlasResolution * (1.0f / (mapsInLod / 2));
 		const SVector2<F32> depth = { 0.0f, 1.0f };
-		InitShadowmapLOD(topLeftCoordinate, widthAndHeight, depth, mapsInLod, 0);
+		InitShadowmapLOD(topLeftCoordinate, widthAndHeight, depth, atlasResolution, mapsInLod, 0);
 
 		// LOD 2
 		mapsInLod = 16;
 		topLeftCoordinate = { 0.0f, atlasResolution.Y * 0.5f };
 		widthAndHeight = atlasResolution * (1.0f / (mapsInLod / 2));
-		InitShadowmapLOD(topLeftCoordinate, widthAndHeight, depth, mapsInLod, 8);
+		InitShadowmapLOD(topLeftCoordinate, widthAndHeight, depth, atlasResolution, mapsInLod, 8);
 
 		// LOD 3
 		mapsInLod = 32;
 		topLeftCoordinate = {0.0f, atlasResolution.Y * 0.75f };
 		widthAndHeight = atlasResolution * (1.0f / (mapsInLod / 2));
-		InitShadowmapLOD(topLeftCoordinate, widthAndHeight, depth, mapsInLod, 24);
+		InitShadowmapLOD(topLeftCoordinate, widthAndHeight, depth, atlasResolution, mapsInLod, 24);
 
 		// LOD 4
 		mapsInLod = 128;
 		topLeftCoordinate = { 0.0f, atlasResolution.Y * 0.875f };
 		widthAndHeight = atlasResolution * (1.0f / (mapsInLod / 4));
-		InitShadowmapLOD(topLeftCoordinate, widthAndHeight, depth, mapsInLod, 56);
+		InitShadowmapLOD(topLeftCoordinate, widthAndHeight, depth, atlasResolution, mapsInLod, 56);
 	}
 
-	void CRenderManager::InitShadowmapLOD(SVector2<F32> topLeftCoordinate, const SVector2<F32>& widthAndHeight, const SVector2<F32>& depth, U16 mapsInLod, U16 startIndex)
+	void CRenderManager::InitShadowmapLOD(SVector2<F32> topLeftCoordinate, const SVector2<F32>& widthAndHeight, const SVector2<F32>& depth, const SVector2<F32>& atlasResolution, U16 mapsInLod, U16 startIndex)
 	{
 		const float startingYCoordinate = topLeftCoordinate.Y;
-		const U16 mapsPerRow = static_cast<U16>(8192.0f / widthAndHeight.X);
+		const U16 mapsPerRow = static_cast<U16>(atlasResolution.X / widthAndHeight.X);
 		for (U16 i = startIndex; i < startIndex + mapsInLod; i++)
 		{
 			const U16 relativeIndex = i - startIndex;
@@ -261,48 +261,88 @@ namespace Havtorn
 
 			ShadowAtlasDepth.SetAsDepthTarget(&IntermediateTexture);
 
-			ID3D11DeviceContext* context = Framework->GetContext();
-
 			const U16 commandsInHeap = static_cast<U16>(PopFromCommands->size());
 			for (U16 i = 0; i < commandsInHeap; ++i)
 			{
 				SRenderCommand currentCommand = PopFromCommands->top();
 				switch (currentCommand.Type)
 				{
-				case ERenderCommandType::ShadowAtlasPrePass:
+				case ERenderCommandType::ShadowAtlasPrePassDirectional:
 				{
 					const auto transformComp = currentCommand.GetComponent(TransformComponent);
 					const auto staticMeshComp = currentCommand.GetComponent(StaticMeshComponent);
 					const auto directionalLightComp = currentCommand.GetComponent(DirectionalLightComponent);
 
-					FrameBufferData.ToCameraFromWorld = directionalLightComp->ShadowViewMatrix;
-					FrameBufferData.ToWorldFromCamera = directionalLightComp->ShadowViewMatrix.FastInverse();
-					FrameBufferData.ToProjectionFromCamera = directionalLightComp->ShadowProjectionMatrix;
-					FrameBufferData.ToCameraFromProjection = directionalLightComp->ShadowProjectionMatrix.Inverse();
-					FrameBufferData.CameraPosition = directionalLightComp->ShadowPosition;
+					FrameBufferData.ToCameraFromWorld = directionalLightComp->ShadowmapView.ShadowViewMatrix;
+					FrameBufferData.ToWorldFromCamera = directionalLightComp->ShadowmapView.ShadowViewMatrix.FastInverse();
+					FrameBufferData.ToProjectionFromCamera = directionalLightComp->ShadowmapView.ShadowProjectionMatrix;
+					FrameBufferData.ToCameraFromProjection = directionalLightComp->ShadowmapView.ShadowProjectionMatrix.Inverse();
+					FrameBufferData.CameraPosition = directionalLightComp->ShadowmapView.ShadowPosition;
 					BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
 
 					ObjectBufferData.ToWorldFromObject = transformComp->Transform.GetMatrix();
 					BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
 
-					context->VSSetConstantBuffers(0, 1, &FrameBuffer);
-					context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
-					context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
-					context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
+					Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+					Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
+					Context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
+					Context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
 
-					context->VSSetShader(VertexShaders[staticMeshComp->VertexShaderIndex], nullptr, 0);
-					context->PSSetShader(nullptr, nullptr, 0);
-					
-					context->RSSetViewports(1, &Viewports[directionalLightComp->ShadowmapViewportIndex]);
+					Context->VSSetShader(VertexShaders[staticMeshComp->VertexShaderIndex], nullptr, 0);
+					Context->PSSetShader(nullptr, nullptr, 0);
+
+					Context->RSSetViewports(1, &Viewports[directionalLightComp->ShadowmapView.ShadowmapViewportIndex]);
 
 					for (U8 drawCallIndex = 0; drawCallIndex < static_cast<U8>(staticMeshComp->DrawCallData.size()); drawCallIndex++)
 					{
 						const SDrawCallData& drawData = staticMeshComp->DrawCallData[drawCallIndex];
 						ID3D11Buffer* vertexBuffer = VertexBuffers[drawData.VertexBufferIndex];
-						context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
-						context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
-						context->DrawIndexed(drawData.IndexCount, 0, 0);
+						Context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
+						Context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
+						Context->DrawIndexed(drawData.IndexCount, 0, 0);
 						CRenderManager::NumberOfDrawCallsThisFrame++;
+					}
+				}
+				break;
+
+				case ERenderCommandType::ShadowAtlasPrePassPoint:
+				{
+					// TODO.NR: Figure out why the textures don't show up in the atlas
+					const auto transformComp = currentCommand.GetComponent(TransformComponent);
+					const auto staticMeshComp = currentCommand.GetComponent(StaticMeshComponent);
+					const auto pointLightComp = currentCommand.GetComponent(PointLightComponent);
+
+					ObjectBufferData.ToWorldFromObject = transformComp->Transform.GetMatrix();
+					BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
+
+					Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
+					Context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
+					Context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
+
+					Context->VSSetShader(VertexShaders[staticMeshComp->VertexShaderIndex], nullptr, 0);
+					Context->PSSetShader(nullptr, nullptr, 0);
+
+					for (const auto& shadowmapView : pointLightComp->ShadowmapViews)
+					{
+						FrameBufferData.ToCameraFromWorld = shadowmapView.ShadowViewMatrix;
+						FrameBufferData.ToWorldFromCamera = shadowmapView.ShadowViewMatrix.FastInverse();
+						FrameBufferData.ToProjectionFromCamera = shadowmapView.ShadowProjectionMatrix;
+						FrameBufferData.ToCameraFromProjection = shadowmapView.ShadowProjectionMatrix.Inverse();
+						FrameBufferData.CameraPosition = shadowmapView.ShadowPosition;
+						BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
+
+						Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+						Context->RSSetViewports(1, &Viewports[shadowmapView.ShadowmapViewportIndex]);
+
+						for (U8 drawCallIndex = 0; drawCallIndex < static_cast<U8>(staticMeshComp->DrawCallData.size()); drawCallIndex++)
+						{
+							const SDrawCallData& drawData = staticMeshComp->DrawCallData[drawCallIndex];
+							ID3D11Buffer* vertexBuffer = VertexBuffers[drawData.VertexBufferIndex];
+							Context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
+							Context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
+							Context->DrawIndexed(drawData.IndexCount, 0, 0);
+							CRenderManager::NumberOfDrawCallsThisFrame++;
+						}
 					}
 				}
 				break;
@@ -321,8 +361,8 @@ namespace Havtorn
 					FrameBufferData.CameraPosition = transformComp->Transform.GetMatrix().Translation4();
 					BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
 
-					context->VSSetConstantBuffers(0, 1, &FrameBuffer);
-					context->PSSetConstantBuffers(0, 1, &FrameBuffer);
+					Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+					Context->PSSetConstantBuffers(0, 1, &FrameBuffer);
 				}
 				break;
 
@@ -335,15 +375,15 @@ namespace Havtorn
 					ObjectBufferData.ToWorldFromObject = transformComp->Transform.GetMatrix();
 					BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
 
-					context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
-					context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
-					context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
+					Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
+					Context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
+					Context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
 
-					context->VSSetShader(VertexShaders[staticMeshComp->VertexShaderIndex], nullptr, 0);
-					context->PSSetShader(PixelShaders[staticMeshComp->PixelShaderIndex], nullptr, 0);
+					Context->VSSetShader(VertexShaders[staticMeshComp->VertexShaderIndex], nullptr, 0);
+					Context->PSSetShader(PixelShaders[staticMeshComp->PixelShaderIndex], nullptr, 0);
 
 					ID3D11SamplerState* sampler = Samplers[staticMeshComp->SamplerIndex];
-					context->PSSetSamplers(0, 1, &sampler);
+					Context->PSSetSamplers(0, 1, &sampler);
 
 					for (U8 drawCallIndex = 0; drawCallIndex < static_cast<U8>(staticMeshComp->DrawCallData.size()); drawCallIndex++)
 					{
@@ -354,13 +394,13 @@ namespace Havtorn
 						{
 							resourceViewPointers[pointerTracker] = Textures[materialComp->MaterialReferences[textureIndex + drawCallIndex * TexturesPerMaterial]];
 						}
-						context->PSSetShaderResources(5, TexturesPerMaterial, resourceViewPointers.data());
+						Context->PSSetShaderResources(5, TexturesPerMaterial, resourceViewPointers.data());
 
 						const SDrawCallData& drawData = staticMeshComp->DrawCallData[drawCallIndex];
 						ID3D11Buffer* vertexBuffer = VertexBuffers[drawData.VertexBufferIndex];
-						context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
-						context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
-						context->DrawIndexed(drawData.IndexCount, 0, 0);
+						Context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
+						Context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
+						Context->DrawIndexed(drawData.IndexCount, 0, 0);
 						CRenderManager::NumberOfDrawCallsThisFrame++;
 					}
 				}
@@ -400,12 +440,23 @@ namespace Havtorn
 					// Update lightbufferdata and fill lightbuffer
 					DirectionalLightBufferData.DirectionalLightDirection = directionalLightComp->Direction;
 					DirectionalLightBufferData.DirectionalLightColor = directionalLightComp->Color;
-					DirectionalLightBufferData.DirectionalLightPosition = directionalLightComp->ShadowPosition;
-					DirectionalLightBufferData.ToDirectionalLightView = directionalLightComp->ShadowViewMatrix;
-					DirectionalLightBufferData.ToDirectionalLightProjection = directionalLightComp->ShadowProjectionMatrix;
+					DirectionalLightBufferData.DirectionalLightPosition = directionalLightComp->ShadowmapView.ShadowPosition;
+					DirectionalLightBufferData.ToDirectionalLightView = directionalLightComp->ShadowmapView.ShadowViewMatrix;
+					DirectionalLightBufferData.ToDirectionalLightProjection = directionalLightComp->ShadowmapView.ShadowProjectionMatrix;
 					DirectionalLightBufferData.DirectionalLightShadowMapResolution = directionalLightComp->ShadowmapResolution;
 					BindBuffer(DirectionalLightBuffer, DirectionalLightBufferData, "Light Buffer");
 					Context->PSSetConstantBuffers(2, 1, &DirectionalLightBuffer);
+
+					ShadowmapBufferData.ToShadowmapView = directionalLightComp->ShadowmapView.ShadowViewMatrix;
+					ShadowmapBufferData.ToShadowmapProjection = directionalLightComp->ShadowmapView.ShadowProjectionMatrix;
+					ShadowmapBufferData.ShadowmapPosition = directionalLightComp->ShadowmapView.ShadowPosition;
+
+					const auto& viewport = Viewports[directionalLightComp->ShadowmapView.ShadowmapViewportIndex];
+					ShadowmapBufferData.ShadowmapResolution = { viewport.Width, viewport.Height };
+					ShadowmapBufferData.ShadowAtlasResolution = ShadowAtlasResolution;
+					ShadowmapBufferData.ShadowmapStartingUV = { viewport.TopLeftX / ShadowAtlasResolution.X, viewport.TopLeftY / ShadowAtlasResolution.Y };
+					BindBuffer(ShadowmapBuffer, ShadowmapBufferData, "Shadowmap Buffer");
+					Context->PSSetConstantBuffers(5, 1, &ShadowmapBuffer);
 
 					// Emissive Post Processing 
 					//EmissiveBufferData.EmissiveStrength = GetPostProcessingBufferData().EmissiveStrength;
@@ -495,16 +546,16 @@ namespace Havtorn
 			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::GammaCorrection);
 
 			// Draw debug shadow atlas
-			//D3D11_VIEWPORT viewport;
-			//viewport.TopLeftX = 0.0f;
-			//viewport.TopLeftY = 0.0f;
-			//viewport.Width = 256.0f;
-			//viewport.Height = 256.0f;
-			//viewport.MinDepth = 0.0f;
-			//viewport.MaxDepth = 1.0f;
-			//context->RSSetViewports(1, &viewport);
-			//ShadowAtlasDepth.SetAsResourceOnSlot(0);
-			//FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::CopyDepth);
+			D3D11_VIEWPORT viewport;
+			viewport.TopLeftX = 0.0f;
+			viewport.TopLeftY = 0.0f;
+			viewport.Width = 256.0f;
+			viewport.Height = 256.0f;
+			viewport.MinDepth = 0.0f;
+			viewport.MaxDepth = 1.0f;
+			Context->RSSetViewports(1, &viewport);
+			ShadowAtlasDepth.SetAsResourceOnSlot(0);
+			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::CopyDepth);
 
 			// RenderedScene should be complete as that is the texture we send to the viewport
 			Backbuffer.SetAsActiveTarget();

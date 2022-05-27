@@ -25,14 +25,14 @@ namespace Havtorn
 		const I64 transformCompIndex = mainCameraComp->Entity->GetComponentIndex(EComponentType::TransformComponent);
 		auto& transformComp = transformComponents[transformCompIndex];
 
-		directionalLightComp->ShadowPosition = transformComp->Transform.GetMatrix().Translation4();
-		directionalLightComp->ShadowPosition.Y = 2.0f;
+		directionalLightComp->ShadowmapView.ShadowPosition = transformComp->Transform.GetMatrix().Translation4();
+		directionalLightComp->ShadowmapView.ShadowPosition.Y = 2.0f;
 		static float counter = 0.0f;
 		counter += CTimer::Dt();
-		directionalLightComp->Direction = { -1.0f/*UMath::Sin(counter)*/, 1.0f, -1.0f, 0.0f };
+		directionalLightComp->Direction = { /*-1.0f*/UMath::Sin(counter), 1.0f, -1.0f, 0.0f };
 
 		// Round to pixel positions
-		SVector position = { directionalLightComp->ShadowPosition.X, directionalLightComp->ShadowPosition.Y, directionalLightComp->ShadowPosition.Z };
+		SVector position = { directionalLightComp->ShadowmapView.ShadowPosition.X, directionalLightComp->ShadowmapView.ShadowPosition.Y, directionalLightComp->ShadowmapView.ShadowPosition.Z };
 		const SVector2<F32> unitsPerPixel = directionalLightComp->ShadowViewSize / directionalLightComp->ShadowmapResolution;
 
 		auto shadowTransform = SMatrix();
@@ -52,11 +52,11 @@ namespace Havtorn
 		upStep = floor(upStep / unitsPerPixel.Y) * unitsPerPixel.Y;
 		position += upStep * shadowTransform.Up();
 
-		directionalLightComp->ShadowPosition= SVector4(position.X, position.Y, position.Z, 1.0f);
+		directionalLightComp->ShadowmapView.ShadowPosition = SVector4(position.X, position.Y, position.Z, 1.0f);
 
 		const SVector shadowDirection = { directionalLightComp->Direction.X, directionalLightComp->Direction.Y, directionalLightComp->Direction.Z };
-		directionalLightComp->ShadowViewMatrix = SMatrix::LookAtLH(position, position - shadowDirection, SVector::Up);
+		directionalLightComp->ShadowmapView.ShadowViewMatrix = SMatrix::LookAtLH(position, position - shadowDirection, SVector::Up);
 
-		directionalLightComp->ShadowProjectionMatrix = SMatrix::OrthographicLH(directionalLightComp->ShadowViewSize.X, directionalLightComp->ShadowViewSize.Y, -40.0f, 40.0f);
+		directionalLightComp->ShadowmapView.ShadowProjectionMatrix = SMatrix::OrthographicLH(directionalLightComp->ShadowViewSize.X, directionalLightComp->ShadowViewSize.Y, -10.0f, 10.0f);
 	}
 }

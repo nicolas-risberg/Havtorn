@@ -120,7 +120,7 @@ PixelOutPut main(VertexToPixel input)
     }
 
     const float3 emissive = albedo.rgb * emissivedata;
-    const float3 radiance = ambience + directionallight * (1.0f - ShadowFactor(input.myWorldPosition.xyz, directionalLightPosition.xyz, toDirectionalLightView, toDirectionalLightProjection, shadowDepthTexture, shadowSampler, directionalLightShadowMapResolution)) + pointLights + emissive;
+    const float3 radiance = ambience + directionallight * (1.0f - 0.0f/*ShadowFactor(input.myWorldPosition.xyz, directionalLightPosition.xyz, ToDirectionalLightView, toDirectionalLightProjection, shadowDepthTexture, shadowSampler, directionalLightShadowMapResolution)*/) + pointLights + emissive;
    
     output.myColor.rgb = /*LinearToGamma(*/radiance/*)*/;
     output.myColor.a = albedo.w;

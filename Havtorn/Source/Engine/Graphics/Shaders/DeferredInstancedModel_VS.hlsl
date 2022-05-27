@@ -8,8 +8,8 @@ VertexModelToPixel main(VertexModelInput input)
 
     const float4 vertexObjectPos      = input.Position.xyzw;
     const float4 vertexWorldPos       = mul(input.Transform, vertexObjectPos);
-    const float4 vertexViewPos        = mul(toCameraSpace, vertexWorldPos);
-    const float4 vertexProjectionPos  = mul(toProjectionSpace, vertexViewPos);
+    const float4 vertexViewPos        = mul(ToCameraSpace, vertexWorldPos);
+    const float4 vertexProjectionPos  = mul(ToProjectionSpace, vertexViewPos);
 
     const float3x3 toWorldRotation = (float3x3) input.Transform;
     float3 vertexWorldNormal    = mul(toWorldRotation, input.Normal.xyz);
