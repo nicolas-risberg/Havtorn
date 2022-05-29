@@ -26,7 +26,7 @@ namespace Havtorn
 		auto& transformComp = transformComponents[transformCompIndex];
 
 		directionalLightComp->ShadowmapView.ShadowPosition = transformComp->Transform.GetMatrix().Translation4();
-		directionalLightComp->ShadowmapView.ShadowPosition.Y = 2.0f;
+		directionalLightComp->ShadowmapView.ShadowPosition.Y = 4.0f;
 		static float counter = 0.0f;
 		counter += CTimer::Dt();
 		directionalLightComp->Direction = { -1.0f/*UMath::Sin(counter)*/, 1.0f, -1.0f, 0.0f };
@@ -56,7 +56,5 @@ namespace Havtorn
 
 		const SVector shadowDirection = { directionalLightComp->Direction.X, directionalLightComp->Direction.Y, directionalLightComp->Direction.Z };
 		directionalLightComp->ShadowmapView.ShadowViewMatrix = SMatrix::LookAtLH(position, position - shadowDirection, SVector::Up);
-
-		directionalLightComp->ShadowmapView.ShadowProjectionMatrix = SMatrix::OrthographicLH(directionalLightComp->ShadowViewSize.X, directionalLightComp->ShadowViewSize.Y, -10.0f, 10.0f);
 	}
 }

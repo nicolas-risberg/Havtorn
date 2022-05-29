@@ -41,6 +41,7 @@ namespace Havtorn
 		DirectionalLightComponents.back()->Direction = { 0.0f, 1.0f, -1.0f, 0.0f };
 		DirectionalLightComponents.back()->Color = { 212.0f / 255.0f, 175.0f / 255.0f, 55.0f / 255.0f, 0.25f };
 		DirectionalLightComponents.back()->ShadowmapView.ShadowmapViewportIndex = 0;
+		DirectionalLightComponents.back()->ShadowmapView.ShadowProjectionMatrix = SMatrix::OrthographicLH(DirectionalLightComponents.back()->ShadowViewSize.X, DirectionalLightComponents.back()->ShadowViewSize.Y, -8.0f, 8.0f);
 
 		InitDemoScene(renderManager);
 

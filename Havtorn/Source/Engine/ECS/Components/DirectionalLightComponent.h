@@ -15,7 +15,7 @@ namespace Havtorn
 		SShadowmapViewData ShadowmapView = SShadowmapViewData();
 		SVector4 Direction = SVector4::Up;
 		SVector4 Color = SVector4(1.0f, 1.0f, 1.0f, 1.0f);
-		SVector2<F32> ShadowmapResolution = { 1024.0f, 1024.0f };
-		SVector2<F32> ShadowViewSize = { 32.0f, 32.0f };
+		SVector2<F32> ShadowmapResolution = { 8192.0f, 8192.0f };
+		SVector2<F32> ShadowViewSize = { 8.0f, 8.0f };
 	};
 }

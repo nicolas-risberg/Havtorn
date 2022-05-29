@@ -32,8 +32,9 @@ PixelOutput main(VertexToPixel input)
 
     const float3 ambiance = EvaluateAmbiance(environmentTexture, normal, vertexNormal, toEye, perceptualRoughness, metalness, albedo, ambientOcclusion, diffuseColor, specularColor);
     const float3 directionalLight = EvaluateDirectionalLight(diffuseColor, specularColor, normal, perceptualRoughness, DirectionalLightColor.rgb * DirectionalLightColor.a, ToDirectionalLight.xyz, toEye.xyz);
+    const float3 shadowFactor = ShadowFactor(worldPosition, ShadowmapPosition.xyz, ToShadowMapView, ToShadowMapProjection, shadowDepthTexture, shadowSampler, ShadowmapResolution, ShadowAtlasResolution, ShadowmapStartingUV);
     const float3 emissive = albedo * emissiveData;
-    const float3 radiance = (ambiance * ssao) + directionalLight * (1.0f - ShadowFactor(worldPosition, ShadowmapPosition.xyz, ToShadowMapView, ToShadowMapProjection, shadowDepthTexture, shadowSampler, ShadowmapResolution, ShadowAtlasResolution, ShadowmapStartingUV)) + emissive;
+    const float3 radiance = (ambiance * ssao) + directionalLight * (1.0f - shadowFactor) + emissive;
 
     output.Color.rgb = radiance;
     output.Color.a = 1.0f;

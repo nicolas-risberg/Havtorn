@@ -47,9 +47,9 @@ float3 ShadowFactor(float3 worldPosition, float3 lightPosition, float4x4 lightVi
 
     // 3x3 PCF
     float total = 0.0f;
-    for (float x = -1.0; x < 1.5f; x += 1.0f)
+    for (float x = -1.0; x <= 1.0f; x++)
     {
-        for (float y = -1.0; y < 1.5f; y += 1.0f)
+        for (float y = -1.0; y <= 1.0f; y++)
         {
             float3 off;
             off.x = x / shadowmapResolution.x;
