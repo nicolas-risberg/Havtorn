@@ -29,7 +29,7 @@ namespace Havtorn
 		directionalLightComp->ShadowmapView.ShadowPosition.Y = 2.0f;
 		static float counter = 0.0f;
 		counter += CTimer::Dt();
-		directionalLightComp->Direction = { /*-1.0f*/UMath::Sin(counter), 1.0f, -1.0f, 0.0f };
+		directionalLightComp->Direction = { -1.0f/*UMath::Sin(counter)*/, 1.0f, -1.0f, 0.0f };
 
 		// Round to pixel positions
 		SVector position = { directionalLightComp->ShadowmapView.ShadowPosition.X, directionalLightComp->ShadowmapView.ShadowPosition.Y, directionalLightComp->ShadowmapView.ShadowPosition.Z };

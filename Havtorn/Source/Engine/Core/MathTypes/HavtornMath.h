@@ -60,7 +60,7 @@ namespace Havtorn
 		const SVector4 normal = SVector4(axis.X, axis.Y, axis.Z, 0.0f);
 
 		// Map Value to y in [-pi,pi], x = 2*pi*quotient + remainder.
-		F32 quotient = 1.0f / UMath::Tau * angleInRadians;
+		F32 quotient = UMath::TauReciprocal * angleInRadians;
 		if (angleInRadians >= 0.0f)
 		{
 			quotient = static_cast<F32>(static_cast<I32>(quotient + 0.5f));
@@ -69,16 +69,16 @@ namespace Havtorn
 		{
 			quotient = static_cast<F32>(static_cast<I32>(quotient - 0.5f));
 		}
-		F32 y = angleInRadians - UMath::Tau * quotient;
+		F32 y = angleInRadians - (UMath::Tau * quotient);
 
 		// Map y to [-pi/2,pi/2] with sin(y) = sin(Value).
 		F32 sign;
-		if (y > 1.0f / UMath::Tau)
+		if (y > UMath::Pi * 0.5f)
 		{
 			y = UMath::Pi - y;
 			sign = -1.0f;
 		}
-		else if (y < -1.0f / UMath::Tau)
+		else if (y < -(UMath::Pi * 0.5f))
 		{
 			y = -UMath::Pi - y;
 			sign = -1.0f;
@@ -113,11 +113,10 @@ namespace Havtorn
 		SVector4 r0 = c2 * normal;
 		r0 = SVector4(r0.X * normal.X + c1.X, r0.Y * normal.Y + c1.Y, r0.Z * normal.Z + c1.Z, r0.W * normal.W + c1.W);
 
-		SVector4(r0.X * normal.X + c1.X, r0.Y * normal.Y + c1.Y, r0.Z * normal.Z + c1.Z, r0.W * normal.W + c1.W);
 		const auto r1 = SVector4(c0.X * normal.X + v0.X, c0.Y * normal.Y + v0.Y, c0.Z * normal.Z + v0.Z, c0.W * normal.W + v0.W);
 		const auto r2 = SVector4(v0.X - c0.X * normal.X, v0.Y - c0.Y * normal.Y, v0.Z - c0.Z * normal.Z, v0.W - c0.W * normal.W);
 
-		v0 = SVector4(a.X, a.Y, a.Z, r0.W);
+		v0 = SVector4(r0.X, r0.Y, r0.Z, a.W);
 		const auto v1 = SVector4(r1.Z, r2.Y, r2.Z, r1.X);
 		const auto v2 = SVector4(r1.Y, r2.X, r1.Y, r2.X);
 
