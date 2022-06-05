@@ -86,7 +86,7 @@ namespace Havtorn
 		bufferDescription.ByteWidth = sizeof(SPointLightBufferData);
 		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &PointLightBuffer), "Point Light Buffer could not be created.");
 
-		bufferDescription.ByteWidth = sizeof(SShadowmapBufferData);
+		bufferDescription.ByteWidth = sizeof(SShadowmapBufferData) * 6;
 		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &ShadowmapBuffer), "Shadowmap Buffer could not be created.");
 
 		//ENGINE_ERROR_BOOL_MESSAGE(ForwardRenderer.Init(aFramework), "Failed to Init Forward Renderer.");
@@ -307,7 +307,6 @@ namespace Havtorn
 
 				case ERenderCommandType::ShadowAtlasPrePassPoint:
 				{
-					// TODO.NR: Figure out why the textures don't show up in the atlas
 					const auto transformComp = currentCommand.GetComponent(TransformComponent);
 					const auto staticMeshComp = currentCommand.GetComponent(StaticMeshComponent);
 					const auto pointLightComp = currentCommand.GetComponent(PointLightComponent);
@@ -500,6 +499,22 @@ namespace Havtorn
 					BindBuffer(PointLightBuffer, PointLightBufferData, "Point Light Buffer");
 					Context->VSSetConstantBuffers(3, 1, &PointLightBuffer);
 					Context->PSSetConstantBuffers(3, 1, &PointLightBuffer);
+
+					SShadowmapBufferData shadowmapBufferData[6];
+					for (U8 shadowmapViewIndex = 0; shadowmapViewIndex < 6; shadowmapViewIndex++)
+					{
+						shadowmapBufferData[shadowmapViewIndex].ToShadowmapView = pointLightComp->ShadowmapViews[shadowmapViewIndex].ShadowViewMatrix;
+						shadowmapBufferData[shadowmapViewIndex].ToShadowmapProjection = pointLightComp->ShadowmapViews[shadowmapViewIndex].ShadowProjectionMatrix;
+						shadowmapBufferData[shadowmapViewIndex].ShadowmapPosition = pointLightComp->ShadowmapViews[shadowmapViewIndex].ShadowPosition;
+
+						const auto& viewport = Viewports[pointLightComp->ShadowmapViews[shadowmapViewIndex].ShadowmapViewportIndex];
+						shadowmapBufferData[shadowmapViewIndex].ShadowmapResolution = { viewport.Width, viewport.Height };
+						shadowmapBufferData[shadowmapViewIndex].ShadowAtlasResolution = ShadowAtlasResolution;
+						shadowmapBufferData[shadowmapViewIndex].ShadowmapStartingUV = { viewport.TopLeftX / ShadowAtlasResolution.X, viewport.TopLeftY / ShadowAtlasResolution.Y };
+					}
+
+					BindBuffer(ShadowmapBuffer, shadowmapBufferData, "Shadowmap Buffer");
+					Context->PSSetConstantBuffers(5, 1, &ShadowmapBuffer);
 
 					Context->IASetPrimitiveTopology(Topologies[0]);
 					Context->IASetInputLayout(InputLayouts[1]);
@@ -1306,6 +1321,9 @@ namespace Havtorn
 		// TODO.NR: Extend to different LOD levels and filters
 		D3D11_SAMPLER_DESC samplerDesc = CD3D11_SAMPLER_DESC{ CD3D11_DEFAULT{} };
 		samplerDesc.BorderColor[0] = 1.0f;
+		samplerDesc.BorderColor[1] = 1.0f;
+		samplerDesc.BorderColor[2] = 1.0f;
+		samplerDesc.BorderColor[3] = 1.0f;
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		samplerDesc.MinLOD = 0;
 		samplerDesc.MaxLOD = 10;

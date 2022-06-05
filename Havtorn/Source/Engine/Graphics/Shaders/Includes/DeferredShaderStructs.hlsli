@@ -121,12 +121,15 @@ cbuffer SpotLightBuffer : register(b4)
 
 cbuffer ShadowmapBuffer : register(b5)
 {
-    float4x4 ToShadowMapView;
-    float4x4 ToShadowMapProjection;
-    float4 ShadowmapPosition;
-    float2 ShadowmapResolution;
-    float2 ShadowAtlasResolution;
-    float2 ShadowmapStartingUV;
+    struct SShadowmapViewData
+    {
+        float4x4 ToShadowMapView;
+        float4x4 ToShadowMapProjection;
+        float4 ShadowmapPosition;
+        float2 ShadowmapResolution;
+        float2 ShadowAtlasResolution;
+        float2 ShadowmapStartingUV;
+    } ShadowmapViewData[6];
 }
 
 cbuffer BoneBuffer : register(b6)

@@ -65,7 +65,7 @@ namespace Havtorn
 		// Setup entities (create components)
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(pointLightEntity, EComponentType::TransformComponent));
 		pointLightEntity->AddComponent(EComponentType::TransformComponent, 2);
-		TransformComponents.back()->Transform.GetMatrix().Translation({ 0.0f, 1.0f, 0.0f });
+		TransformComponents.back()->Transform.GetMatrix().Translation({ 1.25f, 0.5f, -1.5f });
 
 		PointLightComponents.emplace_back(std::make_shared<SPointLightComponent>(pointLightEntity, EComponentType::PointLightComponent));
 		pointLightEntity->AddComponent(EComponentType::PointLightComponent, 0);
@@ -73,39 +73,45 @@ namespace Havtorn
 		pointLightComp->ColorAndIntensity = { 0.0f, 1.0f, 1.0f, 10.0f };
 		pointLightComp->Range = 1.0f;
 
-		const SMatrix constantProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.01f, pointLightComp->Range*100.0f);
+		const SMatrix constantProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.0001f, pointLightComp->Range);
 		const SVector4 constantPosition = TransformComponents.back()->Transform.GetMatrix().Translation4();
 
+		// Forward
 		SShadowmapViewData& view1 = pointLightComp->ShadowmapViews[0];
 		view1.ShadowPosition = constantPosition;
 		view1.ShadowmapViewportIndex = 1;
 		view1.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Forward).ToVector3(), SVector::Up);
 		view1.ShadowProjectionMatrix = constantProjectionMatrix;
 
+		// Right
 		SShadowmapViewData& view2 = pointLightComp->ShadowmapViews[1];
 		view2.ShadowPosition = constantPosition;
 		view2.ShadowmapViewportIndex = 2;
 		view2.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Right).ToVector3(), SVector::Up);
 		view2.ShadowProjectionMatrix = constantProjectionMatrix;
 
+		// Backward
 		SShadowmapViewData& view3 = pointLightComp->ShadowmapViews[2];
 		view3.ShadowPosition = constantPosition;
 		view3.ShadowmapViewportIndex = 3;
 		view3.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Backward).ToVector3(), SVector::Up);
 		view3.ShadowProjectionMatrix = constantProjectionMatrix;
 
+		// Left
 		SShadowmapViewData& view4 = pointLightComp->ShadowmapViews[3];
 		view4.ShadowPosition = constantPosition;
 		view4.ShadowmapViewportIndex = 4;
 		view4.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Left).ToVector3(), SVector::Up);
 		view4.ShadowProjectionMatrix = constantProjectionMatrix;
 
+		// Up
 		SShadowmapViewData& view5 = pointLightComp->ShadowmapViews[4];
 		view5.ShadowPosition = constantPosition;
 		view5.ShadowmapViewportIndex = 5;
 		view5.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Up).ToVector3(), SVector::Backward);
 		view5.ShadowProjectionMatrix = constantProjectionMatrix;
 
+		// Down
 		SShadowmapViewData& view6 = pointLightComp->ShadowmapViews[5];
 		view6.ShadowPosition = constantPosition;
 		view6.ShadowmapViewportIndex = 6;

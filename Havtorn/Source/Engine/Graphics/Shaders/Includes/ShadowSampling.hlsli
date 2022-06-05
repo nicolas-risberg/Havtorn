@@ -5,6 +5,31 @@ float InverseLerp(float a, float b, float c)
     return (c - a) / (b - a);
 }
 
+int GetShadowmapViewIndex(float3 worldPosition, float3 lightPosition)
+{
+    const float3 dir = normalize(worldPosition - lightPosition);
+    // Forward
+    int index = 0;
+    if (dot(dir, float3(0.0f, 0.0f, 1.0f)) > 0.5f)
+        index = 0;
+    // Right
+    else if (dot(dir, float3(1.0f, 0.0f, 0.0f)) > 0.5f)
+        index = 1;
+    // Backward
+    else if (dot(dir, float3(0.0f, 0.0f, -1.0f)) > 0.5f)
+        index = 2;
+    // Left
+    else if (dot(dir, float3(-1.0f, 0.0f, 0.0f)) > 0.5f)
+        index = 3;
+    // Up
+    else if (dot(dir, float3(0.0f, 1.0f, 0.0f)) > 0.5f)
+        index = 4;
+    // Down
+    else if (dot(dir, float3(0.0f, -1.0f, 0.0f)) > 0.5f)
+        index = 5;
+    return index;
+}
+
 float SampleShadowPos(float3 projectionPos, float2 startingUV, float2 mapResolution, float2 atlasResolution, Texture2D shadowDepthTexture, sampler shadowSampler)
 {
     float2 uvCoords = projectionPos.xy;
