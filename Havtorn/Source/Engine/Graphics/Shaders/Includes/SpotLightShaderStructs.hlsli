@@ -52,13 +52,11 @@ cbuffer SpotLightValueBuffer : register(b3)
     float4x4 spotLightToProjection;
     float4 spotLightColorAndIntensity;
     float4 spotLightPositionAndRange;
-    float4 spotLightDirectionAndAngleExponent;
+    float4 spotLightDirection;
     float4 spotLightDirectionNormal1;
     float4 spotLightDirectionNormal2;
-    float4 myUpLeftCorner;
-    float4 myUpRightCorner;
-    float4 myDownLeftCorner;
-    float4 myDownRightCorner;
-    float2 myInnerOuterAngle;
-    float2 spotlightPadding;
+    float spotLightOuterAngle;
+    float spotLightInnerAngle;
+    float spotLightAngleExponent;
+    float spotlightPadding;
 }

@@ -4,6 +4,7 @@
 #include "Includes/DeferredPBRFunctions.hlsli"
 #include "Includes/MathHelpers.hlsli"
 #include "Includes/SpotLightShaderStructs.hlsli"
+#include "Includes/ShadowSampling.hlsli"
 
 PixelOutput main(SpotLightVertexToPixel input)
 {
@@ -18,13 +19,13 @@ PixelOutput main(SpotLightVertexToPixel input)
     }
     
     float3 worldPosition = PixelShader_WorldPosition(screenUV).rgb;
-    const float3 lightDirection = normalize(-spotLightDirectionAndAngleExponent.xyz);
+    const float3 lightDirection = normalize(-spotLightDirection.xyz);
     float3 toLight = spotLightPositionAndRange.xyz - worldPosition.xyz;
     const float lightDistance = length(toLight);
 
     const float theta = dot(normalize(toLight), lightDirection);
-    const float cutOff = cos(radians(myInnerOuterAngle.x));
-    const float outerCutOff = cos(radians(myInnerOuterAngle.y));
+    const float cutOff = cos(radians(spotLightInnerAngle));
+    const float outerCutOff = cos(radians(spotLightOuterAngle));
     const float epsilon = cutOff - outerCutOff;
     const float intensity = clamp(((theta - outerCutOff) / epsilon), 0.0f, 1.0f);
     
@@ -39,8 +40,12 @@ PixelOutput main(SpotLightVertexToPixel input)
     const float3 diffuseColor = lerp((float3) 0.00, albedo, 1 - metalness);
     
     toLight = normalize(toLight);
-    const float3 radiance = EvaluatePointLight(diffuseColor * intensity, specularColor * intensity, normal, perceptualRoughness, spotLightColorAndIntensity.rgb * spotLightColorAndIntensity.a, spotLightPositionAndRange.w, toLight.xyz, lightDistance, toEye.xyz);
-    //float3 radiance = EvaluateSpotLight(diffuseColor * intensity, specularColor * intensity, normal, perceptualRoughness, spotLightColorAndIntensity.rgb * spotLightColorAndIntensity.a, spotLightPositionAndRange.w, toLight.xyz, lightDistance, toEye.xyz, spotLightDirectionAndAngleExponent.xyz, spotLightDirectionAndAngleExponent.w, myInnerOuterAngle);
+    SShadowmapViewData shadowData = ShadowmapViewData[0];
+    
+    const float3 shadowFactor = ShadowFactor(worldPosition, shadowData.ShadowmapPosition.xyz, shadowData.ToShadowMapView, shadowData.ToShadowMapProjection, shadowDepthTexture, shadowSampler, shadowData.ShadowmapResolution, shadowData.ShadowAtlasResolution, shadowData.ShadowmapStartingUV, shadowData.ShadowTestTolerance);
+    const float3 spotLight = EvaluateSpotLight(diffuseColor * intensity, specularColor * intensity, normal, perceptualRoughness, spotLightColorAndIntensity.rgb * spotLightColorAndIntensity.a, spotLightPositionAndRange.w, toLight.xyz, lightDistance, toEye.xyz);
+    
+    const float3 radiance = spotLight * (1.0f - shadowFactor);
     
     output.Color.rgb = radiance;
     output.Color.a = 1.0f;

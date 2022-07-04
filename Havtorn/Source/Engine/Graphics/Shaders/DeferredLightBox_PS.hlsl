@@ -57,7 +57,7 @@ PixelOutput main(BoxLightVertexToPixel input)
     toLight = normalize(toLight);
     const float3 directionalLight = EvaluateBoxLight(diffuseColor, specularColor, normal, perceptualRoughness, boxLightColorAndIntensity.rgb * boxLightColorAndIntensity.w, boxLightPositionAndRange.w, toLight, lightDistance, toEye, boxLightDirection.xyz);
     SShadowmapViewData shadowData = ShadowmapViewData[0];
-    const float3 radiance = directionalLight * (1.0f - ShadowFactor(worldPosition, shadowData.ShadowmapPosition.xyz, shadowData.ToShadowMapView, shadowData.ToShadowMapProjection, shadowDepthTexture, shadowSampler, shadowData.ShadowmapResolution, shadowData.ShadowAtlasResolution, shadowData.ShadowmapStartingUV));
+    const float3 radiance = directionalLight * (1.0f - ShadowFactor(worldPosition, shadowData.ShadowmapPosition.xyz, shadowData.ToShadowMapView, shadowData.ToShadowMapProjection, shadowDepthTexture, shadowSampler, shadowData.ShadowmapResolution, shadowData.ShadowAtlasResolution, shadowData.ShadowmapStartingUV, shadowData.ShadowTestTolerance));
 
     output.Color.rgb = radiance;
     output.Color.a = 1.0f;

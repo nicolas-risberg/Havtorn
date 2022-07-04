@@ -97,6 +97,7 @@ namespace Havtorn
 		void InitShadowmapLOD(SVector2<F32> topLeftCoordinate, const SVector2<F32>& widthAndHeight, const SVector2<F32>& depth, const SVector2<F32>& atlasResolution, U16 mapsInLod, U16 startIndex);
 		void LoadDemoSceneResources();
 		void InitPointLightResources();
+		void InitSpotLightResources();
 
 	private:
 		void RenderBloom();
@@ -168,6 +169,23 @@ namespace Havtorn
 		} PointLightBufferData;
 		HV_ASSERT_BUFFER(SPointLightBufferData)
 
+		struct SSpotLightBufferData
+		{
+			SMatrix ToWorldFromObject;
+			SMatrix ToViewFromWorld;
+			SMatrix ToProjectionFromView;
+			SVector4 ColorAndIntensity;
+			SVector4 PositionAndRange;
+			SVector4 Direction;
+			SVector4 DirectionNormal1;
+			SVector4 DirectionNormal2;
+			F32 OuterAngle;
+			F32 InnerAngle;
+			F32 AngleExponent;
+			F32 Padding;
+		} SpotLightBufferData;
+		HV_ASSERT_BUFFER(SSpotLightBufferData)
+
 		struct SShadowmapBufferData
 		{
 			SMatrix ToShadowmapView;
@@ -176,6 +194,8 @@ namespace Havtorn
 			SVector2<F32> ShadowmapResolution;
 			SVector2<F32> ShadowAtlasResolution;
 			SVector2<F32> ShadowmapStartingUV;
+			F32 ShadowTestTolerance;
+			F32 Padding;
 		} ShadowmapBufferData;
 		HV_ASSERT_BUFFER(SShadowmapBufferData)
 

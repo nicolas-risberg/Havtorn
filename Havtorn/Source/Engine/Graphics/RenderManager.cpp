@@ -49,6 +49,7 @@ namespace Havtorn
 	    , DirectionalLightBuffer(nullptr)
 		, PointLightBuffer(nullptr)
 		, SpotLightBuffer(nullptr)
+		, ShadowmapBuffer(nullptr)
 	    , PushToCommands(&RenderCommandsA)
 	    , PopFromCommands(&RenderCommandsB)
 	    , ClearColor(0.5f, 0.5f, 0.5f, 1.0f)
@@ -86,6 +87,9 @@ namespace Havtorn
 		bufferDescription.ByteWidth = sizeof(SPointLightBufferData);
 		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &PointLightBuffer), "Point Light Buffer could not be created.");
 
+		bufferDescription.ByteWidth = sizeof(SSpotLightBufferData);
+		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &SpotLightBuffer), "Spot Light Buffer could not be created.");
+
 		bufferDescription.ByteWidth = sizeof(SShadowmapBufferData) * 6;
 		ENGINE_HR_BOOL_MESSAGE(Framework->GetDevice()->CreateBuffer(&bufferDescription, nullptr, &ShadowmapBuffer), "Shadowmap Buffer could not be created.");
 
@@ -121,8 +125,11 @@ namespace Havtorn
 		AddTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		InitPointLightResources();
+		InitSpotLightResources();
 		LoadDemoSceneResources();
 
+		AddShader("Shaders/DeferredModelDistanceDepth_VS.cso", EShaderType::Vertex);
+		AddShader("Shaders/ShadowAlphaPixelShader_PS.cso", EShaderType::Pixel);
 		return true;
 	}
 
@@ -239,6 +246,11 @@ namespace Havtorn
 		AddShader("Shaders/DeferredLightPoint_PS.cso", EShaderType::Pixel);
 	}
 
+	void CRenderManager::InitSpotLightResources()
+	{
+		AddShader("Shaders/DeferredLightSpot_PS.cso", EShaderType::Pixel);
+	}
+
 	void CRenderManager::Render()
 	{
 		while (true)
@@ -331,6 +343,7 @@ namespace Havtorn
 						BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
 
 						Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+
 						Context->RSSetViewports(1, &Viewports[shadowmapView.ShadowmapViewportIndex]);
 
 						for (U8 drawCallIndex = 0; drawCallIndex < static_cast<U8>(staticMeshComp->DrawCallData.size()); drawCallIndex++)
@@ -342,6 +355,44 @@ namespace Havtorn
 							Context->DrawIndexed(drawData.IndexCount, 0, 0);
 							CRenderManager::NumberOfDrawCallsThisFrame++;
 						}
+					}
+				}
+				break;
+
+				case ERenderCommandType::ShadowAtlasPrePassSpot:
+				{
+					const auto transformComp = currentCommand.GetComponent(TransformComponent);
+					const auto staticMeshComp = currentCommand.GetComponent(StaticMeshComponent);
+					const auto spotLightComp = currentCommand.GetComponent(SpotLightComponent);
+
+					FrameBufferData.ToCameraFromWorld = spotLightComp->ShadowmapView.ShadowViewMatrix;
+					FrameBufferData.ToWorldFromCamera = spotLightComp->ShadowmapView.ShadowViewMatrix.FastInverse();
+					FrameBufferData.ToProjectionFromCamera = spotLightComp->ShadowmapView.ShadowProjectionMatrix;
+					FrameBufferData.ToCameraFromProjection = spotLightComp->ShadowmapView.ShadowProjectionMatrix.Inverse();
+					FrameBufferData.CameraPosition = spotLightComp->ShadowmapView.ShadowPosition;
+					BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
+
+					ObjectBufferData.ToWorldFromObject = transformComp->Transform.GetMatrix();
+					BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
+
+					Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+					Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
+					Context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
+					Context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
+
+					Context->VSSetShader(VertexShaders[staticMeshComp->VertexShaderIndex], nullptr, 0);
+					Context->PSSetShader(nullptr, nullptr, 0);
+
+					Context->RSSetViewports(1, &Viewports[spotLightComp->ShadowmapView.ShadowmapViewportIndex]);
+
+					for (U8 drawCallIndex = 0; drawCallIndex < static_cast<U8>(staticMeshComp->DrawCallData.size()); drawCallIndex++)
+					{
+						const SDrawCallData& drawData = staticMeshComp->DrawCallData[drawCallIndex];
+						ID3D11Buffer* vertexBuffer = VertexBuffers[drawData.VertexBufferIndex];
+						Context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
+						Context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
+						Context->DrawIndexed(drawData.IndexCount, 0, 0);
+						CRenderManager::NumberOfDrawCallsThisFrame++;
 					}
 				}
 				break;
@@ -454,6 +505,8 @@ namespace Havtorn
 					ShadowmapBufferData.ShadowmapResolution = { viewport.Width, viewport.Height };
 					ShadowmapBufferData.ShadowAtlasResolution = ShadowAtlasResolution;
 					ShadowmapBufferData.ShadowmapStartingUV = { viewport.TopLeftX / ShadowAtlasResolution.X, viewport.TopLeftY / ShadowAtlasResolution.Y };
+					ShadowmapBufferData.ShadowTestTolerance = 0.001f;
+					
 					BindBuffer(ShadowmapBuffer, ShadowmapBufferData, "Shadowmap Buffer");
 					Context->PSSetConstantBuffers(5, 1, &ShadowmapBuffer);
 
@@ -511,6 +564,7 @@ namespace Havtorn
 						shadowmapBufferData[shadowmapViewIndex].ShadowmapResolution = { viewport.Width, viewport.Height };
 						shadowmapBufferData[shadowmapViewIndex].ShadowAtlasResolution = ShadowAtlasResolution;
 						shadowmapBufferData[shadowmapViewIndex].ShadowmapStartingUV = { viewport.TopLeftX / ShadowAtlasResolution.X, viewport.TopLeftY / ShadowAtlasResolution.Y };
+						shadowmapBufferData[shadowmapViewIndex].ShadowTestTolerance = 0.00001f;
 					}
 
 					BindBuffer(ShadowmapBuffer, shadowmapBufferData, "Shadowmap Buffer");
@@ -523,6 +577,74 @@ namespace Havtorn
 
 					Context->VSSetShader(VertexShaders[2], nullptr, 0);
 					Context->PSSetShader(PixelShaders[2], nullptr, 0);
+
+					Context->PSSetSamplers(0, 1, &Samplers[0]);
+					Context->PSSetSamplers(1, 1, &Samplers[1]);
+
+					Context->DrawIndexed(36, 0, 0);
+					CRenderManager::NumberOfDrawCallsThisFrame++;
+					RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::Default);
+				}
+				break;
+
+				case ERenderCommandType::DeferredLightingSpot:
+				{
+					RenderedScene.SetAsActiveTarget();
+					GBuffer.SetAllAsResources(1);
+					IntermediateDepth.SetAsResourceOnSlot(21);
+					RenderStateManager.SetBlendState(CRenderStateManager::EBlendStates::AdditiveBlend);
+
+					ShadowAtlasDepth.SetAsResourceOnSlot(22);
+					RenderStateManager.SetRasterizerState(CRenderStateManager::ERasterizerStates::FrontFaceCulling);
+
+					// Update lightbufferdata and fill lightbuffer
+					const auto spotLightComp = currentCommand.GetComponent(SpotLightComponent);
+					const auto transformComponent = currentCommand.GetComponent(TransformComponent);
+					SVector position = transformComponent->Transform.GetMatrix().Translation();
+					PointLightBufferData.ToWorldFromObject = transformComponent->Transform.GetMatrix();
+					PointLightBufferData.ColorAndIntensity = spotLightComp->ColorAndIntensity;
+					PointLightBufferData.PositionAndRange = { position.X, position.Y, position.Z, spotLightComp->Range };
+					
+					BindBuffer(PointLightBuffer, PointLightBufferData, "Spotlight Vertex Shader Buffer");
+					Context->VSSetConstantBuffers(3, 1, &PointLightBuffer);
+					
+					SpotLightBufferData.ToWorldFromObject = transformComponent->Transform.GetMatrix();
+					SpotLightBufferData.ToViewFromWorld = spotLightComp->ShadowmapView.ShadowViewMatrix;
+					SpotLightBufferData.ToProjectionFromView = spotLightComp->ShadowmapView.ShadowProjectionMatrix;
+					SpotLightBufferData.ColorAndIntensity = spotLightComp->ColorAndIntensity;
+					SpotLightBufferData.PositionAndRange = { position.X, position.Y, position.Z, spotLightComp->Range };
+					SpotLightBufferData.Direction = spotLightComp->Direction;
+					SpotLightBufferData.DirectionNormal1 = spotLightComp->DirectionNormal1;
+					SpotLightBufferData.DirectionNormal2 = spotLightComp->DirectionNormal2;
+					SpotLightBufferData.OuterAngle = spotLightComp->OuterAngle;
+					SpotLightBufferData.InnerAngle = spotLightComp->InnerAngle;
+					SpotLightBufferData.AngleExponent = spotLightComp->AngleExponent;
+					
+					BindBuffer(SpotLightBuffer, SpotLightBufferData, "Spotlight Pixel Shader Buffer");
+					Context->PSSetConstantBuffers(3, 1, &SpotLightBuffer);
+
+					SShadowmapBufferData shadowmapBufferData;
+					shadowmapBufferData.ToShadowmapView = spotLightComp->ShadowmapView.ShadowViewMatrix;
+					shadowmapBufferData.ToShadowmapProjection = spotLightComp->ShadowmapView.ShadowProjectionMatrix;
+					shadowmapBufferData.ShadowmapPosition = spotLightComp->ShadowmapView.ShadowPosition;
+
+					const auto& viewport = Viewports[spotLightComp->ShadowmapView.ShadowmapViewportIndex];
+					shadowmapBufferData.ShadowmapResolution = { viewport.Width, viewport.Height };
+					shadowmapBufferData.ShadowAtlasResolution = ShadowAtlasResolution;
+					shadowmapBufferData.ShadowmapStartingUV = { viewport.TopLeftX / ShadowAtlasResolution.X, viewport.TopLeftY / ShadowAtlasResolution.Y };
+					shadowmapBufferData.ShadowTestTolerance = 0.00001f;
+
+					BindBuffer(ShadowmapBuffer, shadowmapBufferData, "Shadowmap Buffer");
+					Context->PSSetConstantBuffers(5, 1, &ShadowmapBuffer);
+
+					Context->IASetPrimitiveTopology(Topologies[0]);
+					Context->IASetInputLayout(InputLayouts[1]);
+					Context->IASetVertexBuffers(0, 1, &VertexBuffers[0], &MeshVertexStrides[0], &MeshVertexOffsets[0]);
+					Context->IASetIndexBuffer(IndexBuffers[0], DXGI_FORMAT_R32_UINT, 0);
+
+					// Use Point Light Vertex Shader
+					Context->VSSetShader(VertexShaders[2], nullptr, 0);
+					Context->PSSetShader(PixelShaders[3], nullptr, 0);
 
 					Context->PSSetSamplers(0, 1, &Samplers[0]);
 					Context->PSSetSamplers(1, 1, &Samplers[1]);

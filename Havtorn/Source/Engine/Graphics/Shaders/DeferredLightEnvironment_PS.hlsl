@@ -30,10 +30,12 @@ PixelOutput main(VertexToPixel input)
     const float3 specularColor = lerp((float3) 0.04, albedo, metalness);
     const float3 diffuseColor = lerp((float3) 0.00, albedo, 1 - metalness);
 
+    SShadowmapViewData shadowData = ShadowmapViewData[0];
+    
+    const float3 shadowFactor = ShadowFactor(worldPosition, shadowData.ShadowmapPosition.xyz, shadowData.ToShadowMapView, shadowData.ToShadowMapProjection, shadowDepthTexture, shadowSampler, shadowData.ShadowmapResolution, shadowData.ShadowAtlasResolution, shadowData.ShadowmapStartingUV, shadowData.ShadowTestTolerance);
     const float3 ambiance = EvaluateAmbiance(environmentTexture, normal, vertexNormal, toEye, perceptualRoughness, metalness, albedo, ambientOcclusion, diffuseColor, specularColor);
     const float3 directionalLight = EvaluateDirectionalLight(diffuseColor, specularColor, normal, perceptualRoughness, DirectionalLightColor.rgb * DirectionalLightColor.a, ToDirectionalLight.xyz, toEye.xyz);
-    SShadowmapViewData shadowData = ShadowmapViewData[0];
-    const float3 shadowFactor = ShadowFactor(worldPosition, shadowData.ShadowmapPosition.xyz, shadowData.ToShadowMapView, shadowData.ToShadowMapProjection, shadowDepthTexture, shadowSampler, shadowData.ShadowmapResolution, shadowData.ShadowAtlasResolution, shadowData.ShadowmapStartingUV);
+    
     const float3 emissive = albedo * emissiveData;
     const float3 radiance = (ambiance * ssao) + directionalLight * (1.0f - shadowFactor) + emissive;
 

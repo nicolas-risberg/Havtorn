@@ -107,7 +107,7 @@ PixelOutput main(VertexToPixel input)
     //    returnValue.myColor.rgb = ACESApprox(resource * exposure) / ACESApprox(whitePoint);
     //}
     // ACES approx
-	
+    
     returnValue.myColor.a = 0.0f;
     return returnValue;
 };

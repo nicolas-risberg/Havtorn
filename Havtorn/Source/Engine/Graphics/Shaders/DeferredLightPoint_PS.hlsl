@@ -35,8 +35,10 @@ PixelOutput main(PointLightVertexToPixel input)
 
 	int shadowmapViewIndex = GetShadowmapViewIndex(worldPosition, pointLightPositionAndRange.xyz);
     SShadowmapViewData shadowData = ShadowmapViewData[shadowmapViewIndex];
-    const float3 shadowFactor = ShadowFactor(worldPosition, shadowData.ShadowmapPosition.xyz, shadowData.ToShadowMapView, shadowData.ToShadowMapProjection, shadowDepthTexture, shadowSampler, shadowData.ShadowmapResolution, shadowData.ShadowAtlasResolution, shadowData.ShadowmapStartingUV);
+    
+    const float3 shadowFactor = ShadowFactor(worldPosition, shadowData.ShadowmapPosition.xyz, shadowData.ToShadowMapView, shadowData.ToShadowMapProjection, shadowDepthTexture, shadowSampler, shadowData.ShadowmapResolution, shadowData.ShadowAtlasResolution, shadowData.ShadowmapStartingUV, shadowData.ShadowTestTolerance);
     const float3 pointLight = EvaluatePointLight(diffuseColor, specularColor, normal, perceptualRoughness, pointLightColorAndIntensity.rgb * pointLightColorAndIntensity.a, pointLightPositionAndRange.w, toLight.xyz, lightDistance, toEye.xyz);
+ 
     const float3 radiance = pointLight * (1.0f - shadowFactor);
     
     output.Color.rgb = radiance;

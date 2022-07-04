@@ -65,7 +65,7 @@ namespace Havtorn
 		// Setup entities (create components)
 		TransformComponents.emplace_back(std::make_shared<STransformComponent>(pointLightEntity, EComponentType::TransformComponent));
 		pointLightEntity->AddComponent(EComponentType::TransformComponent, 2);
-		TransformComponents.back()->Transform.GetMatrix().Translation({ 1.25f, 0.5f, -1.5f });
+		TransformComponents.back()->Transform.GetMatrix().Translation({ 1.25f, 0.35f, -1.65f });
 
 		PointLightComponents.emplace_back(std::make_shared<SPointLightComponent>(pointLightEntity, EComponentType::PointLightComponent));
 		pointLightEntity->AddComponent(EComponentType::PointLightComponent, 0);
@@ -73,7 +73,7 @@ namespace Havtorn
 		pointLightComp->ColorAndIntensity = { 0.0f, 1.0f, 1.0f, 10.0f };
 		pointLightComp->Range = 1.0f;
 
-		const SMatrix constantProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.0001f, pointLightComp->Range);
+		const SMatrix constantProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.001f, pointLightComp->Range);
 		const SVector4 constantPosition = TransformComponents.back()->Transform.GetMatrix().Translation4();
 
 		// Forward
@@ -276,5 +276,36 @@ namespace Havtorn
 			floor->AddComponent(EComponentType::MaterialComponent, meshStartIndex + i);
 		}
 		// === !Other Wall ===
+
+		// === Spotlight ===
+		newID = Entities.back()->ID + 1;
+		Entities.emplace_back(std::make_shared<SEntity>(newID, "SpotLight"));
+		auto spotlight = Entities.back();
+
+		meshStartIndex = 26 + 9;
+		TransformComponents.emplace_back(std::make_shared<STransformComponent>(spotlight, EComponentType::TransformComponent));
+		spotlight->AddComponent(EComponentType::TransformComponent, TransformComponents.size()-1);
+		TransformComponents[spotlight->GetComponentIndex(EComponentType::TransformComponent)]->Transform.Translate({ 1.5f, 0.5f, -1.0f });
+
+		SpotLightComponents.emplace_back(std::make_shared<SSpotLightComponent>(spotlight, EComponentType::SpotLightComponent));
+		spotlight->AddComponent(EComponentType::SpotLightComponent, 0);
+		auto& spotlightComp = SpotLightComponents[0];
+		spotlightComp->Direction = SVector4::Forward;
+		spotlightComp->DirectionNormal1 = SVector4::Right;
+		spotlightComp->DirectionNormal2 = SVector4::Up;
+		spotlightComp->ColorAndIntensity = { 0.0f, 1.0f, 0.0f, 5.0f };
+		spotlightComp->AngleExponent = 0.1f;
+		spotlightComp->OuterAngle = 25.0f;
+		spotlightComp->InnerAngle = 5.0f;
+		spotlightComp->Range = 3.0f;
+
+		const SMatrix spotlightProjection = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.001f, spotlightComp->Range);
+		const SVector4 spotlightPosition = TransformComponents.back()->Transform.GetMatrix().Translation4();
+
+		spotlightComp->ShadowmapView.ShadowPosition = spotlightPosition;
+		spotlightComp->ShadowmapView.ShadowmapViewportIndex = 7;
+		spotlightComp->ShadowmapView.ShadowViewMatrix = SMatrix::LookAtLH(spotlightPosition.ToVector3(), (spotlightPosition + spotlightComp->Direction).ToVector3(), spotlightComp->DirectionNormal2.ToVector3());
+		spotlightComp->ShadowmapView.ShadowProjectionMatrix = spotlightProjection;
+		// === !Spotlight ===
 	}
 }

@@ -45,7 +45,7 @@ struct VertexToPixel
 struct VertexModelToPixel
 {
     float4 Position       : SV_POSITION;
-    float4 WorldPosition  : WORLDPOSITION;
+    float4 WorldPosition  : WORLD_POSITION;
     float4 Normal         : NORMAL;
     float4 Tangent        : TANGENT;
     float4 Bitangent      : BITANGENT;
@@ -129,6 +129,8 @@ cbuffer ShadowmapBuffer : register(b5)
         float2 ShadowmapResolution;
         float2 ShadowAtlasResolution;
         float2 ShadowmapStartingUV;
+        float ShadowTestTolerance;
+        float Padding;
     } ShadowmapViewData[6];
 }
 
