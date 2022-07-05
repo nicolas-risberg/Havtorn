@@ -14,6 +14,8 @@ namespace Havtorn
 
 	struct SVector
 	{
+		// TODO.NR: Make union so you can access xyz as F32[3]
+
 		F32 X, Y, Z;
 
 		static const SVector Zero;

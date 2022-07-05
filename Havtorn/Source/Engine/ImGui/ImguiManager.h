@@ -1,7 +1,6 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-//#include "Observer.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -17,6 +16,7 @@ namespace ImGui
 
 namespace Havtorn
 {
+	struct SEntity;
 	class CGraphicsFramework;
 	class CWindowHandler;
 	class CRenderManager;
@@ -61,7 +61,6 @@ namespace Havtorn
 	};
 
 	class CImguiManager
-		//: public IObserver
 	{
 	public:
 		CImguiManager();
@@ -73,8 +72,10 @@ namespace Havtorn
 		void EndFrame();
 		void DebugWindow();
 
-	public://Inherited
-	//void Receive(const SMessage& aMessage) override;
+	public:
+		void SetSelectedEntity(Ref<SEntity> entity);
+		Ref<SEntity> GetSelectedEntity() const;
+
 		void SetEditorTheme(EEditorColorTheme colorTheme = EEditorColorTheme::HavtornDark, EEditorStyleTheme styleTheme = EEditorStyleTheme::Havtorn);
 		std::string GetEditorColorThemeName(const EEditorColorTheme colorTheme);
 		ImVec4 GetEditorColorThemeRepColor(const EEditorColorTheme colorTheme);
@@ -97,17 +98,19 @@ namespace Havtorn
 		[[nodiscard]] std::string GetDrawCalls() const;
 
 	private:
-		const CRenderManager* RenderManager;
+		const CRenderManager* RenderManager = nullptr;
 
-		std::vector<Ptr<ImGui::CWindow>> Windows;
-		std::vector<Ptr<ImGui::CToggleable>> MenuElements;
+		Ref<SEntity> SelectedEntity = nullptr;
+
+		std::vector<Ptr<ImGui::CWindow>> Windows = {};
+		std::vector<Ptr<ImGui::CToggleable>> MenuElements = {};
 
 		SEditorLayout EditorLayout;
 		SEditorColorProfile EditorColorProfile;
 
-		F32 ViewportPadding;
-		bool IsEnabled;
-		bool IsDebugInfoOpen;
-		bool IsDemoOpen;
+		F32 ViewportPadding = 0.2f;
+		bool IsEnabled = true;
+		bool IsDebugInfoOpen = true;
+		bool IsDemoOpen = false;
 	};
 }

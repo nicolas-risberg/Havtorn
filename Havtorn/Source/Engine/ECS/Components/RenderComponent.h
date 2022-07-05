@@ -12,6 +12,8 @@ namespace Havtorn
 			, MaterialRef(0)
 		{}
 
+		void InspectInEditor() override;
+
 		U64 MaterialRef;
 	};
 }

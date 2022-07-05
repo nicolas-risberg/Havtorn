@@ -3,12 +3,16 @@
 #include "hvpch.h"
 #include "InspectorWindow.h"
 #include <imgui.h>
+
+#include "ECS/ECSInclude.h"
 #include "Imgui/ImguiManager.h"
+#include "Scene/Scene.h"
 
 namespace ImGui
 {
-	CInspectorWindow::CInspectorWindow(const char* aName, Havtorn::CImguiManager* manager)
+	CInspectorWindow::CInspectorWindow(const char* aName, Havtorn::CScene* scene, Havtorn::CImguiManager* manager)
 		: CWindow(aName, manager)
+		, Scene(scene)
 	{
 	}
 
@@ -30,6 +34,15 @@ namespace ImGui
 
 		if (ImGui::Begin(Name(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
 		{
+			if (const auto selection = Manager->GetSelectedEntity())
+			{
+				ImGui::Text(selection->Name.c_str());
+
+				if (selection->HasComponent(Havtorn::EComponentType::TransformComponent))
+				{
+					Scene->GetTransformComponents()[selection->GetComponentIndex(Havtorn::EComponentType::TransformComponent)]->InspectInEditor();
+				}
+			}
 		}
 		ImGui::End();
 	}

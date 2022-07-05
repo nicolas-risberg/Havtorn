@@ -15,6 +15,7 @@
 //#include "SceneManager.h"
 #include "Graphics/GraphicsFramework.h"
 #include "Graphics/RenderManager.h"
+#include "ECS/ECSInclude.h"
 //#include "JsonReader.h"
 #include "ImguiWindows.h"
 #include "ImguiToggleables.h"
@@ -26,11 +27,6 @@
 namespace Havtorn
 {
 	CImguiManager::CImguiManager()
-		: RenderManager(nullptr)
-		, ViewportPadding(0.2f)
-		, IsEnabled(true)
-		, IsDebugInfoOpen(true)
-		, IsDemoOpen(false)
 	{
 	}
 
@@ -60,19 +56,7 @@ namespace Havtorn
 		Windows.emplace_back(std::make_unique<ImGui::CViewportWindow>("Viewport", this));
 		Windows.emplace_back(std::make_unique<ImGui::CAssetBrowserWindow>("Asset Browser", this));
 		Windows.emplace_back(std::make_unique<ImGui::CHierarchyWindow>("Hierarchy", scene, this));
-		Windows.emplace_back(std::make_unique<ImGui::CInspectorWindow>("Inspector", this));
-		//myWindows.emplace_back(std::make_unique <ImGui::CLoadScene>("Load Scene", true));
-		//myWindows.emplace_back(std::make_unique <ImGui::CCameraSetting>("Camera Settings"));
-		//myWindows.emplace_back(std::make_unique <ImGui::CVFXEditorWindow>("VFX Editor"));
-		//myWindows.emplace_back(std::make_unique <ImGui::CPlayerControlWindow>("Player"));
-		//myWindows.emplace_back(std::make_unique <ImGui::CGravityGloveEditor>("GravityGlove"));
-		//myWindows.emplace_back(std::make_unique <ImGui::CEnvironmentLightWindow>("Environment Light"));
-		//myWindows.emplace_back(std::make_unique <ImGui::CPostProcessingWindow>("Post Processing"));
-		//myWindows.emplace_back(std::make_unique <ImGui::CHierarchy>("Scene Hierarchy"));
-		//myWindows.emplace_back(std::make_unique <ImGui::CDebugPrintoutWindow>("CMD"));
-
-		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorHideAndLock, this);
-		//CMainSingleton::PostMaster().Subscribe(EMessageType::CursorShowAndUnlock, this);
+		Windows.emplace_back(std::make_unique<ImGui::CInspectorWindow>("Inspector", scene, this));
 
 		InitEditorLayout();
 
@@ -142,56 +126,15 @@ namespace Havtorn
 		}
 	}
 
-	//void CImguiManager::Receive(const SMessage& aMessage)
-	//{
-	//	if (aMessage.myMessageType == EMessageType::CursorHideAndLock)
-	//	{
-	//		IsEnabled = false;
-	//	}
-	//	else if (aMessage.myMessageType == EMessageType::CursorShowAndUnlock)
-	//	{
-	//		IsEnabled = true;
-	//	}
-	//}
+	void CImguiManager::SetSelectedEntity(Ref<SEntity> entity)
+	{
+		SelectedEntity = entity;
+	}
 
-//void CImguiManager::LevelSelect()
-//{
-//	//std::vector<std::string> files = CJsonReader::GetFileNamesInFolder(ASSETPATH + "Assets/Generated");
-//	ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 200, 18));
-//	float x = 10.f + ((ImGui::GetFontSize() + 5.5f) * static_cast<float>(myLevelsToSelectFrom.size()));
-//	ImGui::SetNextWindowSize({200.f,  x});
-//
-//	ImGui::Begin("LevelSelect", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-//	/*if (ImGui::TreeNodeEx("Selection State: Single Selection", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf))
-//	{*/
-//		static int selected = -1;
-//		for (int n = 0; n < myLevelsToSelectFrom.size(); n++)
-//		{
-//			char buf[512];
-//			sprintf_s(buf, "%s", myLevelsToSelectFrom[n].c_str());
-//
-//			if (ImGui::Selectable(buf, selected == n, ImGuiSelectableFlags_AllowDoubleClick))
-//			{
-//				selected = n;
-//
-//				if (ImGui::IsMouseDoubleClicked(0))
-//				{
-//					std::cout << "Load Level: " << buf << std::endl;
-//				
-//
-//					CScene* myUnityScene = CSceneManager::CreateScene(buf);
-//					CEngine::GetInstance()->AddScene(CStateStack::EState::InGame, myUnityScene);
-//					CEngine::GetInstance()->SetActiveScene(CStateStack::EState::InGame);
-//					IsEnabled = !IsEnabled;
-//				}
-//			}
-//		}
-//	/*	ImGui::TreePop();
-//	}*/
-//
-//
-//	ImGui::End();
-//}
+	Ref<SEntity> CImguiManager::GetSelectedEntity() const
+	{
+		return SelectedEntity;
+	}
 
 	void CImguiManager::SetEditorTheme(EEditorColorTheme colorTheme, EEditorStyleTheme styleTheme)
 	{
@@ -467,17 +410,4 @@ namespace Havtorn
 		drawCalls.append(std::to_string(CRenderManager::NumberOfDrawCallsThisFrame));
 		return drawCalls;
 	}
-
-	//void CImguiManager::LevelsToSelectFrom(std::vector<std::string> someLevelsToSelectFrom)
-	//{
-	//	for (unsigned int i = 0; i < someLevelsToSelectFrom.size(); ++i) {
-	//		const auto& doc = CJsonReader::Get()->LoadDocument(ASSETPATH("Assets/Generated/" + someLevelsToSelectFrom[i]));
-	//		if (!doc.HasParseError()) {
-	//			if (doc.HasMember("instancedGameobjects") && 
-	//				doc.HasMember("modelGameObjects")) {
-	//				myLevelsToSelectFrom.push_back(someLevelsToSelectFrom[i]);
-	//			}
-	//		}
-	//	}	
-	//}
 }

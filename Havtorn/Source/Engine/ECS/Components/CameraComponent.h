@@ -11,6 +11,8 @@ namespace Havtorn
 			: SComponent(std::move(entity), type)
 		{}
 
+		void InspectInEditor() override;
+
 		SMatrix ViewMatrix;
 		SMatrix ProjectionMatrix;
 	};

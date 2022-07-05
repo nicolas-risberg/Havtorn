@@ -46,6 +46,7 @@ namespace ImGui
 				if (ImGui::Selectable(entity->Name.c_str(), index == SelectedIndex, ImGuiSelectableFlags_None)) 
 				{
 					SelectedIndex = index;
+					Manager->SetSelectedEntity(entity);
 				}
 
 				ImGui::PopID();

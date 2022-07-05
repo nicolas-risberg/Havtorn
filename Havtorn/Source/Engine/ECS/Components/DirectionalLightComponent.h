@@ -12,6 +12,8 @@ namespace Havtorn
 			: SComponent(std::move(entity), type)
 		{}
 
+		void InspectInEditor() override;
+
 		SShadowmapViewData ShadowmapView = SShadowmapViewData();
 		SVector4 Direction = SVector4::Up;
 		SVector4 Color = SVector4(1.0f, 1.0f, 1.0f, 1.0f);

@@ -25,6 +25,8 @@ namespace Havtorn
 	using Ptr = std::unique_ptr<T>;
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
+	template<typename T>
+	using WeakRef = std::weak_ptr<T>;
 
 	template<typename T>
 	using WinComPtr = Microsoft::WRL::ComPtr<T>;

@@ -14,6 +14,7 @@ namespace Havtorn
 			, Type(type)
 		{}
 		virtual ~SComponent() = default;
+		virtual void InspectInEditor() = 0;
 
 		const Ref<SEntity> Entity;
 		const EComponentType Type;
