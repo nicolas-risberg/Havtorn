@@ -128,8 +128,6 @@ namespace Havtorn
 		InitSpotLightResources();
 		LoadDemoSceneResources();
 
-		AddShader("Shaders/DeferredModelDistanceDepth_VS.cso", EShaderType::Vertex);
-		AddShader("Shaders/ShadowAlphaPixelShader_PS.cso", EShaderType::Pixel);
 		return true;
 	}
 
