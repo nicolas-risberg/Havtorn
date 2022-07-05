@@ -10,8 +10,8 @@
 
 namespace ImGui
 {
-	CHierarchyWindow::CHierarchyWindow(const char* aName, Havtorn::CScene* scene, Havtorn::CImguiManager* manager)
-		: CWindow(aName, manager)
+	CHierarchyWindow::CHierarchyWindow(const char* name, Havtorn::CScene* scene, Havtorn::CImguiManager* manager)
+		: CWindow(name, manager)
 		, Scene(scene)
 		, SelectedIndex(0)
 	{
@@ -36,12 +36,15 @@ namespace ImGui
 
 		if (ImGui::Begin(Name(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
 		{
-			int index = 0;
+			Havtorn::I32 index = 0;
 			auto& entities = Scene->GetEntities();
-			for (auto& entity : entities) {
+			
+			for (auto& entity : entities) 
+			{
 				ImGui::PushID(static_cast<int>(entity->ID));
 	
-				if (ImGui::Selectable(std::to_string(entity->ID).c_str(), index == SelectedIndex, ImGuiSelectableFlags_None)) {
+				if (ImGui::Selectable(entity->Name.c_str(), index == SelectedIndex, ImGuiSelectableFlags_None)) 
+				{
 					SelectedIndex = index;
 				}
 

@@ -4,6 +4,9 @@
 
 namespace Havtorn
 {
+#define COMPONENT_ADDER_DECLARATION(x) Ref<S##x> Add##x##ToEntity(Ref<SEntity> entity);
+#define COMPONENT_ADDER_DEFINITION(x) Ref<S##x> CScene::Add##x##ToEntity(Ref<SEntity> entity){ entity->AddComponent(EComponentType::##x, x##s.size()); return x##s.emplace_back(std::make_shared<S##x>(entity, EComponentType::##x));}
+
 #define COMPONENT_VECTOR_DECLARATION(x) std::vector<Ref<S##x>> x##s;
 #define COMPONENT_VECTOR_GETTER(x) std::vector<Ref<S##x>>& Get##x##s() { return x##s; }
 
@@ -38,6 +41,14 @@ namespace Havtorn
 		std::vector<Ref<SSpotLightComponent>>& GetSpotLightComponents() { return SpotLightComponents; }
 
 		std::vector<Ref<SEntity>>& GetEntities() { return Entities; }
+
+		COMPONENT_ADDER_DECLARATION(TransformComponent)
+		COMPONENT_ADDER_DECLARATION(StaticMeshComponent)
+		COMPONENT_ADDER_DECLARATION(CameraComponent)
+		COMPONENT_ADDER_DECLARATION(MaterialComponent)
+		COMPONENT_ADDER_DECLARATION(DirectionalLightComponent)
+		COMPONENT_ADDER_DECLARATION(PointLightComponent)
+		COMPONENT_ADDER_DECLARATION(SpotLightComponent)
 
 	private:
 		std::vector<Ref<SEntity>> Entities;

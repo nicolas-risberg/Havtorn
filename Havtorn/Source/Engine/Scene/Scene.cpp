@@ -22,26 +22,22 @@ namespace Havtorn
 		auto directionalLightEntity = Entities[1];
 
 		// Setup entities (create components)
-		TransformComponents.emplace_back(std::make_shared<STransformComponent>(cameraEntity, EComponentType::TransformComponent));
-		cameraEntity->AddComponent(EComponentType::TransformComponent, 0);
-		TransformComponents.back()->Transform.GetMatrix().Translation({ 2.0f, 1.0f, -3.0f });
-		TransformComponents.back()->Transform.Rotate({ 0.0f, UMath::DegToRad(35.0f), 0.0f });
-		TransformComponents.back()->Transform.Translate(SVector::Right * 0.25f);
+		auto transform = AddTransformComponentToEntity(cameraEntity);
+		transform->Transform.GetMatrix().Translation({ 2.0f, 1.0f, -3.0f });
+		transform->Transform.Rotate({ 0.0f, UMath::DegToRad(35.0f), 0.0f });
+		transform->Transform.Translate(SVector::Right * 0.25f);
 
-		TransformComponents.emplace_back(std::make_shared<STransformComponent>(directionalLightEntity, EComponentType::TransformComponent));
-		directionalLightEntity->AddComponent(EComponentType::TransformComponent, 1);
+		AddTransformComponentToEntity(directionalLightEntity);
 
-		CameraComponents.emplace_back(std::make_shared<SCameraComponent>(cameraEntity, EComponentType::CameraComponent));
-		cameraEntity->AddComponent(EComponentType::CameraComponent, 0);
-		CameraComponents.back()->ProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(70.0f), (16.0f / 9.0f), 0.1f, 1000.0f);
-		CameraComponents.back()->ViewMatrix = SMatrix::LookAtLH(SVector::Zero, SVector::Forward, SVector::Up);
+		auto camera = AddCameraComponentToEntity(cameraEntity);
+		camera->ProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(70.0f), (16.0f / 9.0f), 0.1f, 1000.0f);
+		camera->ViewMatrix = SMatrix::LookAtLH(SVector::Zero, SVector::Forward, SVector::Up);
 
-		DirectionalLightComponents.emplace_back(std::make_shared<SDirectionalLightComponent>(directionalLightEntity, EComponentType::DirectionalLightComponent));
-		directionalLightEntity->AddComponent(EComponentType::DirectionalLightComponent, 0);
-		DirectionalLightComponents.back()->Direction = { 0.0f, 1.0f, -1.0f, 0.0f };
-		DirectionalLightComponents.back()->Color = { 212.0f / 255.0f, 175.0f / 255.0f, 55.0f / 255.0f, 0.25f };
-		DirectionalLightComponents.back()->ShadowmapView.ShadowmapViewportIndex = 0;
-		DirectionalLightComponents.back()->ShadowmapView.ShadowProjectionMatrix = SMatrix::OrthographicLH(DirectionalLightComponents.back()->ShadowViewSize.X, DirectionalLightComponents.back()->ShadowViewSize.Y, -8.0f, 8.0f);
+		auto directionalLight = AddDirectionalLightComponentToEntity(directionalLightEntity);
+		directionalLight->Direction = { 0.0f, 1.0f, -1.0f, 0.0f };
+		directionalLight->Color = { 212.0f / 255.0f, 175.0f / 255.0f, 55.0f / 255.0f, 0.25f };
+		directionalLight->ShadowmapView.ShadowmapViewportIndex = 0;
+		directionalLight->ShadowmapView.ShadowProjectionMatrix = SMatrix::OrthographicLH(DirectionalLightComponents.back()->ShadowViewSize.X, DirectionalLightComponents.back()->ShadowViewSize.Y, -8.0f, 8.0f);
 
 		InitDemoScene(renderManager);
 
@@ -63,18 +59,15 @@ namespace Havtorn
 		auto pointLightEntity = Entities.back();
 
 		// Setup entities (create components)
-		TransformComponents.emplace_back(std::make_shared<STransformComponent>(pointLightEntity, EComponentType::TransformComponent));
-		pointLightEntity->AddComponent(EComponentType::TransformComponent, 2);
-		TransformComponents.back()->Transform.GetMatrix().Translation({ 1.25f, 0.35f, -1.65f });
+		auto pointLightTransform = AddTransformComponentToEntity(pointLightEntity);
+		pointLightTransform->Transform.GetMatrix().Translation({ 1.25f, 0.35f, -1.65f });
 
-		PointLightComponents.emplace_back(std::make_shared<SPointLightComponent>(pointLightEntity, EComponentType::PointLightComponent));
-		pointLightEntity->AddComponent(EComponentType::PointLightComponent, 0);
-		const auto& pointLightComp = PointLightComponents.back();
+		auto pointLightComp = AddPointLightComponentToEntity(pointLightEntity);
 		pointLightComp->ColorAndIntensity = { 0.0f, 1.0f, 1.0f, 10.0f };
 		pointLightComp->Range = 1.0f;
 
 		const SMatrix constantProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.001f, pointLightComp->Range);
-		const SVector4 constantPosition = TransformComponents.back()->Transform.GetMatrix().Translation4();
+		const SVector4 constantPosition = pointLightTransform->Transform.GetMatrix().Translation4();
 
 		// Forward
 		SShadowmapViewData& view1 = pointLightComp->ShadowmapViews[0];
@@ -308,4 +301,12 @@ namespace Havtorn
 		spotlightComp->ShadowmapView.ShadowProjectionMatrix = spotlightProjection;
 		// === !Spotlight ===
 	}
+
+	COMPONENT_ADDER_DEFINITION(TransformComponent)
+	COMPONENT_ADDER_DEFINITION(StaticMeshComponent)
+	COMPONENT_ADDER_DEFINITION(CameraComponent)
+	COMPONENT_ADDER_DEFINITION(MaterialComponent)
+	COMPONENT_ADDER_DEFINITION(DirectionalLightComponent)
+	COMPONENT_ADDER_DEFINITION(PointLightComponent)
+	COMPONENT_ADDER_DEFINITION(SpotLightComponent)
 }
