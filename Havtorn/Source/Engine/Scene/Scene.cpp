@@ -123,18 +123,11 @@ namespace Havtorn
 		Entities.emplace_back(std::make_shared<SEntity>(newID, "Clock"));
 		auto pendulum = Entities.back();
 
-		TransformComponents.emplace_back(std::make_shared<STransformComponent>(pendulum, EComponentType::TransformComponent));
-		pendulum->AddComponent(EComponentType::TransformComponent, 3);
-		auto& transform1 = TransformComponents.back()->Transform;
+		auto& transform1 = AddTransformComponentToEntity(pendulum)->Transform;
 		transform1.GetMatrix().Translation({1.75f, 0.0f, 0.25f});
 
-		StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(pendulum, EComponentType::StaticMeshComponent));
-		renderManager->LoadStaticMeshComponent(modelPath1, StaticMeshComponents.back().get());
-		pendulum->AddComponent(EComponentType::StaticMeshComponent, 0);
-
-		MaterialComponents.emplace_back(std::make_shared<SMaterialComponent>(pendulum, EComponentType::MaterialComponent));
-		renderManager->LoadMaterialComponent(materialNames1, MaterialComponents.back().get());
-		pendulum->AddComponent(EComponentType::MaterialComponent, 0);
+		renderManager->LoadStaticMeshComponent(modelPath1, AddStaticMeshComponentToEntity(pendulum).get());
+		renderManager->LoadMaterialComponent(materialNames1, AddMaterialComponentToEntity(pendulum).get());
 		// === !Pendulum ===
 
 		// === Bed ===
@@ -142,18 +135,11 @@ namespace Havtorn
 		Entities.emplace_back(std::make_shared<SEntity>(newID, "Bed"));
 		auto bed = Entities.back();
 
-		TransformComponents.emplace_back(std::make_shared<STransformComponent>(bed, EComponentType::TransformComponent));
-		bed->AddComponent(EComponentType::TransformComponent, 4);
-		auto& transform2 = TransformComponents.back()->Transform;
+		auto& transform2 = AddTransformComponentToEntity(bed)->Transform;
 		transform2.GetMatrix().Translation({ 0.25f, 0.0f, 0.25f });
 
-		StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(bed, EComponentType::StaticMeshComponent));
-		renderManager->LoadStaticMeshComponent(modelPath2, StaticMeshComponents.back().get());
-		bed->AddComponent(EComponentType::StaticMeshComponent, 1);
-
-		MaterialComponents.emplace_back(std::make_shared<SMaterialComponent>(bed, EComponentType::MaterialComponent));
-		renderManager->LoadMaterialComponent(materialNames2, MaterialComponents.back().get());
-		bed->AddComponent(EComponentType::MaterialComponent, 1);
+		renderManager->LoadStaticMeshComponent(modelPath2, AddStaticMeshComponentToEntity(bed).get());
+		renderManager->LoadMaterialComponent(materialNames2, AddMaterialComponentToEntity(bed).get());
 		// === !Bed ===
 
 		// === Floor ===
@@ -178,20 +164,13 @@ namespace Havtorn
 			Entities.emplace_back(std::make_shared<SEntity>(newID, "Floor"));
 			auto floor = Entities.back();
 
-			TransformComponents.emplace_back(std::make_shared<STransformComponent>(floor, EComponentType::TransformComponent));
-			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 3);
-			auto& transform3 = TransformComponents.back()->Transform;
+			auto& transform3 = AddTransformComponentToEntity(floor)->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)));
 			//transform3.Rotate({ 0.0f, 0.0f, -90.0f });
 
-			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(floor, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMeshComponent(modelPath3, StaticMeshComponents.back().get());
-			floor->AddComponent(EComponentType::StaticMeshComponent, meshStartIndex + i);
-
-			MaterialComponents.emplace_back(std::make_shared<SMaterialComponent>(floor, EComponentType::MaterialComponent));
-			renderManager->LoadMaterialComponent(materialNames3, MaterialComponents.back().get());
-			floor->AddComponent(EComponentType::MaterialComponent, meshStartIndex + i);
+			renderManager->LoadStaticMeshComponent(modelPath3, AddStaticMeshComponentToEntity(floor).get());
+			renderManager->LoadMaterialComponent(materialNames3, AddMaterialComponentToEntity(floor).get());
 		}
 		// === !Floor ===
 
@@ -217,20 +196,13 @@ namespace Havtorn
 			Entities.emplace_back(std::make_shared<SEntity>(newID, "Wall"));
 			auto floor = Entities.back();
 
-			TransformComponents.emplace_back(std::make_shared<STransformComponent>(floor, EComponentType::TransformComponent));
-			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 3);
-			auto& transform3 = TransformComponents.back()->Transform;
+			auto& transform3 = AddTransformComponentToEntity(floor)->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundX(UMath::DegToRad(-90.0f)));
 			//transform3.Rotate({ -90.0f, 0.0f, -90.0f });
 
-			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(floor, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMeshComponent(modelPath3, StaticMeshComponents.back().get());
-			floor->AddComponent(EComponentType::StaticMeshComponent, meshStartIndex + i);
-
-			MaterialComponents.emplace_back(std::make_shared<SMaterialComponent>(floor, EComponentType::MaterialComponent));
-			renderManager->LoadMaterialComponent(materialNames3, MaterialComponents.back().get());
-			floor->AddComponent(EComponentType::MaterialComponent, meshStartIndex + i);
+			renderManager->LoadStaticMeshComponent(modelPath3, AddStaticMeshComponentToEntity(floor).get());
+			renderManager->LoadMaterialComponent(materialNames3, AddMaterialComponentToEntity(floor).get());
 		}
 		// === !Wall ===
 
@@ -253,20 +225,13 @@ namespace Havtorn
 			Entities.emplace_back(std::make_shared<SEntity>(newID, "Wall"));
 			auto floor = Entities.back();
 
-			TransformComponents.emplace_back(std::make_shared<STransformComponent>(floor, EComponentType::TransformComponent));
-			floor->AddComponent(EComponentType::TransformComponent, meshStartIndex + i + 3);
-			auto& transform3 = TransformComponents.back()->Transform;
+			auto& transform3 = AddTransformComponentToEntity(floor)->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundX(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundY(UMath::DegToRad(-90.0f)));
 			//transform3.Rotate({ -90.0f, -90.0f, -90.0f });
-
-			StaticMeshComponents.emplace_back(std::make_shared<SStaticMeshComponent>(floor, EComponentType::StaticMeshComponent));
-			renderManager->LoadStaticMeshComponent(modelPath3, StaticMeshComponents.back().get());
-			floor->AddComponent(EComponentType::StaticMeshComponent, meshStartIndex + i);
-
-			MaterialComponents.emplace_back(std::make_shared<SMaterialComponent>(floor, EComponentType::MaterialComponent));
-			renderManager->LoadMaterialComponent(materialNames3, MaterialComponents.back().get());
-			floor->AddComponent(EComponentType::MaterialComponent, meshStartIndex + i);
+			
+			renderManager->LoadStaticMeshComponent(modelPath3, AddStaticMeshComponentToEntity(floor).get());
+			renderManager->LoadMaterialComponent(materialNames3, AddMaterialComponentToEntity(floor).get());
 		}
 		// === !Other Wall ===
 
@@ -275,14 +240,10 @@ namespace Havtorn
 		Entities.emplace_back(std::make_shared<SEntity>(newID, "SpotLight"));
 		auto spotlight = Entities.back();
 
-		meshStartIndex = 26 + 9;
-		TransformComponents.emplace_back(std::make_shared<STransformComponent>(spotlight, EComponentType::TransformComponent));
-		spotlight->AddComponent(EComponentType::TransformComponent, TransformComponents.size()-1);
-		TransformComponents[spotlight->GetComponentIndex(EComponentType::TransformComponent)]->Transform.Translate({ 1.5f, 0.5f, -1.0f });
+		auto& spotlightTransform = AddTransformComponentToEntity(spotlight)->Transform;
+		spotlightTransform.Translate({ 1.5f, 0.5f, -1.0f });
 
-		SpotLightComponents.emplace_back(std::make_shared<SSpotLightComponent>(spotlight, EComponentType::SpotLightComponent));
-		spotlight->AddComponent(EComponentType::SpotLightComponent, 0);
-		auto& spotlightComp = SpotLightComponents[0];
+		auto spotlightComp = AddSpotLightComponentToEntity(spotlight);
 		spotlightComp->Direction = SVector4::Forward;
 		spotlightComp->DirectionNormal1 = SVector4::Right;
 		spotlightComp->DirectionNormal2 = SVector4::Up;

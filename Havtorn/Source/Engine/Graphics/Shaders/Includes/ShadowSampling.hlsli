@@ -45,8 +45,6 @@ float SampleShadowPos(float4 projectionPos, float2 startingUV, float2 mapResolut
     uvCoords *= (mapResolution / atlasResolution);
     uvCoords += startingUV;
 
-    const float nonLinearDepth = shadowDepthTexture.SampleLevel(shadowSampler, uvCoords, 0).r;
-    
     // Out of Bounds check
     float oob = 1.0f;
     if (projectionPos.x > 1.0f || projectionPos.x < -1.0f || projectionPos.y > 1.0f || projectionPos.y < -1.0f)
@@ -54,11 +52,10 @@ float SampleShadowPos(float4 projectionPos, float2 startingUV, float2 mapResolut
         oob = 0.0f;
     }
 
+    const float nonLinearDepth = shadowDepthTexture.SampleLevel(shadowSampler, uvCoords, 0).r;
+
     const float a = nonLinearDepth * oob;
     const float b = projectionPos.z * oob;
-    
-    // This breaks everything, where is it from?
-    //b = InverseLerp(-0.5f, 0.5f, b) * oob;
 
     if (b - a < shadowTestTolerance)
     {
