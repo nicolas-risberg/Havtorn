@@ -1242,6 +1242,16 @@ namespace Havtorn
 		}
 	}
 
+	ID3D11ShaderResourceView* CRenderManager::GetTexture(I64 textureIndex) const
+	{
+		return Textures[textureIndex];
+	}
+
+	EMaterialConfiguration CRenderManager::GetMaterialConfiguration() const
+	{
+		return MaterialConfiguration;
+	}
+
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
 	{
 		return RenderedScene;

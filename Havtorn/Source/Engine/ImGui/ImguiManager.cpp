@@ -351,7 +351,7 @@ namespace Havtorn
 		colors[ImGuiCol_Header] = elementBackground;
 		colors[ImGuiCol_HeaderHovered] = elementHovered;
 		colors[ImGuiCol_HeaderActive] = elementActive;
-		colors[ImGuiCol_Separator] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
+		colors[ImGuiCol_Separator] = elementBackground;
 		colors[ImGuiCol_SeparatorHovered] = elementHovered;
 		colors[ImGuiCol_SeparatorActive] = elementActive;
 		colors[ImGuiCol_ResizeGrip] = backgroundBase;

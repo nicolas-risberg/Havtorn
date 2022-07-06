@@ -12,7 +12,5 @@ namespace Havtorn
 			: SComponent(std::move(entity), type) {}
 
 		STransform Transform;
-
-		void InspectInEditor() override;
 	};
 }

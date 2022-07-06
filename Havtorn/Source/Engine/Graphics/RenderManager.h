@@ -78,6 +78,9 @@ namespace Havtorn
 		void LoadStaticMeshComponent(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent);
 		void LoadMaterialComponent(const std::vector<std::string>& materialNames, SMaterialComponent* outMaterialComponent);
 
+		ID3D11ShaderResourceView* GetTexture(I64 textureIndex) const;
+		EMaterialConfiguration GetMaterialConfiguration() const;
+
 	public:
 		[[nodiscard]] const CFullscreenTexture& GetRenderedSceneTexture() const;
 		void PushRenderCommand(SRenderCommand& command);

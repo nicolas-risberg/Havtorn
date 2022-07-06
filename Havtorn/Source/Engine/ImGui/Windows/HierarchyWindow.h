@@ -20,7 +20,8 @@ namespace ImGui
 		void OnDisable() override;
 
 	private:
-		Havtorn::CScene* Scene;
-		Havtorn::I32 SelectedIndex;
+		Havtorn::CScene* Scene = nullptr;
+
+		Havtorn::I32 SelectedIndex = 0;
 	};
 }

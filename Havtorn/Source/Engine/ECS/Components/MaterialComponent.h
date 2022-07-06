@@ -11,8 +11,6 @@ namespace Havtorn
 			: SComponent(std::move(entity), type)
 		{}
 
-		void InspectInEditor() override;
-
 		std::vector<U16> MaterialReferences;
 	};
 }

@@ -12,8 +12,6 @@ namespace Havtorn
 			: SComponent(std::move(entity), type)
 		{}
 
-		void InspectInEditor() override;
-
 		// Asset Data
 		std::vector<SDrawCallData> DrawCallData;
 
