@@ -17,10 +17,10 @@ namespace Havtorn
 		SVector4 Direction = SVector4::Forward;
 		SVector4 DirectionNormal1 = SVector4::Right;
 		SVector4 DirectionNormal2 = SVector4::Up;
-		SVector2<F32> ShadowmapResolution = { 8192.0f, 8192.0f };
 		SVector2<F32> ShadowViewSize = { 8.0f, 8.0f };
 		F32 OuterAngle = 90.0f;
 		F32 InnerAngle = 45.0f;
+		// TODO.NR: Figure out if this can be removed
 		F32 AngleExponent = 1.0f;
 		F32 Range = 1.0f;
 	};

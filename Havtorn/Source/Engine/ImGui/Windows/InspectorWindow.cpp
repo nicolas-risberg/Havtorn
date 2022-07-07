@@ -13,10 +13,13 @@ namespace ImGui
 {
 	using Havtorn::SEditorLayout;
 	using Havtorn::SVector;
+	using Havtorn::SVector4;
+	using Havtorn::SVector2;
 	using Havtorn::EComponentType;
+	using Havtorn::F32;
 
-	CInspectorWindow::CInspectorWindow(const char* aName, Havtorn::CScene* scene, Havtorn::CImguiManager* manager)
-		: CWindow(aName, manager)
+	CInspectorWindow::CInspectorWindow(const char* name, Havtorn::CScene* scene, Havtorn::CImguiManager* manager)
+		: CWindow(name, manager)
 		, Scene(scene)
 	{
 	}
@@ -114,10 +117,17 @@ namespace ImGui
 		}
 	}
 
-	void CInspectorWindow::InspectCameraComponent(Havtorn::I64 /*cameraComponentIndex*/)
+	void CInspectorWindow::InspectCameraComponent(Havtorn::I64 cameraComponentIndex)
 	{
 		if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
+			auto& cameraComp = Scene->GetCameraComponents()[cameraComponentIndex];
+			ImGui::DragFloat("FOV", &cameraComp->FOV, SlideSpeed, 1.0f, 180.0f);
+			ImGui::DragFloat("Aspect Ratio", &cameraComp->AspectRatio, SlideSpeed, 0.1f, 10.0f);
+			ImGui::DragFloat("Near Clip Plane", &cameraComp->NearClip, SlideSpeed, 0.01f, cameraComp->FarClip - 1.0f);
+			ImGui::DragFloat("Far Clip Plane", &cameraComp->FarClip, SlideSpeed, cameraComp->NearClip + 1.0f, 10000.0f);
+
+			cameraComp->ProjectionMatrix = Havtorn::SMatrix::PerspectiveFovLH(Havtorn::UMath::DegToRad(cameraComp->FOV), cameraComp->AspectRatio, cameraComp->NearClip, cameraComp->FarClip);
 		}
 	}
 
@@ -157,30 +167,76 @@ namespace ImGui
 				Havtorn::I64 ref = materialComp->MaterialReferences[materialIndex];
 				if (ImGui::ImageButton((void*)renderManager->GetTexture(ref), { TexturePreviewSize.X, TexturePreviewSize.Y }))
 				{
-
+					ImGui::OpenPopup("Select Texture Asset");
+					ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 				}
 			}
 		}
+
+		if (ImGui::BeginPopupModal("Select Texture Asset", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			if (ImGui::Button("OK", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+			ImGui::SetItemDefaultFocus();
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+			ImGui::EndPopup();
+		}
 	}
 
-	void CInspectorWindow::InspectDirectionalLightComponent(Havtorn::I64 /*directionalLightComponentIndex*/)
+	void CInspectorWindow::InspectDirectionalLightComponent(Havtorn::I64 directionalLightComponentIndex)
 	{
 		if (ImGui::CollapsingHeader("Directional Light", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
+			auto& directionalLightComp = Scene->GetDirectionalLightComponents()[directionalLightComponentIndex];
+			
+			const SVector4 position = directionalLightComp->Direction;
+			Havtorn::F32 dirData[3] = { position.X, position.Y, position.Z };
+			ImGui::DragFloat3("Direction", dirData, SlideSpeed);
+			directionalLightComp->Direction = { dirData[0], dirData[1], dirData[2], 0.0f };
+			
+			Havtorn::F32 colorData[3] = { directionalLightComp->Color.X, directionalLightComp->Color.Y, directionalLightComp->Color.Z };
+			ImGui::ColorPicker3("Color", colorData);
+			directionalLightComp->Color.X = colorData[0];
+			directionalLightComp->Color.Y = colorData[1];
+			directionalLightComp->Color.Z = colorData[2];
+
+			ImGui::DragFloat("Intensity", &directionalLightComp->Color.W, SlideSpeed);
 		}
 	}
 
-	void CInspectorWindow::InspectPointLightComponent(Havtorn::I64 /*pointLightComponentIndex*/)
+	void CInspectorWindow::InspectPointLightComponent(Havtorn::I64 pointLightComponentIndex)
 	{
 		if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
+			auto& pointLightComp = Scene->GetPointLightComponents()[pointLightComponentIndex];
+
+			Havtorn::F32 colorData[3] = { pointLightComp->ColorAndIntensity.X, pointLightComp->ColorAndIntensity.Y, pointLightComp->ColorAndIntensity.Z };
+			ImGui::ColorPicker3("Color", colorData);
+			pointLightComp->ColorAndIntensity.X = colorData[0];
+			pointLightComp->ColorAndIntensity.Y = colorData[1];
+			pointLightComp->ColorAndIntensity.Z = colorData[2];
+
+			ImGui::DragFloat("Intensity", &pointLightComp->ColorAndIntensity.W, SlideSpeed);
+			ImGui::DragFloat("Range", &pointLightComp->Range, SlideSpeed, 0.1f, 100.0f);
 		}
 	}
 
-	void CInspectorWindow::InspectSpotLightComponent(Havtorn::I64 /*spotLightComponentIndex*/)
+	void CInspectorWindow::InspectSpotLightComponent(Havtorn::I64 spotLightComponentIndex)
 	{
 		if (ImGui::CollapsingHeader("Spot Light", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
+			auto& spotLightComp = Scene->GetSpotLightComponents()[spotLightComponentIndex];
+
+			Havtorn::F32 colorData[3] = { spotLightComp->ColorAndIntensity.X, spotLightComp->ColorAndIntensity.Y, spotLightComp->ColorAndIntensity.Z };
+			ImGui::ColorPicker3("Color", colorData);
+			spotLightComp->ColorAndIntensity.X = colorData[0];
+			spotLightComp->ColorAndIntensity.Y = colorData[1];
+			spotLightComp->ColorAndIntensity.Z = colorData[2];
+
+			ImGui::DragFloat("Intensity", &spotLightComp->ColorAndIntensity.W, SlideSpeed);
+			ImGui::DragFloat("Range", &spotLightComp->Range, SlideSpeed, 0.1f, 100.0f);
+			ImGui::DragFloat("Outer Angle", &spotLightComp->OuterAngle, SlideSpeed, spotLightComp->InnerAngle, 180.0f);
+			ImGui::DragFloat("InnerAngle", &spotLightComp->InnerAngle, SlideSpeed, 0.0f, spotLightComp->OuterAngle - 0.01f);
 		}
 	}
 }
