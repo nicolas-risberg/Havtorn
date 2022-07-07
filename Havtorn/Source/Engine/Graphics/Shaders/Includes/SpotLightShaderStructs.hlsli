@@ -47,9 +47,6 @@ cbuffer SpotLightObjectBuffer : register(b1)
 
 cbuffer SpotLightValueBuffer : register(b3)
 {
-    float4x4 spotLightToWorld;
-    float4x4 spotLightToView;
-    float4x4 spotLightToProjection;
     float4 spotLightColorAndIntensity;
     float4 spotLightPositionAndRange;
     float4 spotLightDirection;
@@ -57,6 +54,5 @@ cbuffer SpotLightValueBuffer : register(b3)
     float4 spotLightDirectionNormal2;
     float spotLightOuterAngle;
     float spotLightInnerAngle;
-    float spotLightAngleExponent;
-    float spotlightPadding;
+    float2 spotLightPadding;
 }

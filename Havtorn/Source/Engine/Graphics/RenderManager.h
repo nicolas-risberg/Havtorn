@@ -80,6 +80,7 @@ namespace Havtorn
 
 		ID3D11ShaderResourceView* GetTexture(I64 textureIndex) const;
 		EMaterialConfiguration GetMaterialConfiguration() const;
+		SVector2<F32> GetShadowAtlasResolution() const;
 
 	public:
 		[[nodiscard]] const CFullscreenTexture& GetRenderedSceneTexture() const;
@@ -154,13 +155,8 @@ namespace Havtorn
 
 		struct SDirectionalLightBufferData
 		{
-			SMatrix ToDirectionalLightView;
-			SMatrix ToDirectionalLightProjection;
-			SVector4 DirectionalLightPosition;
 			SVector4 DirectionalLightDirection;
 			SVector4 DirectionalLightColor;
-			SVector2<F32> DirectionalLightShadowMapResolution;
-			SVector2<F32> Padding;
 		} DirectionalLightBufferData;
 		HV_ASSERT_BUFFER(SDirectionalLightBufferData)
 
@@ -174,9 +170,6 @@ namespace Havtorn
 
 		struct SSpotLightBufferData
 		{
-			SMatrix ToWorldFromObject;
-			SMatrix ToViewFromWorld;
-			SMatrix ToProjectionFromView;
 			SVector4 ColorAndIntensity;
 			SVector4 PositionAndRange;
 			SVector4 Direction;
@@ -184,8 +177,7 @@ namespace Havtorn
 			SVector4 DirectionNormal2;
 			F32 OuterAngle;
 			F32 InnerAngle;
-			F32 AngleExponent;
-			F32 Padding;
+			SVector2<F32> Padding;
 		} SpotLightBufferData;
 		HV_ASSERT_BUFFER(SSpotLightBufferData)
 

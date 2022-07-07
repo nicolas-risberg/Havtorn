@@ -86,13 +86,8 @@ cbuffer ObjectBuffer : register(b1)
 
 cbuffer DirectionalLightBuffer : register(b2)
 {
-    float4x4 ToDirectionalLightView;
-    float4x4 ToDirectionalLightProjection;
-    float4 DirectionalLightPosition; // For shadow calculations
     float4 ToDirectionalLight;
     float4 DirectionalLightColor;
-    float2 DirectionalLightShadowMapResolution;
-    float2 DirectionalLightPadding;
 }
 
 cbuffer PointLightBuffer : register(b3)
@@ -103,19 +98,21 @@ cbuffer PointLightBuffer : register(b3)
 
 cbuffer SpotLightBuffer : register(b4)
 {
-    float4x4 SpotLightToWorld;
-    float4x4 SpotLightToView;
-    float4x4 SpotLightToProjection;
+    //float4x4 SpotLightToWorld;
+    //float4x4 SpotLightToView;
+    //float4x4 SpotLightToProjection;
     float4 SpotLightColorAndIntensity;
     float4 SpotLightPositionAndRange;
-    float4 SpotLightDirectionAndAngleExponent;
+    float4 SpotLightDirection;
     float4 SpotLightDirectionNormal1;
     float4 SpotLightDirectionNormal2;
-    float4 UpLeftCorner;
-    float4 UpRightCorner;
-    float4 DownLeftCorner;
-    float4 DownRightCorner;
-    float2 InnerOuterAngle;
+    //float4 UpLeftCorner;
+    //float4 UpRightCorner;
+    //float4 DownLeftCorner;
+    //float4 DownRightCorner;
+    //float2 InnerOuterAngle;
+    float OuterAngle;
+    float InnerAngle;
     float2 SpotLightPadding;
 }
 

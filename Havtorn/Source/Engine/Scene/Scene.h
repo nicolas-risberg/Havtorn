@@ -42,6 +42,7 @@ namespace Havtorn
 
 		std::vector<Ref<SEntity>>& GetEntities() { return Entities; }
 
+		Ref<SEntity> CreateEntity(const std::string& name);
 		COMPONENT_ADDER_DECLARATION(TransformComponent)
 		COMPONENT_ADDER_DECLARATION(StaticMeshComponent)
 		COMPONENT_ADDER_DECLARATION(CameraComponent)

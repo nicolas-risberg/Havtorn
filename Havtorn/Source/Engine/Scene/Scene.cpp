@@ -12,14 +12,11 @@ namespace Havtorn
 	{
 		// Setup systems
 		Systems.emplace_back(std::make_unique<CCameraSystem>());
-		Systems.emplace_back(std::make_unique<CLightSystem>());
+		Systems.emplace_back(std::make_unique<CLightSystem>(renderManager));
 		Systems.emplace_back(std::make_unique<CRenderSystem>(renderManager));
 
 		// Create entities
-		Entities.emplace_back(std::make_shared<SEntity>(1, "Camera"));
-		auto cameraEntity = Entities[0];
-		Entities.emplace_back(std::make_shared<SEntity>(2, "DirectionalLight"));
-		auto directionalLightEntity = Entities[1];
+		auto cameraEntity = CreateEntity("Camera");
 
 		// Setup entities (create components)
 		auto transform = AddTransformComponentToEntity(cameraEntity);
@@ -27,17 +24,19 @@ namespace Havtorn
 		transform->Transform.Rotate({ 0.0f, UMath::DegToRad(35.0f), 0.0f });
 		transform->Transform.Translate(SVector::Right * 0.25f);
 
-		AddTransformComponentToEntity(directionalLightEntity);
-
 		auto camera = AddCameraComponentToEntity(cameraEntity);
 		camera->ProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(70.0f), (16.0f / 9.0f), 0.1f, 1000.0f);
 		camera->ViewMatrix = SMatrix::LookAtLH(SVector::Zero, SVector::Forward, SVector::Up);
 
+		auto directionalLightEntity = CreateEntity("Directional Light");
+
+		AddTransformComponentToEntity(directionalLightEntity);
+
 		auto directionalLight = AddDirectionalLightComponentToEntity(directionalLightEntity);
-		directionalLight->Direction = { 0.0f, 1.0f, -1.0f, 0.0f };
+		directionalLight->Direction = { -1.0f, 1.0f, -1.0f, 0.0f };
 		directionalLight->Color = { 212.0f / 255.0f, 175.0f / 255.0f, 55.0f / 255.0f, 0.25f };
 		directionalLight->ShadowmapView.ShadowmapViewportIndex = 0;
-		directionalLight->ShadowmapView.ShadowProjectionMatrix = SMatrix::OrthographicLH(DirectionalLightComponents.back()->ShadowViewSize.X, DirectionalLightComponents.back()->ShadowViewSize.Y, -8.0f, 8.0f);
+		directionalLight->ShadowmapView.ShadowProjectionMatrix = SMatrix::OrthographicLH(directionalLight->ShadowViewSize.X, directionalLight->ShadowViewSize.Y, -8.0f, 8.0f);
 
 		InitDemoScene(renderManager);
 
@@ -54,9 +53,7 @@ namespace Havtorn
 
 	void CScene::InitDemoScene(CRenderManager* renderManager)
 	{
-		U64 newID = Entities.back()->ID + 1;
-		Entities.emplace_back(std::make_shared<SEntity>(newID, "Point Light"));
-		auto pointLightEntity = Entities.back();
+		auto pointLightEntity = CreateEntity("Point Light");
 
 		// Setup entities (create components)
 		auto pointLightTransform = AddTransformComponentToEntity(pointLightEntity);
@@ -119,9 +116,7 @@ namespace Havtorn
 		const std::vector<std::string> materialNames3 = { "T_Quad" };
 
 		// === Pendulum ===
-		newID = Entities.back()->ID + 1;
-		Entities.emplace_back(std::make_shared<SEntity>(newID, "Clock"));
-		auto pendulum = Entities.back();
+		auto pendulum = CreateEntity("Clock");
 
 		auto& transform1 = AddTransformComponentToEntity(pendulum)->Transform;
 		transform1.GetMatrix().Translation({1.75f, 0.0f, 0.25f});
@@ -131,9 +126,7 @@ namespace Havtorn
 		// === !Pendulum ===
 
 		// === Bed ===
-		newID = Entities.back()->ID + 1;
-		Entities.emplace_back(std::make_shared<SEntity>(newID, "Bed"));
-		auto bed = Entities.back();
+		auto bed = CreateEntity("Bed");
 
 		auto& transform2 = AddTransformComponentToEntity(bed)->Transform;
 		transform2.GetMatrix().Translation({ 0.25f, 0.0f, 0.25f });
@@ -157,17 +150,13 @@ namespace Havtorn
 		translations.emplace_back(1.0f, 0.0f, 0.0f);
 		translations.emplace_back(2.0f, 0.0f, 0.0f);
 
-		U16 meshStartIndex = 2;
 		for (U8 i = 0; i < 12; ++i)
 		{
-			newID = Entities.back()->ID + 1;
-			Entities.emplace_back(std::make_shared<SEntity>(newID, "Floor"));
-			auto floor = Entities.back();
+			auto floor = CreateEntity("Floor");
 
 			auto& transform3 = AddTransformComponentToEntity(floor)->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)));
-			//transform3.Rotate({ 0.0f, 0.0f, -90.0f });
 
 			renderManager->LoadStaticMeshComponent(modelPath3, AddStaticMeshComponentToEntity(floor).get());
 			renderManager->LoadMaterialComponent(materialNames3, AddMaterialComponentToEntity(floor).get());
@@ -189,17 +178,13 @@ namespace Havtorn
 		translations.emplace_back(1.0f, 2.5f, 0.5f);
 		translations.emplace_back(2.0f, 2.5f, 0.5f);
 
-		meshStartIndex = 14;
 		for (U8 i = 0; i < 12; ++i)
 		{
-			newID = Entities.back()->ID + 1;
-			Entities.emplace_back(std::make_shared<SEntity>(newID, "Wall"));
-			auto floor = Entities.back();
+			auto floor = CreateEntity("Wall");
 
 			auto& transform3 = AddTransformComponentToEntity(floor)->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundX(UMath::DegToRad(-90.0f)));
-			//transform3.Rotate({ -90.0f, 0.0f, -90.0f });
 
 			renderManager->LoadStaticMeshComponent(modelPath3, AddStaticMeshComponentToEntity(floor).get());
 			renderManager->LoadMaterialComponent(materialNames3, AddMaterialComponentToEntity(floor).get());
@@ -218,17 +203,13 @@ namespace Havtorn
 		translations.emplace_back(-1.0f, 2.5f, -1.5f);
 		translations.emplace_back(-1.0f, 2.5f, -0.5f);
 
-		meshStartIndex = 26;
 		for (U8 i = 0; i < 9; ++i)
 		{
-			newID = Entities.back()->ID + 1;
-			Entities.emplace_back(std::make_shared<SEntity>(newID, "Wall"));
-			auto floor = Entities.back();
+			auto floor = CreateEntity("Wall");
 
 			auto& transform3 = AddTransformComponentToEntity(floor)->Transform;
 			transform3.GetMatrix().Translation(translations[i]);
 			transform3.GetMatrix().SetRotation(SMatrix::CreateRotationAroundZ(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundX(UMath::DegToRad(-90.0f)) * SMatrix::CreateRotationAroundY(UMath::DegToRad(-90.0f)));
-			//transform3.Rotate({ -90.0f, -90.0f, -90.0f });
 			
 			renderManager->LoadStaticMeshComponent(modelPath3, AddStaticMeshComponentToEntity(floor).get());
 			renderManager->LoadMaterialComponent(materialNames3, AddMaterialComponentToEntity(floor).get());
@@ -236,9 +217,7 @@ namespace Havtorn
 		// === !Other Wall ===
 
 		// === Spotlight ===
-		newID = Entities.back()->ID + 1;
-		Entities.emplace_back(std::make_shared<SEntity>(newID, "SpotLight"));
-		auto spotlight = Entities.back();
+		auto spotlight = CreateEntity("SpotLight");
 
 		auto& spotlightTransform = AddTransformComponentToEntity(spotlight)->Transform;
 		spotlightTransform.Translate({ 1.5f, 0.5f, -1.0f });
@@ -248,7 +227,6 @@ namespace Havtorn
 		spotlightComp->DirectionNormal1 = SVector4::Right;
 		spotlightComp->DirectionNormal2 = SVector4::Up;
 		spotlightComp->ColorAndIntensity = { 0.0f, 1.0f, 0.0f, 5.0f };
-		spotlightComp->AngleExponent = 0.1f;
 		spotlightComp->OuterAngle = 25.0f;
 		spotlightComp->InnerAngle = 5.0f;
 		spotlightComp->Range = 3.0f;
@@ -261,6 +239,11 @@ namespace Havtorn
 		spotlightComp->ShadowmapView.ShadowViewMatrix = SMatrix::LookAtLH(spotlightPosition.ToVector3(), (spotlightPosition + spotlightComp->Direction).ToVector3(), spotlightComp->DirectionNormal2.ToVector3());
 		spotlightComp->ShadowmapView.ShadowProjectionMatrix = spotlightProjection;
 		// === !Spotlight ===
+	}
+
+	Ref<SEntity> CScene::CreateEntity(const std::string& name)
+	{
+		return Entities.emplace_back(std::make_shared<SEntity>(Entities.size()+1, name));
 	}
 
 	COMPONENT_ADDER_DEFINITION(TransformComponent)

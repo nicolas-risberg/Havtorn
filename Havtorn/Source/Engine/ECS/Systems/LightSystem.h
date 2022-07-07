@@ -5,12 +5,16 @@
 
 namespace Havtorn
 {
+	class CRenderManager;
 
-	class CLightSystem final : public CSystem {
+	class CLightSystem final : public CSystem 
+	{
 	public:
-		CLightSystem();
+		CLightSystem(CRenderManager* renderManager);
 		~CLightSystem() override = default;
 
 		void Update(CScene* scene) override;
+	private:
+		CRenderManager* RenderManager;
 	};
 }

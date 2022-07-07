@@ -488,10 +488,6 @@ namespace Havtorn
 					// Update lightbufferdata and fill lightbuffer
 					DirectionalLightBufferData.DirectionalLightDirection = directionalLightComp->Direction;
 					DirectionalLightBufferData.DirectionalLightColor = directionalLightComp->Color;
-					DirectionalLightBufferData.DirectionalLightPosition = directionalLightComp->ShadowmapView.ShadowPosition;
-					DirectionalLightBufferData.ToDirectionalLightView = directionalLightComp->ShadowmapView.ShadowViewMatrix;
-					DirectionalLightBufferData.ToDirectionalLightProjection = directionalLightComp->ShadowmapView.ShadowProjectionMatrix;
-					DirectionalLightBufferData.DirectionalLightShadowMapResolution = directionalLightComp->ShadowmapResolution;
 					BindBuffer(DirectionalLightBuffer, DirectionalLightBufferData, "Light Buffer");
 					Context->PSSetConstantBuffers(2, 1, &DirectionalLightBuffer);
 
@@ -606,9 +602,6 @@ namespace Havtorn
 					BindBuffer(PointLightBuffer, PointLightBufferData, "Spotlight Vertex Shader Buffer");
 					Context->VSSetConstantBuffers(3, 1, &PointLightBuffer);
 					
-					SpotLightBufferData.ToWorldFromObject = transformComponent->Transform.GetMatrix();
-					SpotLightBufferData.ToViewFromWorld = spotLightComp->ShadowmapView.ShadowViewMatrix;
-					SpotLightBufferData.ToProjectionFromView = spotLightComp->ShadowmapView.ShadowProjectionMatrix;
 					SpotLightBufferData.ColorAndIntensity = spotLightComp->ColorAndIntensity;
 					SpotLightBufferData.PositionAndRange = { position.X, position.Y, position.Z, spotLightComp->Range };
 					SpotLightBufferData.Direction = spotLightComp->Direction;
@@ -616,7 +609,6 @@ namespace Havtorn
 					SpotLightBufferData.DirectionNormal2 = spotLightComp->DirectionNormal2;
 					SpotLightBufferData.OuterAngle = spotLightComp->OuterAngle;
 					SpotLightBufferData.InnerAngle = spotLightComp->InnerAngle;
-					SpotLightBufferData.AngleExponent = spotLightComp->AngleExponent;
 					
 					BindBuffer(SpotLightBuffer, SpotLightBufferData, "Spotlight Pixel Shader Buffer");
 					Context->PSSetConstantBuffers(3, 1, &SpotLightBuffer);
@@ -1250,6 +1242,11 @@ namespace Havtorn
 	EMaterialConfiguration CRenderManager::GetMaterialConfiguration() const
 	{
 		return MaterialConfiguration;
+	}
+
+	SVector2<F32> CRenderManager::GetShadowAtlasResolution() const
+	{
+		return ShadowAtlasResolution;
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const

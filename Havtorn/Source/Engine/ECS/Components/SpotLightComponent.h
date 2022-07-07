@@ -20,8 +20,6 @@ namespace Havtorn
 		SVector2<F32> ShadowViewSize = { 8.0f, 8.0f };
 		F32 OuterAngle = 90.0f;
 		F32 InnerAngle = 45.0f;
-		// TODO.NR: Figure out if this can be removed
-		F32 AngleExponent = 1.0f;
 		F32 Range = 1.0f;
 	};
 }

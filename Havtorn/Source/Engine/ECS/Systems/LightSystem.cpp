@@ -7,11 +7,13 @@
 #include "ECS/Components/SpotLightComponent.h"
 #include "ECS/Components/TransformComponent.h"
 #include "ECS/Components/CameraComponent.h"
+#include "Graphics/RenderManager.h"
 
 namespace Havtorn
 {
-	CLightSystem::CLightSystem()
+	CLightSystem::CLightSystem(CRenderManager* renderManager)
 		: CSystem()
+		, RenderManager(renderManager)
 	{}
 
 	void CLightSystem::Update(CScene* scene)
@@ -30,13 +32,10 @@ namespace Havtorn
 
 		directionalLightComp->ShadowmapView.ShadowPosition = transformComp->Transform.GetMatrix().Translation4();
 		directionalLightComp->ShadowmapView.ShadowPosition.Y = 4.0f;
-		static float counter = 0.0f;
-		counter += CTimer::Dt();
-		//directionalLightComp->Direction = { -1.0f/*UMath::Sin(counter)*/, 1.0f, -1.0f, 0.0f };
 
 		// Round to pixel positions
 		SVector position = { directionalLightComp->ShadowmapView.ShadowPosition.X, directionalLightComp->ShadowmapView.ShadowPosition.Y, directionalLightComp->ShadowmapView.ShadowPosition.Z };
-		const SVector2<F32> unitsPerPixel = directionalLightComp->ShadowViewSize / directionalLightComp->ShadowmapResolution;
+		const SVector2<F32> unitsPerPixel = directionalLightComp->ShadowViewSize / RenderManager->GetShadowAtlasResolution();
 
 		auto shadowTransform = SMatrix();
 		const F32 radiansY = atan2(-directionalLightComp->Direction.X, -directionalLightComp->Direction.Z);
@@ -82,12 +81,11 @@ namespace Havtorn
 		if (GetAsyncKeyState('K'))
 			move += moveSpeed * SVector4::Down * CTimer::Dt();
 
-		counter2 = UMath::Clamp(counter2, 0.001f);
 
 		transformComponents[pointLightComp->Entity->GetComponentIndex(EComponentType::TransformComponent)]->Transform.Translate(move);
 		SVector4 constantPosition = transformComponents[pointLightComp->Entity->GetComponentIndex(EComponentType::TransformComponent)]->Transform.GetMatrix().Translation4();
 
-		const SMatrix constantProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, UMath::Abs(UMath::Sin(counter2)), pointLightComp->Range);
+		const SMatrix constantProjectionMatrix = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.01f, pointLightComp->Range);
 
 		// Forward
 		SShadowmapViewData& view1 = pointLightComp->ShadowmapViews[0];
