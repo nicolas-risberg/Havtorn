@@ -9,8 +9,8 @@
 
 namespace ImGui
 {
-	CViewportWindow::CViewportWindow(const char* aName, Havtorn::CImguiManager* manager)
-		: CWindow(aName, manager)
+	CViewportWindow::CViewportWindow(const char* name, Havtorn::CImguiManager* manager)
+		: CWindow(name, manager)
 		, RenderedSceneTextureReference(nullptr)
 	{
 	}

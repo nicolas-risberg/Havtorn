@@ -21,6 +21,40 @@ namespace Havtorn
 		BinaryWrite
 	};
 
+	struct SFilePath
+	{
+		SFilePath(const std::filesystem::directory_entry& directoryEntry)
+			: InternalPath(directoryEntry.path())
+		{}
+
+		SFilePath(const std::filesystem::path& path)
+			: InternalPath(path)
+		{}
+
+		const std::string GetPath()
+		{
+			return InternalPath.relative_path().string();
+		}
+
+		const std::string Filename() 
+		{
+			return InternalPath.filename().string();
+		}
+
+		const std::string Directory()
+		{
+			return InternalPath.parent_path().string();
+		}
+
+		const std::string Extension()
+		{
+			return InternalPath.extension().string();
+		}
+
+	private:
+		std::filesystem::path InternalPath;
+	};
+
 	class CFileSystem
 	{
 	public:
@@ -32,13 +66,11 @@ namespace Havtorn
 		void OpenFile(const std::string& fileName, EFileMode mode);
 		void CloseFile(EFileMode mode);
 
-		void Serialize(const SVector& data, std::string fileName, ESerializeMode mode);
-		void DeSerialize(const SVector& data, std::string fileName, ESerializeMode mode);
-
 		void Serialize(const std::string& fileName, const char* data, U32 size);
 		void Deserialize(const std::string& fileName, char* data, U32 size);
 		U64 GetFileSize(const std::string& fileName) const;
 
+		void IterateThroughFiles(const std::string& root);
 	private:
 		std::ifstream InputStream;
 		std::ofstream OutputStream;

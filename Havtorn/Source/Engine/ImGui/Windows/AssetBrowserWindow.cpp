@@ -7,8 +7,8 @@
 
 namespace ImGui
 {
-	CAssetBrowserWindow::CAssetBrowserWindow(const char* aName, Havtorn::CImguiManager* manager)
-		: CWindow(aName, manager)
+	CAssetBrowserWindow::CAssetBrowserWindow(const char* name, Havtorn::CImguiManager* manager)
+		: CWindow(name, manager)
 	{
 	}
 

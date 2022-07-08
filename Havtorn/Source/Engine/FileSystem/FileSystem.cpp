@@ -116,5 +116,19 @@ namespace Havtorn
 	{
 		return std::filesystem::file_size(fileName);
 	}
+	void CFileSystem::IterateThroughFiles(const std::string& root)
+	{
+		using DirectoryIterator = std::filesystem::recursive_directory_iterator;
+		
+		for (const auto& dirEntry : DirectoryIterator(root))
+		{
+			SFilePath filePath = dirEntry;
+
+			HV_LOG_TRACE("Dir: %s", filePath.Directory().c_str());
+			HV_LOG_TRACE("Filename: %s", filePath.Filename().c_str());
+			HV_LOG_TRACE("Extension: %s", filePath.Extension().c_str());
+			HV_LOG_TRACE("Path: %s", filePath.GetPath().c_str());
+		}
+	}
 }
 
