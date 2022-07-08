@@ -7,7 +7,7 @@
 namespace Havtorn
 {
 
-#define NO_FRAMES_TO_AVERAGE 1500
+#define NO_FRAMES_TO_AVERAGE 100
 
 	class CTimer 
 	{

@@ -18,6 +18,7 @@ namespace Havtorn
 	struct SDirectionalLightComponent;
 	struct SPointLightComponent;
 	struct SSpotLightComponent;
+
 	class CSystem;
 	class CRenderManager;
 

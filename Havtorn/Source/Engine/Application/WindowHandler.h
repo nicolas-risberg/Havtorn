@@ -13,10 +13,10 @@ namespace Havtorn
 	public:
 		struct SWindowData
 		{
-			U16 myX;
-			U16 myY;
-			U16 myWidth;
-			U16 myHeight;
+			U16 X = 0;
+			U16 Y = 0;
+			U16 Width = 1280;
+			U16 Height = 720;
 		};
 
 		static LRESULT CALLBACK WinProc(_In_ HWND hwnd, _In_ UINT uMsg, _In_ WPARAM wParam, _In_ LPARAM lParam);
@@ -28,28 +28,28 @@ namespace Havtorn
 		SVector2<F32> GetCenterPosition();
 		SVector2<F32> GetResolution();
 		const float GetResolutionScale() const;
-		void SetWindowTitle(std::string aString);
+		void SetWindowTitle(const std::string& title);
 
 		const bool CursorLocked() const;
-		void LockCursor(bool aShouldLock);
-		void HidLockCursor(bool aShouldLock);
+		void LockCursor(bool shouldLock);
+		void HidLockCursor(bool shouldLock);
 
-		void HideAndLockCursor(const bool& anIsInEditorMode = false);
-		void ShowAndUnlockCursor(const bool& anIsInEditorMode = true);
+		void HideAndLockCursor(const bool& isInEditorMode = false);
+		void ShowAndUnlockCursor(const bool& isInEditorMode = true);
 
 	private:
-		bool Init(CWindowHandler::SWindowData someWindowData);
+		bool Init(CWindowHandler::SWindowData windowData);
 		void SetInternalResolution();
-		void SetResolution(SVector2<F32> aResolution);
+		void SetResolution(SVector2<F32> resolution);
 
 	private:
-		CWindowHandler::SWindowData WindowData;
-		HWND WindowHandle;
-		SVector2<F32>* Resolution;
-		F32 ResolutionScale;
+		CWindowHandler::SWindowData WindowData = {};
+		HWND WindowHandle = 0;
+		SVector2<F32>* Resolution = nullptr;
+		F32 ResolutionScale = 1.0f;
 		U16 MaxResX = 1920;
 		U16 MaxResY = 1080;
-		bool CursorIsLocked;
-		bool WindowIsInEditingMode;
+		bool CursorIsLocked = false;
+		bool WindowIsInEditingMode = false;
 	};
 }

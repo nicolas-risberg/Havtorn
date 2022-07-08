@@ -4,7 +4,6 @@
 
 #include "Core/Core.h"
 
-#include "Window.h"
 #include "Event/Event.h"
 #include "Event/ApplicationEvent.h"
 #include "LayerStack.h"
@@ -26,9 +25,6 @@ namespace Havtorn
 
 		void OnEvent(CEvent& e);
 
-		void ConstDelegateTest() const;
-		void DelegateTest();
-
 		void PushLayer(CLayer* layer);
 		void PushOverlay(CLayer* overlay);
 		
@@ -37,7 +33,6 @@ namespace Havtorn
 
 	private:
 		class CEngine* Engine;
-		IWindow* Window;
 		bool IsRunning = true;
 		CLayerStack LayerStack;
 	};

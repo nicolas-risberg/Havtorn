@@ -13,34 +13,17 @@ namespace Havtorn
 	CApplication::CApplication()
 		: Engine(new CEngine())
 	{
-		Window = IWindow::Create();
-		//Window->SetEventCallback(BIND_EVENT_FUNCTION(OnEvent));
-
 		CWindowHandler::SWindowData windowData;
-		windowData.myX = 100;
-		windowData.myY = 100;
-		windowData.myWidth = 1280;
-		windowData.myHeight = 720;
+		windowData.X = 100;
+		windowData.Y = 100;
+		windowData.Width = 1280;
+		windowData.Height = 720;
 
 		IsRunning = Engine->Init(windowData);
 	}
 
 	void CApplication::Run()
 	{
-		//while (IsRunning)
-		//{
-		//	//for (CLayer* layer : LayerStack)
-		//	//	layer->OnUpdate();
-
-		//	//Window->OnUpdate();
-		//	//if (GetAsyncKeyState('V'))
-		//	//{
-		//	//	IsRunning = false;
-		//	//}
-		//}
-		//CWindowResizeEvent e(1280, 720);
-		//HV_LOG_TRACE("{0}", e);
-
 		MSG windowMessage = { 0 };
 		while (IsRunning)
 		{
@@ -50,15 +33,10 @@ namespace Havtorn
 				DispatchMessage(&windowMessage);
 
 				if (windowMessage.message == WM_QUIT)
-				{
 					IsRunning = false;
-				}
 			}
 
-			//PrintMemoryUsage();
 			Engine->BeginFrame();
-			//if (!game.Update())
-			//	break;
 			Engine->Update();
 			Engine->RenderFrame();
 			Engine->EndFrame();

@@ -23,98 +23,77 @@ namespace Havtorn
 	{
 	public:
 
-		static void EngineErrorMessage(HRESULT result, const int line, const char* function, const char* file, const char* aFormattedMessage, ...)
+		static void EngineErrorMessage(HRESULT result, const int line, const char* function, const char* file, const char* formattedMessage, ...)
 		{
 			_com_error err(result);
 			LPCTSTR error_msg = err.ErrorMessage();
 			std::wstring wstr;
-			std::wstring aFileString = stringToWstring(file);
-			std::wstring aFunctionString = stringToWstring(function);
+			std::wstring fileString = StringToWstring(file);
+			std::wstring functionString = StringToWstring(function);
 			va_list argptr;
-			va_start(argptr, aFormattedMessage);
-			std::string str{ string_vsprintf(aFormattedMessage, argptr) };
-			std::wstring aWideFormattedMessage = stringToWstring(str);
+			va_start(argptr, formattedMessage);
+			std::string str{ StringVSprintf(formattedMessage, argptr) };
+			std::wstring wideFormattedMessage = StringToWstring(str);
 
 			wstr.append(L"\nERROR: ");
 			wstr.append(error_msg);
 			wstr.append(L"\n_____________________");
 			wstr.append(L"\n\nFILE:\n");
-			wstr.append(aFileString);
+			wstr.append(fileString);
 			wstr.append(L"\n\nFUNCTION:\n");
-			wstr.append(aFunctionString);
+			wstr.append(functionString);
 			wstr.append(L"\n\nLINE:\n");
 			wstr.append(std::to_wstring(line));
 			wstr.append(L"\n\nFURTHER INFO:\n");
-			wstr.append(aWideFormattedMessage);
+			wstr.append(wideFormattedMessage);
 			MessageBox(0, wstr.c_str(), L"ENGINE EXCEPTION", MB_ICONERROR);
 		}
 
-		static void EngineErrorMessage(const int line, const char* function, const char* file, const char* aFormattedMessage, ...)
+		static void EngineErrorMessage(const int line, const char* function, const char* file, const char* formattedMessage, ...)
 		{
 			std::wstring wstr;
-			std::wstring aFileString = stringToWstring(file);
-			std::wstring aFunctionString = stringToWstring(function);
+			std::wstring fileString = StringToWstring(file);
+			std::wstring functionString = StringToWstring(function);
 			va_list argptr;
-			va_start(argptr, aFormattedMessage);
-			std::string str{ string_vsprintf(aFormattedMessage, argptr) };
-			std::wstring aWideFormattedMessage = stringToWstring(str);
+			va_start(argptr, formattedMessage);
+			std::string str{ StringVSprintf(formattedMessage, argptr) };
+			std::wstring wideFormattedMessage = StringToWstring(str);
 
 			wstr.append(L"\nERROR: ");
 			wstr.append(L"Error occurred in engine.");
 			wstr.append(L"\n_____________________");
 			wstr.append(L"\n\nFILE:\n");
-			wstr.append(aFileString);
+			wstr.append(fileString);
 			wstr.append(L"\n\nFUNCTION:\n");
-			wstr.append(aFunctionString);
+			wstr.append(functionString);
 			wstr.append(L"\n\nLINE:\n");
 			wstr.append(std::to_wstring(line));
 			wstr.append(L"\n\nFURTHER INFO:\n");
-			wstr.append(aWideFormattedMessage);
+			wstr.append(wideFormattedMessage);
 			MessageBox(0, wstr.c_str(), L"ENGINE EXCEPTION", MB_ICONERROR);
 		}
 
-		static std::wstring stringToWstring(const std::string& t_str)
+		static std::wstring StringToWstring(const std::string& str)
 		{
 #pragma warning(suppress : 4244)
-			return std::wstring(t_str.begin(), t_str.end());
+			return std::wstring(str.begin(), str.end());
 		}
 
-		static std::string string_vsprintf(const char* format, std::va_list args)
+		static std::string StringVSprintf(const char* format, std::va_list args)
 		{
-			va_list tmp_args; //unfortunately you cannot consume a va_list twice
-			va_copy(tmp_args, args); //so we have to copy it
-			const int required_len = _vscprintf(format, tmp_args) + 1;
-			va_end(tmp_args);
+			// Unfortunately you cannot consume a va_list twice, so we have to copy it
+			va_list tempArgs; 
+			va_copy(tempArgs, args);
+			const int requiredLength = _vscprintf(format, tempArgs) + 1;
+			va_end(tempArgs);
 
 			char buff[4096];
-			memset(buff, 0, required_len);
-			if (vsnprintf_s(buff, required_len, format, args) < 0)
+			memset(buff, 0, requiredLength);
+			if (vsnprintf_s(buff, requiredLength, format, args) < 0)
 			{
-				return "string_vsprintf encoding error";
+				return "StringVSprintf encoding error";
 			}
 			return std::string(buff);
 		}
 	};
 }
-//CustomMessageBox(0, wstr.c_str(), L"ENGINE EXCEPTION", MB_OK, IDI_ICON1);
-
-//static int CustomMessageBox(HWND hWnd,
-//	LPCTSTR lpText,
-//	LPCTSTR lpCaption,
-//	UINT uType,
-//	UINT uIconResID)
-//{
-//	MSGBOXPARAMS mbp;
-//	mbp.cbSize = sizeof(MSGBOXPARAMS);
-//	mbp.hwndOwner = hWnd;
-//	mbp.hInstance = GetModuleHandle(NULL);
-//	mbp.lpszText = lpText;
-//	mbp.lpszCaption = lpCaption;
-//	mbp.dwStyle = uType | MB_USERICON;
-//	mbp.dwLanguageId = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
-//	mbp.lpfnMsgBoxCallback = NULL;
-//	mbp.dwContextHelpId = 0;
-//	mbp.lpszIcon = MAKEINTRESOURCE(uIconResID);
-
-//	return MessageBoxIndirect(&mbp);
-//}
