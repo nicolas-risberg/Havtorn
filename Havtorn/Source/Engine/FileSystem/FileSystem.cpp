@@ -10,6 +10,8 @@ using std::fstream;
 
 namespace Havtorn
 {
+	using DirectoryIterator = std::filesystem::recursive_directory_iterator;
+
 	CFileSystem::CFileSystem()
 		: AssetsPath("Assets/")
 	{
@@ -116,10 +118,14 @@ namespace Havtorn
 	{
 		return std::filesystem::file_size(fileName);
 	}
-	void CFileSystem::IterateThroughFiles(const std::string& root)
+
+	std::filesystem::recursive_directory_iterator CFileSystem::GetDirectoryIterator(const std::string& root)
 	{
-		using DirectoryIterator = std::filesystem::recursive_directory_iterator;
-		
+		return DirectoryIterator(root);
+	}
+
+	void CFileSystem::IterateThroughFiles(const std::string& root)
+	{		
 		for (const auto& dirEntry : DirectoryIterator(root))
 		{
 			SFilePath filePath = dirEntry;

@@ -70,6 +70,7 @@ namespace Havtorn
 		void Deserialize(const std::string& fileName, char* data, U32 size);
 		U64 GetFileSize(const std::string& fileName) const;
 
+		std::filesystem::recursive_directory_iterator GetDirectoryIterator(const std::string& root);
 		void IterateThroughFiles(const std::string& root);
 	private:
 		std::ifstream InputStream;

@@ -4,12 +4,18 @@
 #include "AssetBrowserWindow.h"
 #include <imgui.h>
 #include "Imgui/ImguiManager.h"
+#include "Engine.h"
+#include "FileSystem\FileSystem.h"
 
 namespace ImGui
 {
+	using Havtorn::F32;
+
 	CAssetBrowserWindow::CAssetBrowserWindow(const char* name, Havtorn::CImguiManager* manager)
 		: CWindow(name, manager)
+		, FileSystem(Havtorn::CEngine::GetInstance()->GetFileSystem())
 	{
+		CurrentDirectory = std::filesystem::path(DefaultAssetPath);
 	}
 
 	CAssetBrowserWindow::~CAssetBrowserWindow()
@@ -30,6 +36,58 @@ namespace ImGui
 
 		if (ImGui::Begin(Name(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus))
 		{
+			if (CurrentDirectory != std::filesystem::path(DefaultAssetPath))
+			{
+				if (ImGui::Button("<-"))
+				{
+					CurrentDirectory = CurrentDirectory.parent_path();
+				}
+			}
+
+			F32 thumbnailPadding = 8.0f;
+			F32 cellWidth = ThumbnailSize.X + thumbnailPadding;
+			F32 panelWidth = ImGui::GetContentRegionAvail().x;
+			Havtorn::I32 columnCount = static_cast<Havtorn::I32>(panelWidth / cellWidth);
+
+			if (ImGui::BeginTable("FileStructure", columnCount))
+			{
+				for (const auto& dir : std::filesystem::directory_iterator(CurrentDirectory))
+				{
+					ImGui::TableNextColumn();
+
+					const auto& path = dir.path();
+					auto relativePath = std::filesystem::relative(path);
+					std::string filenameString = relativePath.filename().string();
+
+					if (dir.is_directory())
+					{	
+						if (ImGui::Button(filenameString.c_str(), { ThumbnailSize.X, ThumbnailSize.Y }))
+						{
+							CurrentDirectory /= path.filename();
+						}
+						
+						ImGui::Text(filenameString.c_str());
+						if (ImGui::IsItemHovered())
+							ImGui::SetTooltip(filenameString.c_str());
+					}
+					else
+					{
+						if (ImGui::Button(filenameString.c_str(), { ThumbnailSize.X, ThumbnailSize.Y }))
+						{
+
+						}
+
+						ImGui::Text(filenameString.c_str());
+						if (ImGui::IsItemHovered())
+							ImGui::SetTooltip(filenameString.c_str());
+					}
+				}
+
+				ImGui::EndTable();
+			}
+
+
+
 		}
 		ImGui::End();
 	}
