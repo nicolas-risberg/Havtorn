@@ -26,6 +26,15 @@ namespace Havtorn
 
 		case Havtorn::EEditorTexture::FileIcon:
 			return ResourceAssetPath + "FileIcon" + extension;
+
+		case Havtorn::EEditorTexture::PlayIcon:
+			return ResourceAssetPath + "PlayIcon" + extension;
+
+		case Havtorn::EEditorTexture::PauseIcon:
+			return ResourceAssetPath + "PauseIcon" + extension;
+
+		case Havtorn::EEditorTexture::StopIcon:
+			return ResourceAssetPath + "StopIcon" + extension;
 		
 		case Havtorn::EEditorTexture::Count:
 		default:

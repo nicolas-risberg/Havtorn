@@ -23,5 +23,6 @@ namespace ImGui
 
 	private:
 		const Havtorn::CFullscreenTexture* RenderedSceneTextureReference;
+		Havtorn::F32 ViewportMenuHeight = 16.0f;
 	};
 }

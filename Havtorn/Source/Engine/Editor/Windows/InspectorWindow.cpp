@@ -133,14 +133,14 @@ namespace ImGui
 
 	void CInspectorWindow::InspectMaterialComponent(Havtorn::I64 materialComponentIndex)
 	{
+		auto& materialComp = Scene->GetMaterialComponents()[materialComponentIndex];
+		auto renderManager = Manager->GetRenderManager();
+
 		if (ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			auto& materialComp = Scene->GetMaterialComponents()[materialComponentIndex];
-			auto renderManager = Manager->GetRenderManager();
-
 			Havtorn::EMaterialConfiguration materialConfig = renderManager->GetMaterialConfiguration();
 
-			for (Havtorn::U64 materialIndex = 0; materialIndex < materialComp->MaterialReferences.size(); ++materialIndex)
+			for (Havtorn::U16 materialIndex = 0; materialIndex < materialComp->MaterialReferences.size(); materialIndex++)
 			{
 				switch (materialConfig)
 				{
@@ -167,6 +167,7 @@ namespace ImGui
 				Havtorn::I64 ref = materialComp->MaterialReferences[materialIndex];
 				if (ImGui::ImageButton((void*)renderManager->GetTexture(ref), { TexturePreviewSize.X, TexturePreviewSize.Y }))
 				{
+					MaterialRefToChangeIndex = materialIndex;
 					ImGui::OpenPopup("Select Texture Asset");
 					ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 				}
@@ -175,10 +176,34 @@ namespace ImGui
 
 		if (ImGui::BeginPopupModal("Select Texture Asset", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			if (ImGui::Button("OK", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
-			ImGui::SetItemDefaultFocus();
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+			auto& textures = renderManager->GetTextures();
+			F32 thumbnailPadding = 4.0f;
+			F32 cellWidth = TexturePreviewSize.X * 0.75f + thumbnailPadding;
+			F32 panelWidth = 256.0f;
+			Havtorn::I32 columnCount = static_cast<Havtorn::I32>(panelWidth / cellWidth);
+			Havtorn::U32 id = 0;
+
+			if (ImGui::BeginTable("NewTextureAssetTable", columnCount))
+			{
+				for (Havtorn::U16 index = 0; index < textures.size(); index++)
+				{
+					ImGui::TableNextColumn();
+					ImGui::PushID(id++);
+
+					if (ImGui::ImageButton((void*)textures[index], { TexturePreviewSize.X * 0.75f, TexturePreviewSize.Y * 0.75f }))
+					{
+						materialComp->MaterialReferences[MaterialRefToChangeIndex] = index;
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::PopID();
+				}
+
+				ImGui::EndTable();
+			}
+
+			if (ImGui::Button("Cancel", ImVec2(270.0f, 0))) { ImGui::CloseCurrentPopup(); }
+
 			ImGui::EndPopup();
 		}
 	}

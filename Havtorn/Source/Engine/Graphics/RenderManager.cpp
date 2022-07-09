@@ -1239,6 +1239,11 @@ namespace Havtorn
 		return Textures[textureIndex];
 	}
 
+	const std::vector<ID3D11ShaderResourceView*>& CRenderManager::GetTextures() const
+	{
+		return Textures;
+	}
+
 	EMaterialConfiguration CRenderManager::GetMaterialConfiguration() const
 	{
 		return MaterialConfiguration;

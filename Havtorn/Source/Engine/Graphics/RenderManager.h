@@ -79,6 +79,7 @@ namespace Havtorn
 		void LoadMaterialComponent(const std::vector<std::string>& materialNames, SMaterialComponent* outMaterialComponent);
 
 		ID3D11ShaderResourceView* GetTexture(I64 textureIndex) const;
+		const std::vector<ID3D11ShaderResourceView*>& GetTextures() const;
 		EMaterialConfiguration GetMaterialConfiguration() const;
 		SVector2<F32> GetShadowAtlasResolution() const;
 

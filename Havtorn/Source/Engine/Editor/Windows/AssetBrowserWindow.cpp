@@ -80,7 +80,7 @@ namespace ImGui
 					{
 						if (ImGui::ImageButton(fileIconID, { ThumbnailSize.X, ThumbnailSize.Y }))
 						{
-
+							// NR: Open Tool depending on asset type
 						}
 
 						ImGui::Text(filenameString.c_str());

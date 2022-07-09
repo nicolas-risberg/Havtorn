@@ -34,6 +34,7 @@ namespace ImGui
 		Havtorn::SVector2<Havtorn::F32> TexturePreviewSize = { 64.0f, 64.0f };
 		Havtorn::SVector2<Havtorn::F32> DummySize = { 0.0f, 0.5f };
 		Havtorn::F32 SlideSpeed = 0.1f;
+		Havtorn::U16 MaterialRefToChangeIndex = 0;
 		bool SelectTextureWindowOpen = false;
 	};
 }

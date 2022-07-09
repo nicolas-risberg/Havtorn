@@ -12,6 +12,9 @@ namespace Havtorn
 	{
 		FolderIcon,
 		FileIcon,
+		PlayIcon,
+		PauseIcon,
+		StopIcon,
 		Count
 	};
 
