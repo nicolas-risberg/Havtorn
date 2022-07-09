@@ -20,6 +20,7 @@ namespace Havtorn
 	class CGraphicsFramework;
 	class CWindowHandler;
 	class CRenderManager;
+	class CEditorResourceManager;
 	class CScene;
 
 	enum class EEditorColorTheme
@@ -85,6 +86,7 @@ namespace Havtorn
 		void SetViewportPadding(const F32 padding);
 	
 		[[nodiscard]] const CRenderManager* GetRenderManager() const;
+		[[nodiscard]] const CEditorResourceManager* GetResourceManager() const;
 
 		void ToggleDebugInfo();
 		void ToggleDemo();
@@ -99,6 +101,7 @@ namespace Havtorn
 
 	private:
 		const CRenderManager* RenderManager = nullptr;
+		CEditorResourceManager* ResourceManager = nullptr;
 
 		Ref<SEntity> SelectedEntity = nullptr;
 

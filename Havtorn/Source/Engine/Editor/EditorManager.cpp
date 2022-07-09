@@ -17,6 +17,7 @@
 #include "Graphics/RenderManager.h"
 #include "ECS/ECSInclude.h"
 //#include "JsonReader.h"
+#include "EditorResourceManager.h"
 #include "EditorWindows.h"
 #include "EditorToggleables.h"
 //#include "PostMaster.h"
@@ -33,6 +34,7 @@ namespace Havtorn
 	CEditorManager::~CEditorManager()
 	{
 		RenderManager = nullptr;
+		SAFE_DELETE(ResourceManager);
 		ImGui_ImplWin32_Shutdown();
 		ImGui_ImplDX11_Shutdown();
 		ImGui::DestroyContext();
@@ -69,6 +71,11 @@ namespace Havtorn
 			return false;
 
 		RenderManager = renderManager;
+
+		ResourceManager = new CEditorResourceManager();
+		success = ResourceManager->Init(framework);
+		if (!success)
+			return false;
 
 		return success;
 	}
@@ -275,6 +282,11 @@ namespace Havtorn
 	const CRenderManager* CEditorManager::GetRenderManager() const
 	{
 		return RenderManager;
+	}
+
+	const CEditorResourceManager* CEditorManager::GetResourceManager() const
+	{
+		return ResourceManager;
 	}
 
 	void CEditorManager::ToggleDebugInfo()

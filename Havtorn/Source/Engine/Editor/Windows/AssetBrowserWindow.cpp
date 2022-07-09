@@ -4,6 +4,7 @@
 #include "AssetBrowserWindow.h"
 #include <imgui.h>
 #include "Editor/EditorManager.h"
+#include "Editor/EditorResourceManager.h"
 #include "Engine.h"
 #include "FileSystem\FileSystem.h"
 
@@ -49,11 +50,16 @@ namespace ImGui
 			F32 panelWidth = ImGui::GetContentRegionAvail().x;
 			Havtorn::I32 columnCount = static_cast<Havtorn::I32>(panelWidth / cellWidth);
 
+			void* folderIconID = (void*)Manager->GetResourceManager()->GetEditorTexture(Havtorn::EEditorTexture::FolderIcon);
+			void* fileIconID = (void*)Manager->GetResourceManager()->GetEditorTexture(Havtorn::EEditorTexture::FileIcon);
+
+			Havtorn::U32 id = 0;
 			if (ImGui::BeginTable("FileStructure", columnCount))
 			{
 				for (const auto& dir : std::filesystem::directory_iterator(CurrentDirectory))
 				{
 					ImGui::TableNextColumn();
+					ImGui::PushID(id++);
 
 					const auto& path = dir.path();
 					auto relativePath = std::filesystem::relative(path);
@@ -61,7 +67,7 @@ namespace ImGui
 
 					if (dir.is_directory())
 					{	
-						if (ImGui::Button(filenameString.c_str(), { ThumbnailSize.X, ThumbnailSize.Y }))
+						if (ImGui::ImageButton(folderIconID, { ThumbnailSize.X, ThumbnailSize.Y }))
 						{
 							CurrentDirectory /= path.filename();
 						}
@@ -72,7 +78,7 @@ namespace ImGui
 					}
 					else
 					{
-						if (ImGui::Button(filenameString.c_str(), { ThumbnailSize.X, ThumbnailSize.Y }))
+						if (ImGui::ImageButton(fileIconID, { ThumbnailSize.X, ThumbnailSize.Y }))
 						{
 
 						}
@@ -81,6 +87,8 @@ namespace ImGui
 						if (ImGui::IsItemHovered())
 							ImGui::SetTooltip(filenameString.c_str());
 					}
+
+					ImGui::PopID();
 				}
 
 				ImGui::EndTable();
