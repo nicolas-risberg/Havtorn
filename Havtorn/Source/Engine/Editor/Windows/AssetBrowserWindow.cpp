@@ -3,7 +3,7 @@
 #include "hvpch.h"
 #include "AssetBrowserWindow.h"
 #include <imgui.h>
-#include "Imgui/ImguiManager.h"
+#include "Editor/EditorManager.h"
 #include "Engine.h"
 #include "FileSystem\FileSystem.h"
 
@@ -11,7 +11,7 @@ namespace ImGui
 {
 	using Havtorn::F32;
 
-	CAssetBrowserWindow::CAssetBrowserWindow(const char* name, Havtorn::CImguiManager* manager)
+	CAssetBrowserWindow::CAssetBrowserWindow(const char* name, Havtorn::CEditorManager* manager)
 		: CWindow(name, manager)
 		, FileSystem(Havtorn::CEngine::GetInstance()->GetFileSystem())
 	{

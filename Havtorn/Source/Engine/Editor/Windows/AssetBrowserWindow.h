@@ -1,7 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-#include "Imgui/ImguiWindow.h"
+#include "Editor/EditorWindow.h"
 #include <filesystem>
 
 namespace Havtorn
@@ -14,7 +14,7 @@ namespace ImGui
 	class CAssetBrowserWindow : public CWindow
 	{
 	public:
-		CAssetBrowserWindow(const char* name, Havtorn::CImguiManager* manager);
+		CAssetBrowserWindow(const char* name, Havtorn::CEditorManager* manager);
 		~CAssetBrowserWindow() override;
 		void OnEnable() override;
 		void OnInspectorGUI() override;

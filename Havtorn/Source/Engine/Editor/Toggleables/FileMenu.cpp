@@ -3,11 +3,11 @@
 #include "hvpch.h"
 #include "FileMenu.h"
 #include <imgui.h>
-#include "Imgui/ImguiManager.h"
+#include "Editor/EditorManager.h"
 
 namespace ImGui
 {
-    CFileMenu::CFileMenu(const char* aName, Havtorn::CImguiManager* manager)
+    CFileMenu::CFileMenu(const char* aName, Havtorn::CEditorManager* manager)
         : CToggleable(aName, manager)
     {
     }

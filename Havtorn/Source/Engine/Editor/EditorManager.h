@@ -60,11 +60,11 @@ namespace Havtorn
 		SVector4 ElementHighlight = SVector4::Zero;
 	};
 
-	class CImguiManager
+	class CEditorManager
 	{
 	public:
-		CImguiManager();
-		~CImguiManager();
+		CEditorManager();
+		~CEditorManager();
 
 		bool Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
 		void BeginFrame();

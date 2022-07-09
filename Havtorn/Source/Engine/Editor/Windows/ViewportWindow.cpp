@@ -3,13 +3,13 @@
 #include "hvpch.h"
 #include "ViewportWindow.h"
 #include <imgui.h>
-#include "Imgui/ImguiManager.h"
+#include "Editor/EditorManager.h"
 #include "Graphics/RenderManager.h"
 #include "Graphics/FullscreenTexture.h"
 
 namespace ImGui
 {
-	CViewportWindow::CViewportWindow(const char* name, Havtorn::CImguiManager* manager)
+	CViewportWindow::CViewportWindow(const char* name, Havtorn::CEditorManager* manager)
 		: CWindow(name, manager)
 		, RenderedSceneTextureReference(nullptr)
 	{

@@ -1,7 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-#include "ImguiWindow.h"
+#include "EditorWindow.h"
 #include "Windows/ViewportWindow.h"
 #include "Windows/AssetBrowserWindow.h"
 #include "Windows/HierarchyWindow.h"

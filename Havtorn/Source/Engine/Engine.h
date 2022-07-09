@@ -14,7 +14,7 @@ namespace Havtorn
 	class CThreadManager;
 	class CDirextXFramework;
 	class CTimer;
-	class CImguiManager;
+	class CEditorManager;
 	class CModelFactory;
 	class CCameraFactory;
 	class CLightFactory;
@@ -115,7 +115,7 @@ namespace Havtorn
 		//CForwardRenderer* ForwardRenderer;
 		CMaterialHandler* MaterialHandler;
 #ifdef _DEBUG
-		CImguiManager* ImguiManager;
+		CEditorManager* EditorManager;
 #endif
 		CRenderManager* RenderManager;
 		CTimer* Timer;

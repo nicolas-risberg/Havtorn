@@ -1,7 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-#include "Imgui/ImguiWindow.h"
+#include "Editor/EditorWindow.h"
 
 struct ID3D11Texture2D;
 
@@ -15,7 +15,7 @@ namespace ImGui
 	class CViewportWindow : public CWindow
 	{
 	public:
-		CViewportWindow(const char* name, Havtorn::CImguiManager* manager);
+		CViewportWindow(const char* name, Havtorn::CEditorManager* manager);
 		~CViewportWindow() override;
 		void OnEnable() override;
 		void OnInspectorGUI() override;

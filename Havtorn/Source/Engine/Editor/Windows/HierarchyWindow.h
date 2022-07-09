@@ -1,7 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
-#include "Imgui/ImguiWindow.h"
+#include "Editor/EditorWindow.h"
 
 namespace Havtorn
 {
@@ -13,7 +13,7 @@ namespace ImGui
 	class CHierarchyWindow : public CWindow
 	{
 	public:
-		CHierarchyWindow(const char* name, Havtorn::CScene* scene, Havtorn::CImguiManager* manager);
+		CHierarchyWindow(const char* name, Havtorn::CScene* scene, Havtorn::CEditorManager* manager);
 		~CHierarchyWindow() override;
 		void OnEnable() override;
 		void OnInspectorGUI() override;

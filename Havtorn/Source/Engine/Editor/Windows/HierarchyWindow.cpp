@@ -3,14 +3,14 @@
 #include "hvpch.h"
 #include "HierarchyWindow.h"
 #include <imgui.h>
-#include "Imgui/ImguiManager.h"
+#include "Editor/EditorManager.h"
 
 #include "Scene/Scene.h"
 #include "ECS/Entity.h"
 
 namespace ImGui
 {
-	CHierarchyWindow::CHierarchyWindow(const char* name, Havtorn::CScene* scene, Havtorn::CImguiManager* manager)
+	CHierarchyWindow::CHierarchyWindow(const char* name, Havtorn::CScene* scene, Havtorn::CEditorManager* manager)
 		: CWindow(name, manager)
 		, Scene(scene)
 		, SelectedIndex(0)

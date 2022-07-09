@@ -5,7 +5,7 @@
 #include <imgui.h>
 
 #include "ECS/ECSInclude.h"
-#include "Imgui/ImguiManager.h"
+#include "Editor/EditorManager.h"
 #include "Graphics/RenderManager.h"
 #include "Scene/Scene.h"
 
@@ -18,7 +18,7 @@ namespace ImGui
 	using Havtorn::EComponentType;
 	using Havtorn::F32;
 
-	CInspectorWindow::CInspectorWindow(const char* name, Havtorn::CScene* scene, Havtorn::CImguiManager* manager)
+	CInspectorWindow::CInspectorWindow(const char* name, Havtorn::CScene* scene, Havtorn::CEditorManager* manager)
 		: CWindow(name, manager)
 		, Scene(scene)
 	{

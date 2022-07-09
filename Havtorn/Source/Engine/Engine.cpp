@@ -15,7 +15,7 @@
 #include "Graphics/GraphicsFramework.h"
 #include "Graphics/MaterialHandler.h"
 #ifdef _DEBUG
-#include "ImGui/ImguiManager.h"
+#include "Editor/EditorManager.h"
 #endif
 //#include "WindowHandler.h"
 //#include "DirectXFramework.h"
@@ -38,7 +38,7 @@
 //
 #include "Graphics/RenderManager.h"
 //
-//#include "ImguiManager.h"
+//#include "EditorManager.h"
 //
 //#include "AudioManager.h"
 #include "Input/InputMapper.h"
@@ -72,7 +72,7 @@ namespace Havtorn
 		MaterialHandler = new CMaterialHandler();
 		RenderManager = new CRenderManager();
 #ifdef _DEBUG
-		ImguiManager = new CImguiManager();
+		EditorManager = new CEditorManager();
 #endif
 		InputMapper = new CInputMapper();
 		//ForwardRenderer = new CForwardRenderer();
@@ -153,7 +153,7 @@ namespace Havtorn
 		SAFE_DELETE(InputMapper);
 
 #ifdef _DEBUG
-		SAFE_DELETE(ImguiManager);
+		SAFE_DELETE(EditorManager);
 #endif
 		SAFE_DELETE(ThreadManager);
 		SAFE_DELETE(RenderManager);
@@ -178,7 +178,7 @@ namespace Havtorn
 		ENGINE_ERROR_BOOL_MESSAGE(Scene->Init(RenderManager), "Scene could not be initialized.");
 
 #ifdef _DEBUG
-		ENGINE_ERROR_BOOL_MESSAGE(ImguiManager->Init(Framework, WindowHandler, RenderManager, Scene), "ImguiManager could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(EditorManager->Init(Framework, WindowHandler, RenderManager, Scene), "EditorManager could not be initialized.");
 #endif
 
 		//ENGINE_ERROR_BOOL_MESSAGE(ModelFactory->Init(Framework), "Model Factory could not be initiliazed.");
@@ -210,7 +210,7 @@ namespace Havtorn
 		//fpsString.append(std::to_string(static_cast<I16>(CTimer::AverageFrameRate())));
 		//WindowHandler->SetWindowTitle(fpsString);
 
-		ImguiManager->BeginFrame();
+		EditorManager->BeginFrame();
 #endif
 
 		return CTimer::Mark();
@@ -244,7 +244,7 @@ namespace Havtorn
 		//ThreadManager->PushJob(std::bind(&CRenderMa nager::Render, RenderManager));
 		//RenderManager->Render();
 #ifdef _DEBUG
-		ImguiManager->Render();
+		EditorManager->Render();
 #endif
 	}
 
@@ -255,7 +255,7 @@ namespace Havtorn
 			{return CThreadManager::RenderThreadStatus == ERenderThreadStatus::PostRender; });
 
 #ifdef _DEBUG
-		ImguiManager->EndFrame();
+		EditorManager->EndFrame();
 #endif
 
 		RenderManager->SwapRenderCommandBuffers();

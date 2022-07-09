@@ -1,11 +1,11 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #include "hvpch.h"
-#include "ImguiManager.h"
+#include "EditorManager.h"
 
-#include "Imgui/Core/imgui.h"
-#include "Imgui/Core/imgui_impl_win32.h"
-#include "Imgui/Core/imgui_impl_dx11.h"
+#include "Editor/Core/imgui.h"
+#include "Editor/Core/imgui_impl_win32.h"
+#include "Editor/Core/imgui_impl_dx11.h"
 
 #include <psapi.h>
 
@@ -17,8 +17,8 @@
 #include "Graphics/RenderManager.h"
 #include "ECS/ECSInclude.h"
 //#include "JsonReader.h"
-#include "ImguiWindows.h"
-#include "ImguiToggleables.h"
+#include "EditorWindows.h"
+#include "EditorToggleables.h"
 //#include "PostMaster.h"
 
 
@@ -26,11 +26,11 @@
 
 namespace Havtorn
 {
-	CImguiManager::CImguiManager()
+	CEditorManager::CEditorManager()
 	{
 	}
 
-	CImguiManager::~CImguiManager()
+	CEditorManager::~CEditorManager()
 	{
 		RenderManager = nullptr;
 		ImGui_ImplWin32_Shutdown();
@@ -38,7 +38,7 @@ namespace Havtorn
 		ImGui::DestroyContext();
 	}
 
-	bool CImguiManager::Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene)
+	bool CEditorManager::Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene)
 	{
 		ImGui::DebugCheckVersionAndDataLayout("1.86 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
 		ImGui::CreateContext();
@@ -73,14 +73,14 @@ namespace Havtorn
 		return success;
 	}
 
-	void CImguiManager::BeginFrame()
+	void CEditorManager::BeginFrame()
 	{
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 	}
 
-	void CImguiManager::Render()
+	void CEditorManager::Render()
 	{
 		// Main Menu bar
 		if (IsEnabled)
@@ -100,13 +100,13 @@ namespace Havtorn
 		DebugWindow();
 	}
 
-	void CImguiManager::EndFrame()
+	void CEditorManager::EndFrame()
 	{
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
-	void CImguiManager::DebugWindow()
+	void CEditorManager::DebugWindow()
 	{
 		if (IsDemoOpen)
 		{
@@ -126,17 +126,17 @@ namespace Havtorn
 		}
 	}
 
-	void CImguiManager::SetSelectedEntity(Ref<SEntity> entity)
+	void CEditorManager::SetSelectedEntity(Ref<SEntity> entity)
 	{
 		SelectedEntity = entity;
 	}
 
-	Ref<SEntity> CImguiManager::GetSelectedEntity() const
+	Ref<SEntity> CEditorManager::GetSelectedEntity() const
 	{
 		return SelectedEntity;
 	}
 
-	void CImguiManager::SetEditorTheme(EEditorColorTheme colorTheme, EEditorStyleTheme styleTheme)
+	void CEditorManager::SetEditorTheme(EEditorColorTheme colorTheme, EEditorStyleTheme styleTheme)
 	{
 		switch (colorTheme)
 		{
@@ -220,7 +220,7 @@ namespace Havtorn
 		}
 	}
 
-	std::string CImguiManager::GetEditorColorThemeName(const EEditorColorTheme colorTheme)
+	std::string CEditorManager::GetEditorColorThemeName(const EEditorColorTheme colorTheme)
 	{
 		switch (colorTheme)
 		{
@@ -238,7 +238,7 @@ namespace Havtorn
 		return {};
 	}
 
-	ImVec4 CImguiManager::GetEditorColorThemeRepColor(const EEditorColorTheme colorTheme)
+	ImVec4 CEditorManager::GetEditorColorThemeRepColor(const EEditorColorTheme colorTheme)
 	{
 		switch (colorTheme)
 		{
@@ -256,38 +256,38 @@ namespace Havtorn
 		return {};
 	}
 
-	const SEditorLayout& CImguiManager::GetEditorLayout() const
+	const SEditorLayout& CEditorManager::GetEditorLayout() const
 	{
 		return EditorLayout;
 	}
 
-	F32 CImguiManager::GetViewportPadding() const
+	F32 CEditorManager::GetViewportPadding() const
 	{
 		return ViewportPadding;
 	}
 
-	void CImguiManager::SetViewportPadding(const F32 padding)
+	void CEditorManager::SetViewportPadding(const F32 padding)
 	{
 		ViewportPadding = padding;
 		InitEditorLayout();
 	}
 
-	const CRenderManager* CImguiManager::GetRenderManager() const
+	const CRenderManager* CEditorManager::GetRenderManager() const
 	{
 		return RenderManager;
 	}
 
-	void CImguiManager::ToggleDebugInfo()
+	void CEditorManager::ToggleDebugInfo()
 	{
 		IsDebugInfoOpen = !IsDebugInfoOpen;
 	}
 
-	void CImguiManager::ToggleDemo()
+	void CEditorManager::ToggleDemo()
 	{
 		IsDemoOpen = !IsDemoOpen;
 	}
 
-	void CImguiManager::InitEditorLayout()
+	void CEditorManager::InitEditorLayout()
 	{
 		EditorLayout = SEditorLayout();
 
@@ -312,7 +312,7 @@ namespace Havtorn
 		EditorLayout.InspectorSize = { static_cast<U16>(viewportPosX), static_cast<U16>(resolution.Y) };
 	}
 
-	void CImguiManager::SetEditorColorProfile(const SEditorColorProfile& colorProfile)
+	void CEditorManager::SetEditorColorProfile(const SEditorColorProfile& colorProfile)
 	{
 		ImVec4* colors = (&ImGui::GetStyle())->Colors;
 
@@ -374,7 +374,7 @@ namespace Havtorn
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 	}
 
-	std::string CImguiManager::GetFrameRate() const
+	std::string CEditorManager::GetFrameRate() const
 	{
 		std::string frameRateString = "Framerate: ";
 		const U16 frameRate = static_cast<U16>(CTimer::AverageFrameRate());
@@ -382,7 +382,7 @@ namespace Havtorn
 		return frameRateString;
 	}
 
-	std::string CImguiManager::GetSystemMemory() const
+	std::string CEditorManager::GetSystemMemory() const
 	{
 		PROCESS_MEMORY_COUNTERS memCounter;
 		if (GetProcessMemoryInfo(GetCurrentProcess(),
@@ -404,7 +404,7 @@ namespace Havtorn
 		return "";
 	}
 
-	std::string CImguiManager::GetDrawCalls() const
+	std::string CEditorManager::GetDrawCalls() const
 	{
 		std::string drawCalls = "Draw Calls: ";
 		drawCalls.append(std::to_string(CRenderManager::NumberOfDrawCallsThisFrame));
