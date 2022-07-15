@@ -126,6 +126,7 @@ namespace Havtorn
 
 		InitPointLightResources();
 		InitSpotLightResources();
+		InitEditorResources();
 		LoadDemoSceneResources();
 
 		return true;
@@ -223,13 +224,6 @@ namespace Havtorn
 		}
 	}
 
-	void CRenderManager::LoadDemoSceneResources()
-	{
-		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
-		CModelImporter::ImportFBX("Assets/Tests/En_P_Bed.fbx");
-		CModelImporter::ImportFBX("Assets/Tests/Quad.fbx");
-	}
-
 	void CRenderManager::InitPointLightResources()
 	{
 		AddVertexBuffer<SPositionVertex>(PointLightCube);
@@ -247,6 +241,19 @@ namespace Havtorn
 	void CRenderManager::InitSpotLightResources()
 	{
 		AddShader("Shaders/DeferredLightSpot_PS.cso", EShaderType::Pixel);
+	}
+
+	void CRenderManager::InitEditorResources()
+	{
+		AddShader("Shaders/EditorPreview_VS.cso", EShaderType::Vertex);
+		AddShader("Shaders/EditorPreview_PS.cso", EShaderType::Pixel);
+	}
+
+	void CRenderManager::LoadDemoSceneResources()
+	{
+		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
+		CModelImporter::ImportFBX("Assets/Tests/En_P_Bed.fbx");
+		CModelImporter::ImportFBX("Assets/Tests/Quad.fbx");
 	}
 
 	void CRenderManager::Render()
@@ -1186,6 +1193,8 @@ namespace Havtorn
 		case EAssetType::VisualFX: 
 			break;
 		}
+
+		delete[] data;
 	}
 
 	void CRenderManager::LoadStaticMeshComponent(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent)
@@ -1212,6 +1221,7 @@ namespace Havtorn
 			}
 
 			LoadedStaticMeshes.emplace(fileName, asset);
+			delete[] data;
 		}
 		else
 		{
@@ -1252,6 +1262,92 @@ namespace Havtorn
 	SVector2<F32> CRenderManager::GetShadowAtlasResolution() const
 	{
 		return ShadowAtlasResolution;
+	}
+
+	void* CRenderManager::RenderStaticMeshAssetTexture(const std::string& fileName)
+	{
+		D3D11_TEXTURE2D_DESC textureDesc = { 0 };
+		textureDesc.Width = static_cast<U16>(256.0f);
+		textureDesc.Height = static_cast<U16>(256.0f);
+		textureDesc.MipLevels = 1;
+		textureDesc.ArraySize = 1;
+		textureDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.SampleDesc.Quality = 0;
+		textureDesc.Usage = D3D11_USAGE_DEFAULT;
+		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		textureDesc.CPUAccessFlags = 0;
+		textureDesc.MiscFlags = 0;
+
+		ID3D11Texture2D* texture;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &texture), "Could not create Fullscreen Texture2D");
+
+		ID3D11ShaderResourceView* shaderResource;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateShaderResourceView(texture, nullptr, &shaderResource), "Could not create Fullscreen Shader Resource View.");
+
+		ID3D11RenderTargetView* renderTarget;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateRenderTargetView(texture, nullptr, &renderTarget), "Could not create Fullcreen Render Target View.");
+
+		D3D11_VIEWPORT* viewport;
+		D3D11_TEXTURE2D_DESC textureDescription;
+		texture->GetDesc(&textureDescription);
+		viewport = new D3D11_VIEWPORT({ 0.0f, 0.0f, static_cast<F32>(textureDescription.Width), static_cast<F32>(textureDescription.Height), 0.0f, 1.0f });
+
+		Context->OMSetRenderTargets(1, &renderTarget, nullptr);
+		Context->RSSetViewports(1, viewport);
+
+		STransform camTransform;
+		camTransform.Translate(SVector4::Right * 1.5f);
+		camTransform.Translate(SVector4::Backward * 2.5f);
+		camTransform.Translate(SVector4::Up * 2.0f);
+		camTransform.Rotate({UMath::DegToRad(-30.0f), UMath::DegToRad(30.0f), 0.0f});
+		SMatrix camProjection = SMatrix::PerspectiveFovLH(UMath::DegToRad(70.0f), (16.0f / 9.0f), 0.1f, 10.0f);
+
+		FrameBufferData.ToCameraFromWorld = camTransform.GetMatrix().FastInverse();
+		FrameBufferData.ToWorldFromCamera = camTransform.GetMatrix();
+		FrameBufferData.ToProjectionFromCamera = camProjection;
+		FrameBufferData.ToCameraFromProjection = camProjection.Inverse();
+		FrameBufferData.CameraPosition = camTransform.GetMatrix().Translation4();
+		BindBuffer(FrameBuffer, FrameBufferData, "Frame Buffer");
+
+		Context->VSSetConstantBuffers(0, 1, &FrameBuffer);
+		Context->PSSetConstantBuffers(0, 1, &FrameBuffer);
+
+		ObjectBufferData.ToWorldFromObject = SMatrix();
+		BindBuffer(ObjectBuffer, ObjectBufferData, "Object Buffer");
+
+		Ref<SEntity> tempEntity = std::make_shared<SEntity>(0, "Temp");
+		SStaticMeshComponent* staticMeshComp = new SStaticMeshComponent(tempEntity, EComponentType::StaticMeshComponent);
+		LoadStaticMeshComponent(fileName, staticMeshComp);
+
+		Context->VSSetConstantBuffers(1, 1, &ObjectBuffer);
+		Context->IASetPrimitiveTopology(Topologies[staticMeshComp->TopologyIndex]);
+		Context->IASetInputLayout(InputLayouts[staticMeshComp->InputLayoutIndex]);
+
+		Context->VSSetShader(VertexShaders[3], nullptr, 0);
+		Context->PSSetShader(PixelShaders[4], nullptr, 0);
+
+		ID3D11SamplerState* sampler = Samplers[staticMeshComp->SamplerIndex];
+		Context->PSSetSamplers(0, 1, &sampler);
+
+		for (U8 drawCallIndex = 0; drawCallIndex < static_cast<U8>(staticMeshComp->DrawCallData.size()); drawCallIndex++)
+		{
+			const SDrawCallData& drawData = staticMeshComp->DrawCallData[drawCallIndex];
+			ID3D11Buffer* vertexBuffer = VertexBuffers[drawData.VertexBufferIndex];
+			Context->IASetVertexBuffers(0, 1, &vertexBuffer, &MeshVertexStrides[drawData.VertexStrideIndex], &MeshVertexOffsets[drawData.VertexStrideIndex]);
+			Context->IASetIndexBuffer(IndexBuffers[drawData.IndexBufferIndex], DXGI_FORMAT_R32_UINT, 0);
+			Context->DrawIndexed(drawData.IndexCount, 0, 0);
+			CRenderManager::NumberOfDrawCallsThisFrame++;
+		}
+
+		delete staticMeshComp;
+
+		return std::move((void*)shaderResource);
+	}
+
+	void* CRenderManager::GetTextureAssetTexture(const std::string& /*fileName*/)
+	{
+		return nullptr;
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const

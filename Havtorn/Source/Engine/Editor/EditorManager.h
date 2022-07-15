@@ -1,6 +1,7 @@
 // Copyright 2022 Team Havtorn. All Rights Reserved.
 
 #pragma once
+#include <filesystem>
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -61,13 +62,21 @@ namespace Havtorn
 		SVector4 ElementHighlight = SVector4::Zero;
 	};
 
+	struct SEditorAssetRepresentation
+	{
+		EAssetType AssetType = EAssetType::None;
+		std::filesystem::directory_entry DirectoryEntry = {};
+		void* TextureRef = nullptr;
+		std::string Name = "";
+	};
+
 	class CEditorManager
 	{
 	public:
 		CEditorManager();
 		~CEditorManager();
 
-		bool Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene);
+		bool Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, CRenderManager* renderManager, CScene* scene);
 		void BeginFrame();
 		void Render();
 		void EndFrame();
@@ -76,6 +85,9 @@ namespace Havtorn
 	public:
 		void SetSelectedEntity(Ref<SEntity> entity);
 		Ref<SEntity> GetSelectedEntity() const;
+
+		const Ptr<SEditorAssetRepresentation>& GetAssetRepFromDirEntry(const std::filesystem::directory_entry& dirEntry);
+		const Ptr<SEditorAssetRepresentation>& GetAssetRepFromImageRef(void* imageRef);
 
 		void SetEditorTheme(EEditorColorTheme colorTheme = EEditorColorTheme::HavtornDark, EEditorStyleTheme styleTheme = EEditorStyleTheme::Havtorn);
 		std::string GetEditorColorThemeName(const EEditorColorTheme colorTheme);
@@ -93,6 +105,8 @@ namespace Havtorn
 
 	private:
 		void InitEditorLayout(); 
+		void InitAssetRepresentations();
+
 		void SetEditorColorProfile(const SEditorColorProfile& colorProfile);
 
 		[[nodiscard]] std::string GetFrameRate() const;
@@ -103,10 +117,12 @@ namespace Havtorn
 		const CRenderManager* RenderManager = nullptr;
 		CEditorResourceManager* ResourceManager = nullptr;
 
+		// TODO.NR: Should be a weak ptr
 		Ref<SEntity> SelectedEntity = nullptr;
 
 		std::vector<Ptr<ImGui::CWindow>> Windows = {};
 		std::vector<Ptr<ImGui::CToggleable>> MenuElements = {};
+		std::vector<Ptr<SEditorAssetRepresentation>> AssetRepresentations = {};
 
 		SEditorLayout EditorLayout;
 		SEditorColorProfile EditorColorProfile;

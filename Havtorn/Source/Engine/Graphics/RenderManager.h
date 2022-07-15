@@ -83,6 +83,9 @@ namespace Havtorn
 		EMaterialConfiguration GetMaterialConfiguration() const;
 		SVector2<F32> GetShadowAtlasResolution() const;
 
+		void* RenderStaticMeshAssetTexture(const std::string& fileName);
+		void* GetTextureAssetTexture(const std::string& fileName);
+
 	public:
 		[[nodiscard]] const CFullscreenTexture& GetRenderedSceneTexture() const;
 		void PushRenderCommand(SRenderCommand& command);
@@ -100,9 +103,10 @@ namespace Havtorn
 		void InitRenderTextures(CWindowHandler* windowHandler);
 		void InitShadowmapAtlas(SVector2<F32> atlasResolution);
 		void InitShadowmapLOD(SVector2<F32> topLeftCoordinate, const SVector2<F32>& widthAndHeight, const SVector2<F32>& depth, const SVector2<F32>& atlasResolution, U16 mapsInLod, U16 startIndex);
-		void LoadDemoSceneResources();
 		void InitPointLightResources();
 		void InitSpotLightResources();
+		void InitEditorResources();
+		void LoadDemoSceneResources();
 
 	private:
 		void RenderBloom();

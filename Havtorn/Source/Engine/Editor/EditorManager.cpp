@@ -10,6 +10,7 @@
 #include <psapi.h>
 
 #include "Engine.h"
+#include "FileSystem/FileSystem.h"
 #include "Application/WindowHandler.h"
 //#include "Scene.h"
 //#include "SceneManager.h"
@@ -40,7 +41,7 @@ namespace Havtorn
 		ImGui::DestroyContext();
 	}
 
-	bool CEditorManager::Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, const CRenderManager* renderManager, CScene* scene)
+	bool CEditorManager::Init(const CGraphicsFramework* framework, const CWindowHandler* windowHandler, CRenderManager* renderManager, CScene* scene)
 	{
 		ImGui::DebugCheckVersionAndDataLayout("1.86 WIP", sizeof(ImGuiIO), sizeof(ImGuiStyle), sizeof(ImVec2), sizeof(ImVec4), sizeof(ImDrawVert), sizeof(unsigned int));
 		ImGui::CreateContext();
@@ -60,9 +61,15 @@ namespace Havtorn
 		Windows.emplace_back(std::make_unique<ImGui::CHierarchyWindow>("Hierarchy", scene, this));
 		Windows.emplace_back(std::make_unique<ImGui::CInspectorWindow>("Inspector", scene, this));
 
+		ResourceManager = new CEditorResourceManager();
+		bool success = ResourceManager->Init(renderManager, framework);
+		if (!success)
+			return false;
+		
 		InitEditorLayout();
+		InitAssetRepresentations();
 
-		bool success = ImGui_ImplWin32_Init(windowHandler->GetWindowHandle());
+		success = ImGui_ImplWin32_Init(windowHandler->GetWindowHandle());
 		if (!success)
 			return false;
 
@@ -71,11 +78,6 @@ namespace Havtorn
 			return false;
 
 		RenderManager = renderManager;
-
-		ResourceManager = new CEditorResourceManager();
-		success = ResourceManager->Init(framework);
-		if (!success)
-			return false;
 
 		return success;
 	}
@@ -141,6 +143,30 @@ namespace Havtorn
 	Ref<SEntity> CEditorManager::GetSelectedEntity() const
 	{
 		return SelectedEntity;
+	}
+
+	const Ptr<SEditorAssetRepresentation>& CEditorManager::GetAssetRepFromDirEntry(const std::filesystem::directory_entry& dirEntry)
+	{
+		for (const auto& rep : AssetRepresentations)
+		{
+			if (dirEntry == rep->DirectoryEntry)
+				return rep;
+		}
+
+		// NR: Return empty rep
+		return AssetRepresentations[0];
+	}
+
+	const Ptr<SEditorAssetRepresentation>& CEditorManager::GetAssetRepFromImageRef(void* imageRef)
+	{
+		for (const auto& rep : AssetRepresentations)
+		{
+			if (imageRef == rep->TextureRef)
+				return rep;
+		}
+
+		// NR: Return empty rep
+		return AssetRepresentations[0];
 	}
 
 	void CEditorManager::SetEditorTheme(EEditorColorTheme colorTheme, EEditorStyleTheme styleTheme)
@@ -322,6 +348,40 @@ namespace Havtorn
 		EditorLayout.HierarchyViewSize = { static_cast<U16>(viewportPosX), static_cast<U16>(resolution.Y) };
 		EditorLayout.InspectorPosition = { static_cast<I16>(resolution.X - static_cast<F32>(viewportPosX)), viewportPosY };
 		EditorLayout.InspectorSize = { static_cast<U16>(viewportPosX), static_cast<U16>(resolution.Y) };
+	}
+
+	void CEditorManager::InitAssetRepresentations()
+	{
+		// NR: Fill first slot with a null entry
+		AssetRepresentations.emplace_back(std::make_unique<SEditorAssetRepresentation>());
+
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(std::filesystem::path("Assets")))
+		{
+			if (!entry.is_directory())
+			{
+				std::string fileName = entry.path().string();
+				const U64 fileSize = CEngine::GetInstance()->GetFileSystem()->GetFileSize(fileName);
+				char* data = new char[fileSize];
+
+				CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, data, static_cast<U32>(fileSize));
+
+				SEditorAssetRepresentation rep;
+
+				// TODO.NR: If we find non-hva assets here (in the Assets folder), import them automatically
+				
+				const U32 size = sizeof(EAssetType);
+				memcpy(&rep.AssetType, &data[0], size);
+				
+				rep.DirectoryEntry = entry;
+				rep.Name = entry.path().filename().string();
+				rep.TextureRef = ResourceManager->RenderAssetTexure(rep.AssetType, fileName);
+				//rep.TextureRef = ResourceManager->GetEditorTexture(EEditorTexture::FileIcon);
+
+				AssetRepresentations.emplace_back(std::make_unique<SEditorAssetRepresentation>(rep));
+
+				delete[] data;
+			}
+		}
 	}
 
 	void CEditorManager::SetEditorColorProfile(const SEditorColorProfile& colorProfile)

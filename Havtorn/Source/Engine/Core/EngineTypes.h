@@ -13,8 +13,10 @@ namespace Havtorn
 {
 	enum class EAssetType
 	{
+		None,
 		StaticModel,
 		SkeletalMesh,
+		Texture,
 		Animation,
 		AudioOneShot,
 		AudioCollection,

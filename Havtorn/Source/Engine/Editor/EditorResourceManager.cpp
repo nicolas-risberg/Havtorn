@@ -2,6 +2,7 @@
 
 #include "EditorResourceManager.h"
 #include "Graphics/GraphicsUtilities.h"
+#include "Graphics/RenderManager.h"
 
 namespace Havtorn
 {
@@ -13,6 +14,32 @@ namespace Havtorn
 			return nullptr;
 
 		return Textures[index];
+	}
+
+	void* CEditorResourceManager::RenderAssetTexure(EAssetType assetType, const std::string& fileName)
+	{
+		switch (assetType)
+		{
+		case Havtorn::EAssetType::StaticModel:
+			return std::move(RenderManager->RenderStaticMeshAssetTexture(fileName));
+		case Havtorn::EAssetType::SkeletalMesh:
+			break;
+		case Havtorn::EAssetType::Texture:
+			return std::move(RenderManager->GetTextureAssetTexture(fileName));
+		case Havtorn::EAssetType::Animation:
+			break;
+		case Havtorn::EAssetType::AudioOneShot:
+			break;
+		case Havtorn::EAssetType::AudioCollection:
+			break;
+		case Havtorn::EAssetType::VisualFX:
+			break;
+		case Havtorn::EAssetType::None:
+		default:
+			break;
+		}
+
+		return nullptr;
 	}
 
 	std::string CEditorResourceManager::GetFileName(EEditorTexture texture)
@@ -42,8 +69,9 @@ namespace Havtorn
 		}
 	}
 
-	bool Havtorn::CEditorResourceManager::Init(const CGraphicsFramework* framework)
+	bool Havtorn::CEditorResourceManager::Init(CRenderManager* renderManager, const CGraphicsFramework* framework)
 	{
+		RenderManager = renderManager;
 		ID3D11Device* device = framework->GetDevice();
 		I64 textureCount = static_cast<I64>(EEditorTexture::Count);
 		

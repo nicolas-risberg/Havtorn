@@ -6,7 +6,7 @@
 #include "Editor/EditorManager.h"
 #include "Editor/EditorResourceManager.h"
 #include "Engine.h"
-#include "FileSystem\FileSystem.h"
+#include "FileSystem/FileSystem.h"
 
 namespace ImGui
 {
@@ -51,21 +51,20 @@ namespace ImGui
 			Havtorn::I32 columnCount = static_cast<Havtorn::I32>(panelWidth / cellWidth);
 
 			void* folderIconID = (void*)Manager->GetResourceManager()->GetEditorTexture(Havtorn::EEditorTexture::FolderIcon);
-			void* fileIconID = (void*)Manager->GetResourceManager()->GetEditorTexture(Havtorn::EEditorTexture::FileIcon);
 
 			Havtorn::U32 id = 0;
 			if (ImGui::BeginTable("FileStructure", columnCount))
 			{
-				for (const auto& dir : std::filesystem::directory_iterator(CurrentDirectory))
+				for (const auto& entry : std::filesystem::directory_iterator(CurrentDirectory))
 				{
 					ImGui::TableNextColumn();
 					ImGui::PushID(id++);
 
-					const auto& path = dir.path();
+					const auto& path = entry.path();
 					auto relativePath = std::filesystem::relative(path);
 					std::string filenameString = relativePath.filename().string();
 
-					if (dir.is_directory())
+					if (entry.is_directory())
 					{	
 						if (ImGui::ImageButton(folderIconID, { ThumbnailSize.X, ThumbnailSize.Y }))
 						{
@@ -78,14 +77,18 @@ namespace ImGui
 					}
 					else
 					{
-						if (ImGui::ImageButton(fileIconID, { ThumbnailSize.X, ThumbnailSize.Y }))
+						const auto& rep = Manager->GetAssetRepFromDirEntry(entry);
+						if (!rep->TextureRef)
+							rep->TextureRef = (void*)Manager->GetResourceManager()->GetEditorTexture(Havtorn::EEditorTexture::FileIcon);
+
+						if (ImGui::ImageButton(rep->TextureRef, { ThumbnailSize.X, ThumbnailSize.Y }))
 						{
 							// NR: Open Tool depending on asset type
 						}
 
-						ImGui::Text(filenameString.c_str());
+						ImGui::Text(rep->Name.c_str());
 						if (ImGui::IsItemHovered())
-							ImGui::SetTooltip(filenameString.c_str());
+							ImGui::SetTooltip(rep->Name.c_str());
 					}
 
 					ImGui::PopID();
@@ -93,9 +96,6 @@ namespace ImGui
 
 				ImGui::EndTable();
 			}
-
-
-
 		}
 		ImGui::End();
 	}

@@ -7,6 +7,7 @@ struct ID3D11ShaderResourceView;
 namespace Havtorn
 {
 	class CGraphicsFramework;
+	class CRenderManager;
 
 	enum class EEditorTexture
 	{
@@ -24,14 +25,17 @@ namespace Havtorn
 		CEditorResourceManager() = default;
 		~CEditorResourceManager() = default;
 
-		bool Init(const CGraphicsFramework* framework);
+		bool Init(CRenderManager* renderManager, const CGraphicsFramework* framework);
 		ID3D11ShaderResourceView* GetEditorTexture(EEditorTexture texture) const;
+
+		void* RenderAssetTexure(EAssetType assetType, const std::string& fileName);
 
 	private:
 		std::string GetFileName(EEditorTexture texture);
 	
 	private:
 		std::vector<ID3D11ShaderResourceView*> Textures;
+		CRenderManager* RenderManager = nullptr;
 		std::string ResourceAssetPath = "Resources/";
 	};
 }
