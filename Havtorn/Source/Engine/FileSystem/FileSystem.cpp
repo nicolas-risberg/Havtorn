@@ -114,6 +114,15 @@ namespace Havtorn
 		CloseFile(EFileMode::BinaryRead);
 	}
 
+	void CFileSystem::Deserialize(const std::string& fileName, std::string& outData)
+	{
+		OpenFile(fileName, EFileMode::BinaryRead);
+		std::ostringstream oss;
+		oss << InputStream.rdbuf();
+		outData = oss.str();
+		CloseFile(EFileMode::BinaryRead);
+	}
+
 	U64 CFileSystem::GetFileSize(const std::string& fileName) const
 	{
 		return std::filesystem::file_size(fileName);

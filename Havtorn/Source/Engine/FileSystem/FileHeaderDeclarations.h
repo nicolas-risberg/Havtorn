@@ -2,6 +2,7 @@
 
 #pragma once
 #include "Graphics/GraphicsStructs.h"
+#include "Graphics/GraphicsEnums.h"
 
 namespace Havtorn
 {
@@ -119,5 +120,58 @@ namespace Havtorn
 			pointerPosition += DeserializeSimple(Meshes.back().NumberOfIndices, fromData, pointerPosition);
 			pointerPosition += DeserializeVector(Meshes.back().Indices, fromData, Meshes.back().NumberOfIndices, pointerPosition);
 		}
+	}
+
+	struct STextureFileHeader
+	{
+		EAssetType AssetType = EAssetType::Texture;
+		U32 MaterialNameLength = 0;
+		//ETextureFormat
+		std::string MaterialName;
+		EMaterialConfiguration MaterialConfiguration = EMaterialConfiguration::AlbedoMaterialNormal_Packed;
+		char Suffix = 0;
+		U32 DataSize = 0;
+		std::string Data = "";
+
+		[[nodiscard]] U32 GetSize() const;
+		void Serialize(char* toData) const;
+		void Deserialize(const char* fromData);
+	};
+
+	inline U32 STextureFileHeader::GetSize() const
+	{
+		U32 size = sizeof(EAssetType);
+		size += sizeof(U32);
+		size += sizeof(char) * MaterialNameLength;
+		size += sizeof(EMaterialConfiguration);
+		size += sizeof(char);
+		size += sizeof(U32);
+		size += sizeof(char) * DataSize;
+
+		return size;
+	}
+
+	inline void STextureFileHeader::Serialize(char* toData) const
+	{
+		U32 pointerPosition = 0;
+		pointerPosition += SerializeSimple(AssetType, toData, pointerPosition);
+		pointerPosition += SerializeSimple(MaterialNameLength, toData, pointerPosition);
+		pointerPosition += SerializeString(MaterialName, toData, pointerPosition);
+		pointerPosition += SerializeSimple(MaterialConfiguration, toData, pointerPosition);
+		pointerPosition += SerializeSimple(Suffix, toData, pointerPosition);
+		pointerPosition += SerializeSimple(DataSize, toData, pointerPosition);
+		SerializeString(Data, toData, pointerPosition);
+	}
+
+	inline void STextureFileHeader::Deserialize(const char* fromData)
+	{
+		U32 pointerPosition = 0;
+		pointerPosition += DeserializeSimple(AssetType, fromData, pointerPosition);
+		pointerPosition += DeserializeSimple(MaterialNameLength, fromData, pointerPosition);
+		pointerPosition += DeserializeString(MaterialName, fromData, MaterialNameLength, pointerPosition);
+		pointerPosition += DeserializeSimple(MaterialConfiguration, fromData, pointerPosition);
+		pointerPosition += DeserializeSimple(Suffix, fromData, pointerPosition);
+		pointerPosition += DeserializeSimple(DataSize, fromData, pointerPosition);
+		DeserializeString(Data, fromData, DataSize, pointerPosition);
 	}
 }

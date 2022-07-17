@@ -4,6 +4,7 @@
 
 #include "FileSystem/FileHeaderDeclarations.h"
 #include "Graphics/GraphicsStructs.h"
+#include "Graphics/GraphicsUtilities.h"
 
 namespace Havtorn
 {
@@ -25,5 +26,25 @@ namespace Havtorn
 		EAssetType AssetType = EAssetType::StaticModel;
 		std::string Name;
 		std::vector<SDrawCallData> DrawCallData;
+	};
+
+	struct STextureAsset
+	{
+		STextureAsset() = default;
+
+		explicit STextureAsset(const STextureFileHeader assetFileData, ID3D11Device* graphicsDevice, ETextureFormat format)
+			: AssetType(assetFileData.AssetType)
+			, MaterialName(assetFileData.MaterialName)
+			, MaterialConfiguration(assetFileData.MaterialConfiguration)
+			, Suffix(assetFileData.Suffix)
+		{
+			ShaderResourceView = std::move(UGraphicsUtils::TryGetShaderResourceView(graphicsDevice, assetFileData.Data.data(), assetFileData.DataSize, format));
+		}
+
+		EAssetType AssetType = EAssetType::Texture;
+		std::string MaterialName = "";
+		EMaterialConfiguration MaterialConfiguration = EMaterialConfiguration::AlbedoMaterialNormal_Packed;
+		char Suffix = 0;
+		ID3D11ShaderResourceView* ShaderResourceView = nullptr;
 	};
 }

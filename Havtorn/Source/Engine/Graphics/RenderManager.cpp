@@ -251,9 +251,10 @@ namespace Havtorn
 
 	void CRenderManager::LoadDemoSceneResources()
 	{
-		CModelImporter::ImportFBX("Assets/Tests/En_P_PendulumClock.fbx");
-		CModelImporter::ImportFBX("Assets/Tests/En_P_Bed.fbx");
-		CModelImporter::ImportFBX("Assets/Tests/Quad.fbx");
+		ConvertToHVA("Assets/Tests/En_P_PendulumClock.fbx", EAssetType::StaticModel);
+		ConvertToHVA("Assets/Tests/En_P_Bed.fbx", EAssetType::StaticModel);
+		ConvertToHVA("Assets/Tests/Quad.fbx", EAssetType::StaticModel);
+		ConvertToHVA("Assets/Textures/T_PendulumClock_c.DDS", EAssetType::Texture);
 	}
 
 	void CRenderManager::Render()
@@ -1114,72 +1115,96 @@ namespace Havtorn
 		//myGBufferCopy.ReleaseResources();
 	}
 
-	void CRenderManager::WriteAssetFile(const std::string& fileName, EAssetType assetType)
+	void CRenderManager::ConvertToHVA(const std::string& fileName, EAssetType assetType)
 	{
-		SStaticMeshVertex vertices[24] =
-		{
-			// X      Y      Z        nX, nY, nZ    tX, tY, tZ,    bX, bY, bZ,    UV	
-			{ -0.5f, -0.5f, -0.5f,   -1,  0,  0,    0,  0,  1,     0,  1,  0,     0, 0 }, // 0
-			{  0.5f, -0.5f, -0.5f,    1,  0,  0,    0,  0, -1,     0,  1,  0,     1, 0 }, // 1
-			{ -0.5f,  0.5f, -0.5f,   -1,  0,  0,    0,  0,  1,     0,  1,  0,     0, 1 }, // 2
-			{  0.5f,  0.5f, -0.5f,    1,  0,  0,    0,  0, -1,     0,  1,  0,     1, 1 }, // 3
-			{ -0.5f, -0.5f,  0.5f,   -1,  0,  0,    0,  0,  1,     0,  1,  0,     0, 0 }, // 4
-			{  0.5f, -0.5f,  0.5f,    1,  0,  0,    0,  0, -1,     0,  1,  0,     1, 0 }, // 5
-			{ -0.5f,  0.5f,  0.5f,   -1,  0,  0,    0,  0,  1,     0,  1,  0,     0, 1 }, // 6
-			{  0.5f,  0.5f,  0.5f,    1,  0,  0,    0,  0, -1,     0,  1,  0,     1, 1 }, // 7
-			// X      Y      Z        nX, nY, nZ    nX, nY, nZ,    nX, nY, nZ,    UV	  
-			{ -0.5f, -0.5f, -0.5f,    0, -1,  0,    1,  0,  0,     0,  0,  1,     0, 0 }, // 8  // 0
-			{  0.5f, -0.5f, -0.5f,    0, -1,  0,    1,  0,  0,     0,  0,  1,     1, 0 }, // 9	// 1
-			{ -0.5f,  0.5f, -0.5f,    0,  1,  0,   -1,  0,  0,     0,  0,  1,     0, 0 }, // 10	// 2
-			{  0.5f,  0.5f, -0.5f,    0,  1,  0,   -1,  0,  0,     0,  0,  1,     1, 0 }, // 11	// 3
-			{ -0.5f, -0.5f,  0.5f,    0, -1,  0,    1,  0,  0,     0,  0,  1,     0, 1 }, // 12	// 4
-			{  0.5f, -0.5f,  0.5f,    0, -1,  0,    1,  0,  0,     0,  0,  1,     0, 1 }, // 13	// 5
-			{ -0.5f,  0.5f,  0.5f,    0,  1,  0,   -1,  0,  0,     0,  0,  1,     1, 1 }, // 14	// 6
-			{  0.5f,  0.5f,  0.5f,    0,  1,  0,   -1,  0,  0,     0,  0,  1,     1, 1 }, // 15	// 7
-			// X      Y      Z        nX, nY, nZ    nX, nY, nZ,    nX, nY, nZ,    UV	  
-			{ -0.5f, -0.5f, -0.5f,    0,  0, -1,   -1,  0,  0,     0,  1,  0,     0, 0 }, // 16 // 0
-			{  0.5f, -0.5f, -0.5f,    0,  0, -1,   -1,  0,  0,     0,  1,  0,     0, 0 }, // 17	// 1
-			{ -0.5f,  0.5f, -0.5f,    0,  0, -1,   -1,  0,  0,     0,  1,  0,     1, 0 }, // 18	// 2
-			{  0.5f,  0.5f, -0.5f,    0,  0, -1,   -1,  0,  0,     0,  1,  0,     1, 0 }, // 19	// 3
-			{ -0.5f, -0.5f,  0.5f,    0,  0,  1,    1,  0,  0,     0,  1,  0,     0, 1 }, // 20	// 4
-			{  0.5f, -0.5f,  0.5f,    0,  0,  1,    1,  0,  0,     0,  1,  0,     1, 1 }, // 21	// 5
-			{ -0.5f,  0.5f,  0.5f,    0,  0,  1,    1,  0,  0,     0,  1,  0,     0, 1 }, // 22	// 6
-			{  0.5f,  0.5f,  0.5f,    0,  0,  1,    1,  0,  0,     0,  1,  0,     1, 1 }  // 23	// 7
-		};
-		U32 indices[36] =
-		{
-			0,4,2,
-			4,6,2,
-			1,3,5,
-			3,7,5,
-			8,9,12,
-			9,13,12,
-			10,14,11,
-			14,15,11,
-			16,18,17,
-			18,19,17,
-			20,21,22,
-			21,23,22
-		};
-
-		SStaticModelFileHeader asset;
-		asset.AssetType = EAssetType::StaticModel;
-		asset.Name = "PrimitiveCube";
-		asset.NameLength = static_cast<U32>(asset.Name.length());
-		asset.Meshes.emplace_back();
-		asset.Meshes.back().NumberOfVertices = 24;
-		asset.Meshes.back().Vertices.assign(vertices, vertices + 24);
-		asset.Meshes.back().NumberOfIndices = 36;
-		asset.Meshes.back().Indices.assign(indices, indices + 36);
-
-		const auto data = new char[asset.GetSize()];
-
 		switch (assetType)
 		{
 		case EAssetType::StaticModel:
 			{
+				//SStaticMeshVertex vertices[24] =
+				//{
+				//	// X      Y      Z        nX, nY, nZ    tX, tY, tZ,    bX, bY, bZ,    UV	
+				//	{ -0.5f, -0.5f, -0.5f,   -1,  0,  0,    0,  0,  1,     0,  1,  0,     0, 0 }, // 0
+				//	{  0.5f, -0.5f, -0.5f,    1,  0,  0,    0,  0, -1,     0,  1,  0,     1, 0 }, // 1
+				//	{ -0.5f,  0.5f, -0.5f,   -1,  0,  0,    0,  0,  1,     0,  1,  0,     0, 1 }, // 2
+				//	{  0.5f,  0.5f, -0.5f,    1,  0,  0,    0,  0, -1,     0,  1,  0,     1, 1 }, // 3
+				//	{ -0.5f, -0.5f,  0.5f,   -1,  0,  0,    0,  0,  1,     0,  1,  0,     0, 0 }, // 4
+				//	{  0.5f, -0.5f,  0.5f,    1,  0,  0,    0,  0, -1,     0,  1,  0,     1, 0 }, // 5
+				//	{ -0.5f,  0.5f,  0.5f,   -1,  0,  0,    0,  0,  1,     0,  1,  0,     0, 1 }, // 6
+				//	{  0.5f,  0.5f,  0.5f,    1,  0,  0,    0,  0, -1,     0,  1,  0,     1, 1 }, // 7
+				//	// X      Y      Z        nX, nY, nZ    nX, nY, nZ,    nX, nY, nZ,    UV	  
+				//	{ -0.5f, -0.5f, -0.5f,    0, -1,  0,    1,  0,  0,     0,  0,  1,     0, 0 }, // 8  // 0
+				//	{  0.5f, -0.5f, -0.5f,    0, -1,  0,    1,  0,  0,     0,  0,  1,     1, 0 }, // 9	// 1
+				//	{ -0.5f,  0.5f, -0.5f,    0,  1,  0,   -1,  0,  0,     0,  0,  1,     0, 0 }, // 10	// 2
+				//	{  0.5f,  0.5f, -0.5f,    0,  1,  0,   -1,  0,  0,     0,  0,  1,     1, 0 }, // 11	// 3
+				//	{ -0.5f, -0.5f,  0.5f,    0, -1,  0,    1,  0,  0,     0,  0,  1,     0, 1 }, // 12	// 4
+				//	{  0.5f, -0.5f,  0.5f,    0, -1,  0,    1,  0,  0,     0,  0,  1,     0, 1 }, // 13	// 5
+				//	{ -0.5f,  0.5f,  0.5f,    0,  1,  0,   -1,  0,  0,     0,  0,  1,     1, 1 }, // 14	// 6
+				//	{  0.5f,  0.5f,  0.5f,    0,  1,  0,   -1,  0,  0,     0,  0,  1,     1, 1 }, // 15	// 7
+				//	// X      Y      Z        nX, nY, nZ    nX, nY, nZ,    nX, nY, nZ,    UV	  
+				//	{ -0.5f, -0.5f, -0.5f,    0,  0, -1,   -1,  0,  0,     0,  1,  0,     0, 0 }, // 16 // 0
+				//	{  0.5f, -0.5f, -0.5f,    0,  0, -1,   -1,  0,  0,     0,  1,  0,     0, 0 }, // 17	// 1
+				//	{ -0.5f,  0.5f, -0.5f,    0,  0, -1,   -1,  0,  0,     0,  1,  0,     1, 0 }, // 18	// 2
+				//	{  0.5f,  0.5f, -0.5f,    0,  0, -1,   -1,  0,  0,     0,  1,  0,     1, 0 }, // 19	// 3
+				//	{ -0.5f, -0.5f,  0.5f,    0,  0,  1,    1,  0,  0,     0,  1,  0,     0, 1 }, // 20	// 4
+				//	{  0.5f, -0.5f,  0.5f,    0,  0,  1,    1,  0,  0,     0,  1,  0,     1, 1 }, // 21	// 5
+				//	{ -0.5f,  0.5f,  0.5f,    0,  0,  1,    1,  0,  0,     0,  1,  0,     0, 1 }, // 22	// 6
+				//	{  0.5f,  0.5f,  0.5f,    0,  0,  1,    1,  0,  0,     0,  1,  0,     1, 1 }  // 23	// 7
+				//};
+				//U32 indices[36] =
+				//{
+				//	0,4,2,
+				//	4,6,2,
+				//	1,3,5,
+				//	3,7,5,
+				//	8,9,12,
+				//	9,13,12,
+				//	10,14,11,
+				//	14,15,11,
+				//	16,18,17,
+				//	18,19,17,
+				//	20,21,22,
+				//	21,23,22
+				//};
+
+				//SStaticModelFileHeader asset;
+				//asset.AssetType = EAssetType::StaticModel;
+				//asset.Name = "PrimitiveCube";
+				//asset.NameLength = static_cast<U32>(asset.Name.length());
+				//asset.Meshes.emplace_back();
+				//asset.Meshes.back().NumberOfVertices = 24;
+				//asset.Meshes.back().Vertices.assign(vertices, vertices + 24);
+				//asset.Meshes.back().NumberOfIndices = 36;
+				//asset.Meshes.back().Indices.assign(indices, indices + 36);
+
+				//const auto data = new char[asset.GetSize()];
+
+				//asset.Serialize(data);
+				//CEngine::GetInstance()->GetFileSystem()->Serialize(fileName, &data[0], asset.GetSize());
+				//delete[] data;
+
+				CModelImporter::ImportFBX(fileName);
+			}
+			break;
+		case EAssetType::Texture:
+			{
+				std::string textureFileData;
+				CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, textureFileData);
+
+				STextureFileHeader asset;
+				asset.AssetType = EAssetType::Texture;
+				asset.MaterialName = fileName.substr(0, fileName.find_last_of("."));
+				asset.MaterialNameLength = static_cast<U32>(asset.MaterialName.length());
+				asset.Suffix = fileName[fileName.find_last_of(".") - 1];
+				asset.DataSize = static_cast<U32>(textureFileData.length() * sizeof(char));
+				asset.Data = std::move(textureFileData);
+
+				const auto data = new char[asset.GetSize()];
+
 				asset.Serialize(data);
-				CEngine::GetInstance()->GetFileSystem()->Serialize(fileName, &data[0], asset.GetSize());
+				CEngine::GetInstance()->GetFileSystem()->Serialize(asset.MaterialName + ".hva", &data[0], asset.GetSize());
+				
+				delete[] data;
 			}
 			break;
 		case EAssetType::SkeletalMesh: 
@@ -1193,8 +1218,6 @@ namespace Havtorn
 		case EAssetType::VisualFX: 
 			break;
 		}
-
-		delete[] data;
 	}
 
 	void CRenderManager::LoadStaticMeshComponent(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent)
@@ -1345,9 +1368,25 @@ namespace Havtorn
 		return std::move((void*)shaderResource);
 	}
 
-	void* CRenderManager::GetTextureAssetTexture(const std::string& /*fileName*/)
+	void* CRenderManager::GetTextureAssetTexture(const std::string& fileName)
 	{
-		return nullptr;
+		// Asset Loading
+		const U64 fileSize = CEngine::GetInstance()->GetFileSystem()->GetFileSize(fileName);
+		char* data = new char[fileSize];
+
+		CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, data, static_cast<U32>(fileSize));
+
+		ETextureFormat format = {};
+		if (const std::string extension = fileName.substr(fileName.size() - 4); extension == ".dds")
+			format = ETextureFormat::DDS;
+		else if (extension == ".tga")
+			format = ETextureFormat::TGA;
+
+		STextureFileHeader assetFile;
+		assetFile.Deserialize(data);
+		STextureAsset asset = STextureAsset(assetFile, Framework->GetDevice(), format);
+
+		return asset.ShaderResourceView;
 	}
 
 	const CFullscreenTexture& CRenderManager::GetRenderedSceneTexture() const
@@ -1384,61 +1423,6 @@ namespace Havtorn
 	{
 		//Backbuffer.ClearTexture(clearColor);
 		//myIntermediateDepth.ClearDepth();
-	}
-
-	void CRenderManager::RenderBloom()
-	{
-		//myHalfSizeTexture.SetAsActiveTarget();
-		//myDeferredLightingTexture.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Copy);
-
-		//myQuarterSizeTexture.SetAsActiveTarget();
-		//myHalfSizeTexture.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Copy);
-
-		//myBlurTexture1.SetAsActiveTarget();
-		//myQuarterSizeTexture.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Copy);
-
-		//myBlurTexture2.SetAsActiveTarget();
-		//myBlurTexture1.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GaussianHorizontal);
-
-		//myBlurTexture1.SetAsActiveTarget();
-		//myBlurTexture2.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GaussianVertical);
-
-		//myBlurTexture2.SetAsActiveTarget();
-		//myBlurTexture1.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GaussianHorizontal);
-
-		//myBlurTexture1.SetAsActiveTarget();
-		//myBlurTexture2.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::GaussianVertical);
-
-		//myQuarterSizeTexture.SetAsActiveTarget();
-		//myBlurTexture1.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Copy);
-
-		//myHalfSizeTexture.SetAsActiveTarget();
-		//myQuarterSizeTexture.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Copy);
-
-		//myVignetteTexture.SetAsActiveTarget();
-		//myDeferredLightingTexture.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Copy); // No vignette at this step
-
-		//myDeferredLightingTexture.SetAsActiveTarget();
-		//myVignetteTexture.SetAsResourceOnSlot(0);
-		//myHalfSizeTexture.SetAsResourceOnSlot(1);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Bloom);
-	}
-
-	void CRenderManager::RenderWithoutBloom()
-	{
-		//Backbuffer.SetAsActiveTarget();
-		//myIntermediateTexture.SetAsResourceOnSlot(0);
-		//myFullscreenRenderer.Render(CFullscreenRenderer::FullscreenShader::Vignette);
 	}
 
 	void CRenderManager::ToggleRenderPass(bool shouldToggleForwards)

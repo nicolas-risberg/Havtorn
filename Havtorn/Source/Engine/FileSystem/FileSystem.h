@@ -68,6 +68,7 @@ namespace Havtorn
 
 		void Serialize(const std::string& fileName, const char* data, U32 size);
 		void Deserialize(const std::string& fileName, char* data, U32 size);
+		void Deserialize(const std::string& fileName, std::string& outData);
 		U64 GetFileSize(const std::string& fileName) const;
 
 		std::filesystem::recursive_directory_iterator GetDirectoryIterator(const std::string& root);

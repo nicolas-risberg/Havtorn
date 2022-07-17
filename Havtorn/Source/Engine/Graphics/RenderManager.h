@@ -17,6 +17,7 @@
 //#include "ShadowRenderer.h"
 //#include "DecalRenderer.h"
 #include "GBuffer.h"
+#include "GraphicsEnums.h"
 #include <queue>
 
 #include "Core/RuntimeAssetDeclarations.h"
@@ -37,11 +38,6 @@ namespace Havtorn
 		Clamp,
 		Mirror,
 		Wrap
-	};
-
-	enum class EMaterialConfiguration
-	{
-		AlbedoMaterialNormal_Packed
 	};
 
 	enum class EInputLayoutType
@@ -74,7 +70,7 @@ namespace Havtorn
 
 		void Release();
 
-		void WriteAssetFile(const std::string& fileName, EAssetType assetType);
+		void ConvertToHVA(const std::string& fileName, EAssetType assetType);
 		void LoadStaticMeshComponent(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent);
 		void LoadMaterialComponent(const std::vector<std::string>& materialNames, SMaterialComponent* outMaterialComponent);
 
@@ -109,8 +105,6 @@ namespace Havtorn
 		void LoadDemoSceneResources();
 
 	private:
-		void RenderBloom();
-		void RenderWithoutBloom();
 		void ToggleRenderPass(bool shouldToggleForwards = true);
 
 	private:

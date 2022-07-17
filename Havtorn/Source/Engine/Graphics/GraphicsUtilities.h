@@ -4,17 +4,12 @@
 #include <fstream>
 #include <DirectXTex/DirectXTex.h>
 #include "GraphicsFramework.h"
+#include "GraphicsEnums.h"
 
 #define ASSETPATH(path) std::string(path).c_str()
 
 namespace Havtorn
 {
-	enum class ETextureFormat
-	{
-		DDS,
-		TGA
-	};
-
 	namespace UGraphicsUtils
 	{
 		static bool CreateVertexShader(const std::string& filepath, const CGraphicsFramework* framework, ID3D11VertexShader** outVertexShader, std::string& outShaderData)
@@ -68,6 +63,7 @@ namespace Havtorn
 			case ETextureFormat::DDS:
 				GetMetadataFromDDSFile(widePath, DirectX::DDS_FLAGS_NONE, metaData);
 				LoadFromDDSFile(widePath, DirectX::DDS_FLAGS_NONE, &metaData, scratchImage);
+				
 				break;
 			case ETextureFormat::TGA:
 				GetMetadataFromTGAFile(widePath, DirectX::TGA_FLAGS_NONE, metaData);
@@ -80,6 +76,29 @@ namespace Havtorn
 			return DirectX::CreateShaderResourceView(device, image, scratchImage.GetImageCount(), metaData, outShaderResourceView);
 		}
 
+		static HRESULT CreateShaderResourceView(ID3D11Device* device, const void* data, U64 size, ETextureFormat format, ID3D11ShaderResourceView** outShaderResourceView)
+		{
+			DirectX::ScratchImage scratchImage;
+			DirectX::TexMetadata metaData = {};
+
+			switch (format)
+			{
+			case ETextureFormat::DDS:
+				GetMetadataFromDDSMemory(data, size, DirectX::DDS_FLAGS_NONE, metaData);
+				LoadFromDDSMemory(data, size, DirectX::DDS_FLAGS_NONE, &metaData, scratchImage);
+
+				break;
+			case ETextureFormat::TGA:
+				GetMetadataFromTGAMemory(data, size, DirectX::TGA_FLAGS_NONE, metaData);
+				LoadFromTGAMemory(data, size, DirectX::TGA_FLAGS_NONE, &metaData, scratchImage);
+				break;
+			}
+
+			const DirectX::Image* image = scratchImage.GetImage(0, 0, 0);
+
+			return DirectX::CreateShaderResourceView(device, image, scratchImage.GetImageCount(), metaData, outShaderResourceView);
+		}
+
 		static ID3D11ShaderResourceView* TryGetShaderResourceView(ID3D11Device* device, const std::string& texturePath)
 		{
 			ID3D11ShaderResourceView* shaderResourceView;
@@ -87,6 +106,27 @@ namespace Havtorn
 			const std::string errorString = "Texture with the following path could not be loaded: " + texturePath;
 			ENGINE_HR_MESSAGE(CreateShaderResourceView(device, texturePath, &shaderResourceView), errorString.c_str());
 			
+			return shaderResourceView;
+		}
+
+		static ID3D11ShaderResourceView* TryGetShaderResourceView(ID3D11Device* device, const void* data, U64 size, ETextureFormat format)
+		{
+			ID3D11ShaderResourceView* shaderResourceView;
+
+			std::string formatString = "";
+			switch (format)
+			{
+			case Havtorn::ETextureFormat::DDS:
+				formatString = "DDS";
+				break;
+			case Havtorn::ETextureFormat::TGA:
+				formatString = "TGA";
+				break;
+			}
+
+			const std::string errorString = formatString + " texture could not be loaded from memory!";
+			ENGINE_HR_MESSAGE(CreateShaderResourceView(device, data, size, format, &shaderResourceView), errorString.c_str());
+
 			return shaderResourceView;
 		}
 
