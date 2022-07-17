@@ -37,6 +37,7 @@ namespace ImGui
 		const SEditorLayout& layout = Manager->GetEditorLayout();
 
 		const ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+
 		ImGui::SetNextWindowPos(ImVec2(mainViewport->WorkPos.x + layout.InspectorPosition.X, mainViewport->WorkPos.y + layout.InspectorPosition.Y));
 		ImGui::SetNextWindowSize(ImVec2(layout.InspectorSize.X, layout.InspectorSize.Y));
 

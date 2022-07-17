@@ -32,13 +32,13 @@ namespace Havtorn
 	{
 		STextureAsset() = default;
 
-		explicit STextureAsset(const STextureFileHeader assetFileData, ID3D11Device* graphicsDevice, ETextureFormat format)
+		explicit STextureAsset(const STextureFileHeader assetFileData, ID3D11Device* graphicsDevice)
 			: AssetType(assetFileData.AssetType)
 			, MaterialName(assetFileData.MaterialName)
 			, MaterialConfiguration(assetFileData.MaterialConfiguration)
 			, Suffix(assetFileData.Suffix)
 		{
-			ShaderResourceView = std::move(UGraphicsUtils::TryGetShaderResourceView(graphicsDevice, assetFileData.Data.data(), assetFileData.DataSize, format));
+			ShaderResourceView = std::move(UGraphicsUtils::TryGetShaderResourceView(graphicsDevice, assetFileData.Data.data(), assetFileData.DataSize, assetFileData.OriginalFormat));
 		}
 
 		EAssetType AssetType = EAssetType::Texture;

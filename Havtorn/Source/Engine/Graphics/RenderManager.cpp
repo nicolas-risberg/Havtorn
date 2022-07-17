@@ -255,6 +255,7 @@ namespace Havtorn
 		ConvertToHVA("Assets/Tests/En_P_Bed.fbx", EAssetType::StaticMesh);
 		ConvertToHVA("Assets/Tests/Quad.fbx", EAssetType::StaticMesh);
 		ConvertToHVA("Assets/Textures/T_PendulumClock_c.DDS", EAssetType::Texture);
+		ConvertToHVA("Assets/Textures/T_TGA_Test.tga", EAssetType::Texture);
 	}
 
 	void CRenderManager::Render()
@@ -1191,10 +1192,17 @@ namespace Havtorn
 				std::string textureFileData;
 				CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, textureFileData);
 
+				ETextureFormat format = {};
+				if (const std::string extension = fileName.substr(fileName.size() - 4); extension == ".dds")
+					format = ETextureFormat::DDS;
+				else if (extension == ".tga")
+					format = ETextureFormat::TGA;
+
 				STextureFileHeader asset;
 				asset.AssetType = EAssetType::Texture;
 				asset.MaterialName = fileName.substr(0, fileName.find_last_of("."));
 				asset.MaterialNameLength = static_cast<U32>(asset.MaterialName.length());
+				asset.OriginalFormat = format;
 				asset.Suffix = fileName[fileName.find_last_of(".") - 1];
 				asset.DataSize = static_cast<U32>(textureFileData.length() * sizeof(char));
 				asset.Data = std::move(textureFileData);
@@ -1376,15 +1384,15 @@ namespace Havtorn
 
 		CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, data, static_cast<U32>(fileSize));
 
-		ETextureFormat format = {};
-		if (const std::string extension = fileName.substr(fileName.size() - 4); extension == ".dds")
-			format = ETextureFormat::DDS;
-		else if (extension == ".tga")
-			format = ETextureFormat::TGA;
+		//ETextureFormat format = {};
+		//if (const std::string extension = fileName.substr(fileName.size() - 4); extension == ".dds")
+		//	format = ETextureFormat::DDS;
+		//else if (extension == ".tga")
+		//	format = ETextureFormat::TGA;
 
 		STextureFileHeader assetFile;
 		assetFile.Deserialize(data);
-		STextureAsset asset = STextureAsset(assetFile, Framework->GetDevice(), format);
+		STextureAsset asset = STextureAsset(assetFile, Framework->GetDevice());
 
 		return asset.ShaderResourceView;
 	}

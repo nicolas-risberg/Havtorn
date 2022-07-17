@@ -26,7 +26,6 @@ namespace Havtorn
 			break;
 		case Havtorn::EAssetType::Texture:
 			return std::move(RenderManager->GetTextureAssetTexture(fileName));
-			//return GetEditorTexture(EEditorTexture::FileIcon);
 		case Havtorn::EAssetType::Animation:
 			break;
 		case Havtorn::EAssetType::AudioOneShot:

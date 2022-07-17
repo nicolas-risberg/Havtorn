@@ -126,8 +126,8 @@ namespace Havtorn
 	{
 		EAssetType AssetType = EAssetType::Texture;
 		U32 MaterialNameLength = 0;
-		//ETextureFormat
-		std::string MaterialName;
+		std::string MaterialName = "";
+		ETextureFormat OriginalFormat = ETextureFormat::DDS;
 		EMaterialConfiguration MaterialConfiguration = EMaterialConfiguration::AlbedoMaterialNormal_Packed;
 		char Suffix = 0;
 		U32 DataSize = 0;
@@ -143,6 +143,7 @@ namespace Havtorn
 		U32 size = sizeof(EAssetType);
 		size += sizeof(U32);
 		size += sizeof(char) * MaterialNameLength;
+		size += sizeof(ETextureFormat);
 		size += sizeof(EMaterialConfiguration);
 		size += sizeof(char);
 		size += sizeof(U32);
@@ -157,6 +158,7 @@ namespace Havtorn
 		pointerPosition += SerializeSimple(AssetType, toData, pointerPosition);
 		pointerPosition += SerializeSimple(MaterialNameLength, toData, pointerPosition);
 		pointerPosition += SerializeString(MaterialName, toData, pointerPosition);
+		pointerPosition += SerializeSimple(OriginalFormat, toData, pointerPosition);
 		pointerPosition += SerializeSimple(MaterialConfiguration, toData, pointerPosition);
 		pointerPosition += SerializeSimple(Suffix, toData, pointerPosition);
 		pointerPosition += SerializeSimple(DataSize, toData, pointerPosition);
@@ -169,6 +171,7 @@ namespace Havtorn
 		pointerPosition += DeserializeSimple(AssetType, fromData, pointerPosition);
 		pointerPosition += DeserializeSimple(MaterialNameLength, fromData, pointerPosition);
 		pointerPosition += DeserializeString(MaterialName, fromData, MaterialNameLength, pointerPosition);
+		pointerPosition += DeserializeSimple(OriginalFormat, fromData, pointerPosition);
 		pointerPosition += DeserializeSimple(MaterialConfiguration, fromData, pointerPosition);
 		pointerPosition += DeserializeSimple(Suffix, fromData, pointerPosition);
 		pointerPosition += DeserializeSimple(DataSize, fromData, pointerPosition);
