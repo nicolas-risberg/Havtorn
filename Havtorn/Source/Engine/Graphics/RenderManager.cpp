@@ -32,6 +32,7 @@
 #include "FileSystem/FileSystem.h"
 #include "Threading/ThreadManager.h"
 #include "MaterialHandler.h"
+#include "TextureBank.h"
 
 #include "ModelImporter.h"
 
@@ -150,7 +151,8 @@ namespace Havtorn
 		RenderedScene = FullscreenTextureFactory.CreateTexture(windowHandler->GetResolution(), DXGI_FORMAT_R16G16B16A16_FLOAT);
 		IntermediateDepth = FullscreenTextureFactory.CreateDepth(windowHandler->GetResolution(), DXGI_FORMAT_R24G8_TYPELESS);
 
-		DefaultCubemap = CEngine::GetInstance()->GetMaterialHandler()->RequestCubemap("CubemapTheVisit");
+		//DefaultCubemap = CEngine::GetInstance()->GetMaterialHandler()->RequestCubemap("CubemapTheVisit");
+		DefaultCubemap = CEngine::GetInstance()->GetTextureBank()->GetTexture("Assets/Textures/Cubemaps/CubemapTheVisit.hva");
 
 		ShadowAtlasResolution = {8192.0f, 8192.0f};
 		InitShadowmapAtlas(ShadowAtlasResolution);
@@ -251,11 +253,6 @@ namespace Havtorn
 
 	void CRenderManager::LoadDemoSceneResources()
 	{
-		ConvertToHVA("Assets/Tests/En_P_PendulumClock.fbx", EAssetType::StaticMesh);
-		ConvertToHVA("Assets/Tests/En_P_Bed.fbx", EAssetType::StaticMesh);
-		ConvertToHVA("Assets/Tests/Quad.fbx", EAssetType::StaticMesh);
-		ConvertToHVA("Assets/Textures/T_PendulumClock_c.DDS", EAssetType::Texture);
-		ConvertToHVA("Assets/Textures/T_TGA_Test.tga", EAssetType::Texture);
 	}
 
 	void CRenderManager::Render()
@@ -442,6 +439,7 @@ namespace Havtorn
 					ID3D11SamplerState* sampler = Samplers[staticMeshComp->SamplerIndex];
 					Context->PSSetSamplers(0, 1, &sampler);
 
+					auto textureBank = CEngine::GetInstance()->GetTextureBank();
 					for (U8 drawCallIndex = 0; drawCallIndex < static_cast<U8>(staticMeshComp->DrawCallData.size()); drawCallIndex++)
 					{
 						// Load Textures
@@ -449,7 +447,7 @@ namespace Havtorn
 						resourceViewPointers.resize(TexturesPerMaterial);
 						for (U8 textureIndex = 0, pointerTracker = 0; textureIndex < TexturesPerMaterial; textureIndex++, pointerTracker++)
 						{
-							resourceViewPointers[pointerTracker] = Textures[materialComp->MaterialReferences[textureIndex + drawCallIndex * TexturesPerMaterial]];
+							resourceViewPointers[pointerTracker] = textureBank->GetTexture(materialComp->MaterialReferences[textureIndex + drawCallIndex * TexturesPerMaterial]);
 						}
 						Context->PSSetShaderResources(5, TexturesPerMaterial, resourceViewPointers.data());
 
@@ -681,17 +679,17 @@ namespace Havtorn
 			AntiAliasedTexture.SetAsResourceOnSlot(0);
 			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::GammaCorrection);
 
-			// Draw debug shadow atlas
-			D3D11_VIEWPORT viewport;
-			viewport.TopLeftX = 0.0f;
-			viewport.TopLeftY = 0.0f;
-			viewport.Width = 256.0f;
-			viewport.Height = 256.0f;
-			viewport.MinDepth = 0.0f;
-			viewport.MaxDepth = 1.0f;
-			Context->RSSetViewports(1, &viewport);
-			ShadowAtlasDepth.SetAsResourceOnSlot(0);
-			FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::CopyDepth);
+			//// Draw debug shadow atlas
+			//D3D11_VIEWPORT viewport;
+			//viewport.TopLeftX = 0.0f;
+			//viewport.TopLeftY = 0.0f;
+			//viewport.Width = 256.0f;
+			//viewport.Height = 256.0f;
+			//viewport.MinDepth = 0.0f;
+			//viewport.MaxDepth = 1.0f;
+			//Context->RSSetViewports(1, &viewport);
+			//ShadowAtlasDepth.SetAsResourceOnSlot(0);
+			//FullscreenRenderer.Render(CFullscreenRenderer::EFullscreenShader::CopyDepth);
 
 			// RenderedScene should be complete as that is the texture we send to the viewport
 			Backbuffer.SetAsActiveTarget();
@@ -1275,15 +1273,15 @@ namespace Havtorn
 		}
 	}
 
-	ID3D11ShaderResourceView* CRenderManager::GetTexture(I64 textureIndex) const
-	{
-		return Textures[textureIndex];
-	}
+	//ID3D11ShaderResourceView* CRenderManager::GetTexture(I64 textureIndex) const
+	//{
+	//	return Textures[textureIndex];
+	//}
 
-	const std::vector<ID3D11ShaderResourceView*>& CRenderManager::GetTextures() const
-	{
-		return Textures;
-	}
+	//const std::vector<ID3D11ShaderResourceView*>& CRenderManager::GetTextures() const
+	//{
+	//	return Textures;
+	//}
 
 	EMaterialConfiguration CRenderManager::GetMaterialConfiguration() const
 	{
@@ -1310,6 +1308,31 @@ namespace Havtorn
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = 0;
 
+		D3D11_TEXTURE2D_DESC depthStencilDesc = { 0 };
+		depthStencilDesc.Width = static_cast<U16>(256.0f);
+		depthStencilDesc.Height = static_cast<U16>(256.0f);
+		depthStencilDesc.MipLevels = 1;
+		depthStencilDesc.ArraySize = 1;
+		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+		depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.CPUAccessFlags = 0;
+		depthStencilDesc.MiscFlags = 0;
+
+		D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+		depthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		depthStencilViewDesc.Texture2D.MipSlice = 0;
+		depthStencilViewDesc.Flags = 0;
+
+		ID3D11Texture2D* depthStencilBuffer;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateTexture2D(&depthStencilDesc, nullptr, &depthStencilBuffer), "Texture could not be created.");
+		
+		ID3D11DepthStencilView* depthStencilView;
+		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateDepthStencilView(depthStencilBuffer, &depthStencilViewDesc, &depthStencilView), "Depth could not be created.");
+
 		ID3D11Texture2D* texture;
 		ENGINE_HR_MESSAGE(Framework->GetDevice()->CreateTexture2D(&textureDesc, nullptr, &texture), "Could not create Fullscreen Texture2D");
 
@@ -1324,6 +1347,7 @@ namespace Havtorn
 		texture->GetDesc(&textureDescription);
 		viewport = new D3D11_VIEWPORT({ 0.0f, 0.0f, static_cast<F32>(textureDescription.Width), static_cast<F32>(textureDescription.Height), 0.0f, 1.0f });
 
+		// TODO.NR: Figure out why the depth doesn't work
 		Context->OMSetRenderTargets(1, &renderTarget, nullptr);
 		Context->RSSetViewports(1, viewport);
 
@@ -1372,6 +1396,11 @@ namespace Havtorn
 		}
 
 		delete staticMeshComp;
+		delete viewport;
+		renderTarget->Release();
+		texture->Release();
+		depthStencilView->Release();
+		depthStencilBuffer->Release();
 
 		return std::move((void*)shaderResource);
 	}
@@ -1383,12 +1412,6 @@ namespace Havtorn
 		char* data = new char[fileSize];
 
 		CEngine::GetInstance()->GetFileSystem()->Deserialize(fileName, data, static_cast<U32>(fileSize));
-
-		//ETextureFormat format = {};
-		//if (const std::string extension = fileName.substr(fileName.size() - 4); extension == ".dds")
-		//	format = ETextureFormat::DDS;
-		//else if (extension == ".tga")
-		//	format = ETextureFormat::TGA;
 
 		STextureFileHeader assetFile;
 		assetFile.Deserialize(data);
@@ -1595,24 +1618,12 @@ namespace Havtorn
 		{
 		case EMaterialConfiguration::AlbedoMaterialNormal_Packed:
 		{
-			auto textures = CEngine::GetInstance()->GetMaterialHandler()->RequestMaterial(materialName);
-			if (const auto it = std::ranges::find(MaterialNames, materialName); it == MaterialNames.end())
-			{
-				Textures.emplace_back(std::move(textures[0]));
-				references.emplace_back(static_cast<U16>(Textures.size() - 1));
-				Textures.emplace_back(std::move(textures[1]));
-				references.emplace_back(static_cast<U16>(Textures.size() - 1));
-				Textures.emplace_back(std::move(textures[2]));
-				references.emplace_back(static_cast<U16>(Textures.size() - 1));
-				MaterialNames.emplace_back(materialName);
-			}
-			else
-			{
-				const U16 materialTextureStartIndex = static_cast<U16>(std::distance(MaterialNames.begin(), it)) * TexturesPerMaterial;
-				references.emplace_back(static_cast<U16>(materialTextureStartIndex));
-				references.emplace_back(static_cast<U16>(materialTextureStartIndex + 1));
-				references.emplace_back(static_cast<U16>(materialTextureStartIndex + 2));
-			}
+			const std::string texturesFolder = "Assets/Textures/";
+			auto textureBank = CEngine::GetInstance()->GetTextureBank();
+
+			references.emplace_back(static_cast<U16>(textureBank->GetTextureIndex(texturesFolder + materialName + "_c.hva")));
+			references.emplace_back(static_cast<U16>(textureBank->GetTextureIndex(texturesFolder + materialName + "_m.hva")));
+			references.emplace_back(static_cast<U16>(textureBank->GetTextureIndex(texturesFolder + materialName + "_n.hva")));
 		}
 			break;
 		}

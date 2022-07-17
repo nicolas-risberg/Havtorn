@@ -5,8 +5,10 @@
 #include <imgui.h>
 
 #include "ECS/ECSInclude.h"
+#include "Engine.h"
 #include "Editor/EditorManager.h"
 #include "Graphics/RenderManager.h"
+#include "Graphics/TextureBank.h"
 #include "Scene/Scene.h"
 
 namespace ImGui
@@ -165,8 +167,8 @@ namespace ImGui
 					break;
 				}
 
-				Havtorn::I64 ref = materialComp->MaterialReferences[materialIndex];
-				if (ImGui::ImageButton((void*)renderManager->GetTexture(ref), { TexturePreviewSize.X, TexturePreviewSize.Y }))
+				Havtorn::U16 ref = materialComp->MaterialReferences[materialIndex];
+				if (ImGui::ImageButton((void*)Havtorn::CEngine::GetInstance()->GetTextureBank()->GetTexture(ref), { TexturePreviewSize.X, TexturePreviewSize.Y }))
 				{
 					MaterialRefToChangeIndex = materialIndex;
 					ImGui::OpenPopup("Select Texture Asset");
@@ -177,7 +179,6 @@ namespace ImGui
 
 		if (ImGui::BeginPopupModal("Select Texture Asset", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			auto& textures = renderManager->GetTextures();
 			F32 thumbnailPadding = 4.0f;
 			F32 cellWidth = TexturePreviewSize.X * 0.75f + thumbnailPadding;
 			F32 panelWidth = 256.0f;
@@ -186,14 +187,19 @@ namespace ImGui
 
 			if (ImGui::BeginTable("NewTextureAssetTable", columnCount))
 			{
-				for (Havtorn::U16 index = 0; index < textures.size(); index++)
+				for (auto& entry : std::filesystem::directory_iterator("Assets/Textures"))
 				{
+					if (entry.is_directory())
+						continue;
+
+					auto& assetRep = Manager->GetAssetRepFromDirEntry(entry);
+
 					ImGui::TableNextColumn();
 					ImGui::PushID(id++);
 
-					if (ImGui::ImageButton((void*)textures[index], { TexturePreviewSize.X * 0.75f, TexturePreviewSize.Y * 0.75f }))
+					if (ImGui::ImageButton(assetRep->TextureRef, { TexturePreviewSize.X * 0.75f, TexturePreviewSize.Y * 0.75f }))
 					{
-						materialComp->MaterialReferences[MaterialRefToChangeIndex] = index;
+						materialComp->MaterialReferences[MaterialRefToChangeIndex] = static_cast<Havtorn::U16>(Havtorn::CEngine::GetInstance()->GetTextureBank()->GetTextureIndex(entry.path().string()));
 						ImGui::CloseCurrentPopup();
 					}
 

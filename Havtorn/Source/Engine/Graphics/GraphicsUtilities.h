@@ -5,6 +5,9 @@
 #include <DirectXTex/DirectXTex.h>
 #include "GraphicsFramework.h"
 #include "GraphicsEnums.h"
+#include "Engine.h"
+#include "FileSystem/FileSystem.h"
+#include "FileSystem/FileHeaderDeclarations.h"
 
 #define ASSETPATH(path) std::string(path).c_str()
 
@@ -44,6 +47,39 @@ namespace Havtorn
 		}
 
 		static HRESULT CreateShaderResourceView(ID3D11Device* device, const std::string& filePath, ID3D11ShaderResourceView** outShaderResourceView)
+		{
+			const U64 fileSize = CEngine::GetInstance()->GetFileSystem()->GetFileSize(filePath);
+			char* data = new char[fileSize];
+
+			CEngine::GetInstance()->GetFileSystem()->Deserialize(filePath, data, static_cast<U32>(fileSize));
+
+			STextureFileHeader assetFile;
+			assetFile.Deserialize(data);
+
+			DirectX::ScratchImage scratchImage;
+			DirectX::TexMetadata metaData = {};
+
+			switch (assetFile.OriginalFormat)
+			{
+			case ETextureFormat::DDS:
+				GetMetadataFromDDSMemory(assetFile.Data.data(), assetFile.DataSize, DirectX::DDS_FLAGS_NONE, metaData);
+				LoadFromDDSMemory(assetFile.Data.data(), assetFile.DataSize, DirectX::DDS_FLAGS_NONE, &metaData, scratchImage);
+
+				break;
+			case ETextureFormat::TGA:
+				GetMetadataFromTGAMemory(assetFile.Data.data(), assetFile.DataSize, DirectX::TGA_FLAGS_NONE, metaData);
+				LoadFromTGAMemory(assetFile.Data.data(), assetFile.DataSize, DirectX::TGA_FLAGS_NONE, &metaData, scratchImage);
+				break;
+			}
+
+			delete[] data;
+			const DirectX::Image* image = scratchImage.GetImage(0, 0, 0);
+
+			return DirectX::CreateShaderResourceView(device, image, scratchImage.GetImageCount(), metaData, outShaderResourceView);
+		}
+
+
+		static HRESULT CreateShaderResourceViewFromResource(ID3D11Device* device, const std::string& filePath, ID3D11ShaderResourceView** outShaderResourceView)
 		{
 			DirectX::ScratchImage scratchImage;
 			DirectX::TexMetadata metaData = {};

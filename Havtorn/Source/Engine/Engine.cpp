@@ -14,6 +14,7 @@
 #include "Threading/ThreadManager.h"
 #include "Graphics/GraphicsFramework.h"
 #include "Graphics/MaterialHandler.h"
+#include "Graphics/TextureBank.h"
 #ifdef _DEBUG
 #include "Editor/EditorManager.h"
 #endif
@@ -70,93 +71,25 @@ namespace Havtorn
 		ThreadManager = new CThreadManager();
 		Framework = new CGraphicsFramework();
 		MaterialHandler = new CMaterialHandler();
+		TextureBank = new CTextureBank();
 		RenderManager = new CRenderManager();
 #ifdef _DEBUG
 		EditorManager = new CEditorManager();
 #endif
 		InputMapper = new CInputMapper();
-		//ForwardRenderer = new CForwardRenderer();
-		//ModelFactory = new CModelFactory();
-		//CameraFactory = new CCameraFactory();
-		//LightFactory = new CLightFactory();
-		//ParticleFactory = new CParticleEmitterFactory();
-		//VFXFactory = new CVFXMeshFactory();
-		//LineFactory = new CLineFactory();
-		//SpriteFactory = new CSpriteFactory();
-		//TextFactory = new CTextFactory();
-		//DecalFactory = new CDecalFactory();
-		//InputMapper = new CInputMapper();
-		//Debug = new CDebug();
 		Scene = new CScene();
-		//MainSingleton = new CMainSingleton();
-		//// Audio Manager must be constructed after main singleton, since it subscribes to postmaster messages
-		//AudioManager = new CAudioManager();
-		////myActiveScene = 0; //muc bad
-		//myActiveState = CStateStack::EState::BootUp;
-		//PhysxWrapper = new CPhysXWrapper();
-		//SceneFactory = new CSceneFactory();
-		//myDialogueSystem = new CDialogueSystem();
 	}
 
 	CEngine::~CEngine()
 	{
-		//auto it = mySceneMap.begin();
-		//while (it != mySceneMap.end())
-		//{
-		//	delete it->second;
-		//	it->second = nullptr;
-		//	++it;
-		//}
-
-		//delete ModelFactory;
-		//ModelFactory = nullptr;
-		//delete CameraFactory;
-		//CameraFactory = nullptr;
-		//delete LightFactory;
-		//LightFactory = nullptr;
-
-		//delete ParticleFactory;
-		//ParticleFactory = nullptr;
-		//delete VFXFactory;
-		//VFXFactory = nullptr;
-		//delete LineFactory;
-		//LineFactory = nullptr;
-		//delete SpriteFactory;
-		//SpriteFactory = nullptr;
-		//delete TextFactory;
-		//TextFactory = nullptr;
-		//delete DecalFactory;
-		//DecalFactory = nullptr;
-		//delete InputMapper;
-		//InputMapper = nullptr;
-
-		//delete Debug;
-		//Debug = nullptr;
-
-		//// Audio Manager must be destroyed before main singleton, since it unsubscribes from postmaster messages
-		//delete AudioManager;
-		//AudioManager = nullptr;
-
-		////delete myDialogueSystem;
-		////myDialogueSystem = nullptr;
-
-		//delete MainSingleton;
-		//MainSingleton = nullptr;
-
-		//delete PhysxWrapper;
-		//PhysxWrapper = nullptr;
-
-		//delete SceneFactory;
-		//SceneFactory = nullptr;
-
 		SAFE_DELETE(Scene);
 		SAFE_DELETE(InputMapper);
-
 #ifdef _DEBUG
 		SAFE_DELETE(EditorManager);
 #endif
 		SAFE_DELETE(ThreadManager);
 		SAFE_DELETE(RenderManager);
+		SAFE_DELETE(TextureBank);
 		SAFE_DELETE(MaterialHandler);
 		SAFE_DELETE(Framework);
 		SAFE_DELETE(WindowHandler);
@@ -172,6 +105,7 @@ namespace Havtorn
 		WindowHandler->SetInternalResolution();
 		ENGINE_ERROR_BOOL_MESSAGE(Framework->Init(WindowHandler), "Framework could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(MaterialHandler->Init(Framework), "MaterialHandler could not be initialized.");
+		ENGINE_ERROR_BOOL_MESSAGE(TextureBank->Init(Framework), "TextureBank could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(RenderManager->Init(Framework, WindowHandler), "RenderManager could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(ThreadManager->Init(RenderManager), "Thread Manager could not be initialized.");
 		ENGINE_ERROR_BOOL_MESSAGE(InputMapper->Init(), "Input Mapper could not be initialized.");
@@ -279,6 +213,11 @@ namespace Havtorn
 	CMaterialHandler* CEngine::GetMaterialHandler()
 	{
 		return MaterialHandler;
+	}
+
+	CTextureBank* CEngine::GetTextureBank()
+	{
+		return TextureBank;
 	}
 
 	void CEngine::InitWindowsImaging()

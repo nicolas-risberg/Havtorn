@@ -42,6 +42,11 @@ namespace Havtorn
 		return nullptr;
 	}
 
+	void CEditorResourceManager::ConvertToHVA(const std::string fileName, EAssetType assetType)
+	{
+		RenderManager->ConvertToHVA(fileName, assetType);
+	}
+
 	std::string CEditorResourceManager::GetFileName(EEditorTexture texture)
 	{
 		std::string extension = ".dds";
@@ -79,7 +84,7 @@ namespace Havtorn
 
 		for (I64 index = 0; index < textureCount; index++)
 		{
-			UGraphicsUtils::CreateShaderResourceView(device, GetFileName(static_cast<EEditorTexture>(index)), &Textures[index]);
+			UGraphicsUtils::CreateShaderResourceViewFromResource(device, GetFileName(static_cast<EEditorTexture>(index)), &Textures[index]);
 		}
 
 		return true;

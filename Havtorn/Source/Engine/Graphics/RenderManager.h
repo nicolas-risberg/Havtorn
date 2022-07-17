@@ -74,8 +74,8 @@ namespace Havtorn
 		void LoadStaticMeshComponent(const std::string& fileName, SStaticMeshComponent* outStaticMeshComponent);
 		void LoadMaterialComponent(const std::vector<std::string>& materialNames, SMaterialComponent* outMaterialComponent);
 
-		ID3D11ShaderResourceView* GetTexture(I64 textureIndex) const;
-		const std::vector<ID3D11ShaderResourceView*>& GetTextures() const;
+		//ID3D11ShaderResourceView* GetTexture(I64 textureIndex) const;
+		//const std::vector<ID3D11ShaderResourceView*>& GetTextures() const;
 		EMaterialConfiguration GetMaterialConfiguration() const;
 		SVector2<F32> GetShadowAtlasResolution() const;
 
@@ -253,8 +253,8 @@ namespace Havtorn
 		bool UseAntiAliasing;
 		bool UseBrokenScreenPass;
 
-		std::vector<std::string> MaterialNames;
-		std::vector<ID3D11ShaderResourceView*> Textures;
+		//std::vector<std::string> MaterialNames;
+		//std::vector<ID3D11ShaderResourceView*> Textures;
 		std::vector<ID3D11VertexShader*> VertexShaders;
 		std::vector<ID3D11PixelShader*> PixelShaders;
 		std::vector<ID3D11SamplerState*> Samplers;
