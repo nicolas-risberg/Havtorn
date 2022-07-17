@@ -47,7 +47,7 @@ namespace Havtorn
 		SStaticModelFileHeader fileHeader;
 		if (hasPositions && hasNormals && hasTangents && hasTextures && !hasBones)
 		{
-			fileHeader.AssetType = EAssetType::StaticModel;
+			fileHeader.AssetType = EAssetType::StaticMesh;
 		}
 		
 		fileHeader.NameLength = assimpScene->mName.length;
@@ -76,7 +76,7 @@ namespace Havtorn
 			{
 				switch (fileHeader.AssetType)
 				{
-				case EAssetType::StaticModel:
+				case EAssetType::StaticMesh:
 				{
 					SStaticMeshVertex newVertex;
 

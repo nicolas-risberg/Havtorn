@@ -14,7 +14,7 @@ namespace Havtorn
 	enum class EAssetType
 	{
 		None,
-		StaticModel,
+		StaticMesh,
 		SkeletalMesh,
 		Texture,
 		Animation,

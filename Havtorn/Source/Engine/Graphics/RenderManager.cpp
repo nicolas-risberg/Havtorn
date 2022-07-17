@@ -251,9 +251,9 @@ namespace Havtorn
 
 	void CRenderManager::LoadDemoSceneResources()
 	{
-		ConvertToHVA("Assets/Tests/En_P_PendulumClock.fbx", EAssetType::StaticModel);
-		ConvertToHVA("Assets/Tests/En_P_Bed.fbx", EAssetType::StaticModel);
-		ConvertToHVA("Assets/Tests/Quad.fbx", EAssetType::StaticModel);
+		ConvertToHVA("Assets/Tests/En_P_PendulumClock.fbx", EAssetType::StaticMesh);
+		ConvertToHVA("Assets/Tests/En_P_Bed.fbx", EAssetType::StaticMesh);
+		ConvertToHVA("Assets/Tests/Quad.fbx", EAssetType::StaticMesh);
 		ConvertToHVA("Assets/Textures/T_PendulumClock_c.DDS", EAssetType::Texture);
 	}
 
@@ -1119,7 +1119,7 @@ namespace Havtorn
 	{
 		switch (assetType)
 		{
-		case EAssetType::StaticModel:
+		case EAssetType::StaticMesh:
 			{
 				//SStaticMeshVertex vertices[24] =
 				//{
@@ -1168,7 +1168,7 @@ namespace Havtorn
 				//};
 
 				//SStaticModelFileHeader asset;
-				//asset.AssetType = EAssetType::StaticModel;
+				//asset.AssetType = EAssetType::StaticMesh;
 				//asset.Name = "PrimitiveCube";
 				//asset.NameLength = static_cast<U32>(asset.Name.length());
 				//asset.Meshes.emplace_back();

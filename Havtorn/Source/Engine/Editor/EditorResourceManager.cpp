@@ -20,7 +20,7 @@ namespace Havtorn
 	{
 		switch (assetType)
 		{
-		case Havtorn::EAssetType::StaticModel:
+		case Havtorn::EAssetType::StaticMesh:
 			return std::move(RenderManager->RenderStaticMeshAssetTexture(fileName));
 		case Havtorn::EAssetType::SkeletalMesh:
 			break;

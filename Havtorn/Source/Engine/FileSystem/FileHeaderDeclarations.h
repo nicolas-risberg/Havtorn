@@ -56,7 +56,7 @@ namespace Havtorn
 
 	struct SStaticModelFileHeader
 	{
-		EAssetType AssetType = EAssetType::StaticModel;
+		EAssetType AssetType = EAssetType::StaticMesh;
 		U32 NameLength = 0;
 		std::string Name;
 		U32 NumberOfMeshes = 0;

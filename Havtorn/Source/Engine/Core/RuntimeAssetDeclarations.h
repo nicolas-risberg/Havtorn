@@ -23,7 +23,7 @@ namespace Havtorn
 			}
 		}
 
-		EAssetType AssetType = EAssetType::StaticModel;
+		EAssetType AssetType = EAssetType::StaticMesh;
 		std::string Name;
 		std::vector<SDrawCallData> DrawCallData;
 	};
