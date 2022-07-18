@@ -203,13 +203,14 @@ namespace ImGui
 						ImGui::CloseCurrentPopup();
 					}
 
+					ImGui::Text(assetRep->Name.c_str());
 					ImGui::PopID();
 				}
 
 				ImGui::EndTable();
 			}
 
-			if (ImGui::Button("Cancel", ImVec2(270.0f, 0))) { ImGui::CloseCurrentPopup(); }
+			if (ImGui::Button("Cancel", ImVec2(ImGui::GetContentRegionAvail().x, 0))) { ImGui::CloseCurrentPopup(); }
 
 			ImGui::EndPopup();
 		}
@@ -221,16 +222,16 @@ namespace ImGui
 		{
 			auto& directionalLightComp = Scene->GetDirectionalLightComponents()[directionalLightComponentIndex];
 			
-			const SVector4 position = directionalLightComp->Direction;
-			Havtorn::F32 dirData[3] = { position.X, position.Y, position.Z };
-			ImGui::DragFloat3("Direction", dirData, SlideSpeed);
-			directionalLightComp->Direction = { dirData[0], dirData[1], dirData[2], 0.0f };
-			
 			Havtorn::F32 colorData[3] = { directionalLightComp->Color.X, directionalLightComp->Color.Y, directionalLightComp->Color.Z };
 			ImGui::ColorPicker3("Color", colorData);
 			directionalLightComp->Color.X = colorData[0];
 			directionalLightComp->Color.Y = colorData[1];
 			directionalLightComp->Color.Z = colorData[2];
+
+			const SVector4 direction = directionalLightComp->Direction;
+			Havtorn::F32 dirData[3] = { direction.X, direction.Y, direction.Z };
+			ImGui::DragFloat3("Direction", dirData, SlideSpeed);
+			directionalLightComp->Direction = { dirData[0], dirData[1], dirData[2], 0.0f };
 
 			ImGui::DragFloat("Intensity", &directionalLightComp->Color.W, SlideSpeed);
 		}

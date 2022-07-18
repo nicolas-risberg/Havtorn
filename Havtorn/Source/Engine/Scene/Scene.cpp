@@ -53,9 +53,9 @@ namespace Havtorn
 
 	void CScene::InitDemoScene(CRenderManager* renderManager)
 	{
+		// === Point light ===
 		auto pointLightEntity = CreateEntity("Point Light");
 
-		// Setup entities (create components)
 		auto pointLightTransform = AddTransformComponentToEntity(pointLightEntity);
 		pointLightTransform->Transform.GetMatrix().Translation({ 1.25f, 0.35f, -1.65f });
 
@@ -107,6 +107,31 @@ namespace Havtorn
 		view6.ShadowmapViewportIndex = 6;
 		view6.ShadowViewMatrix = SMatrix::LookAtLH(constantPosition.ToVector3(), (constantPosition + SVector4::Down).ToVector3(), SVector::Forward);
 		view6.ShadowProjectionMatrix = constantProjectionMatrix;
+		// === !Point light ===
+
+		// === Spotlight ===
+		auto spotlight = CreateEntity("SpotLight");
+
+		auto& spotlightTransform = AddTransformComponentToEntity(spotlight)->Transform;
+		spotlightTransform.Translate({ 1.5f, 0.5f, -1.0f });
+
+		auto spotlightComp = AddSpotLightComponentToEntity(spotlight);
+		spotlightComp->Direction = SVector4::Forward;
+		spotlightComp->DirectionNormal1 = SVector4::Right;
+		spotlightComp->DirectionNormal2 = SVector4::Up;
+		spotlightComp->ColorAndIntensity = { 0.0f, 1.0f, 0.0f, 5.0f };
+		spotlightComp->OuterAngle = 25.0f;
+		spotlightComp->InnerAngle = 5.0f;
+		spotlightComp->Range = 3.0f;
+
+		const SMatrix spotlightProjection = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.001f, spotlightComp->Range);
+		const SVector4 spotlightPosition = TransformComponents.back()->Transform.GetMatrix().Translation4();
+
+		spotlightComp->ShadowmapView.ShadowPosition = spotlightPosition;
+		spotlightComp->ShadowmapView.ShadowmapViewportIndex = 7;
+		spotlightComp->ShadowmapView.ShadowViewMatrix = SMatrix::LookAtLH(spotlightPosition.ToVector3(), (spotlightPosition + spotlightComp->Direction).ToVector3(), spotlightComp->DirectionNormal2.ToVector3());
+		spotlightComp->ShadowmapView.ShadowProjectionMatrix = spotlightProjection;
+		// === !Spotlight ===
 
 		const std::string modelPath1 = "Assets/Tests/En_P_PendulumClock.hva";
 		const std::vector<std::string> materialNames1 = { "T_PendulumClock", "Checkboard_128x128" };
@@ -215,30 +240,6 @@ namespace Havtorn
 			renderManager->LoadMaterialComponent(materialNames3, AddMaterialComponentToEntity(floor).get());
 		}
 		// === !Other Wall ===
-
-		// === Spotlight ===
-		auto spotlight = CreateEntity("SpotLight");
-
-		auto& spotlightTransform = AddTransformComponentToEntity(spotlight)->Transform;
-		spotlightTransform.Translate({ 1.5f, 0.5f, -1.0f });
-
-		auto spotlightComp = AddSpotLightComponentToEntity(spotlight);
-		spotlightComp->Direction = SVector4::Forward;
-		spotlightComp->DirectionNormal1 = SVector4::Right;
-		spotlightComp->DirectionNormal2 = SVector4::Up;
-		spotlightComp->ColorAndIntensity = { 0.0f, 1.0f, 0.0f, 5.0f };
-		spotlightComp->OuterAngle = 25.0f;
-		spotlightComp->InnerAngle = 5.0f;
-		spotlightComp->Range = 3.0f;
-
-		const SMatrix spotlightProjection = SMatrix::PerspectiveFovLH(UMath::DegToRad(90.0f), 1.0f, 0.001f, spotlightComp->Range);
-		const SVector4 spotlightPosition = TransformComponents.back()->Transform.GetMatrix().Translation4();
-
-		spotlightComp->ShadowmapView.ShadowPosition = spotlightPosition;
-		spotlightComp->ShadowmapView.ShadowmapViewportIndex = 7;
-		spotlightComp->ShadowmapView.ShadowViewMatrix = SMatrix::LookAtLH(spotlightPosition.ToVector3(), (spotlightPosition + spotlightComp->Direction).ToVector3(), spotlightComp->DirectionNormal2.ToVector3());
-		spotlightComp->ShadowmapView.ShadowProjectionMatrix = spotlightProjection;
-		// === !Spotlight ===
 	}
 
 	Ref<SEntity> CScene::CreateEntity(const std::string& name)
