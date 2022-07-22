@@ -4,9 +4,6 @@
 
 #include "Core/Core.h"
 
-#include "Event/Event.h"
-#include "Event/ApplicationEvent.h"
-
 namespace Havtorn
 {
 	class HAVTORN_API CApplication

@@ -5,6 +5,9 @@
 #include <cstdint>
 #include <wrl.h>
 
+#include <memory>
+#include <string>
+
 namespace Havtorn
 {
 	using U8 = std::uint8_t;

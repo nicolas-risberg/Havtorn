@@ -5,7 +5,6 @@
 #include <complex>
 #include <random>
 #include "Core/CoreTypes.h"
-#include "EngineMathSSE.h"
 //#include <FastNoise/FastNoise.h>
 
 namespace
@@ -120,12 +119,6 @@ namespace Havtorn
 		static inline I32 Random(I32 lowerBound, I32 upperBound, I32 excludedNumber);
 		static inline I32 Random(I32 lowerBound, I32 upperBound, std::vector<I32>& excludedNumbers);
 	};
-
-	const F32 UMath::Pi = 3.14159265359f;
-	const F32 UMath::Tau = 6.28318530718f;
-
-	const F32 UMath::PiReciprocal = 0.31830988618f;
-	const F32 UMath::TauReciprocal = 0.15915494309f;
 
 	template<typename T>
 	inline T UMath::Sqrt(T x)

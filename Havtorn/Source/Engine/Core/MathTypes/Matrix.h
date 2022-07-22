@@ -5,6 +5,8 @@
 #include "Core/CoreTypes.h"
 #include "EngineMath.h"
 
+#include <assert.h>
+
 namespace Havtorn 
 {
 	struct SVector;
@@ -57,6 +59,7 @@ namespace Havtorn
 		inline SMatrix& operator=(const SMatrix& matrix);
 		inline SMatrix operator*(F32 scalar);
 		inline SMatrix& operator*=(F32 scalar);
+		inline friend SVector4 operator*(SMatrix matrix, SVector4 vector);
 		inline friend SVector4 operator*(SVector4 vector, SMatrix matrix);
 
 		inline SVector4 Row(U8 index) const;
@@ -184,21 +187,6 @@ namespace Havtorn
 		matrix(2, 1) = (yz * oneMinusCos) + (axis.X * sinTerm);
 		matrix(2, 2) = cosTerm + (z2 * oneMinusCos);
 		return matrix;
-	}
-
-	// Only use this on matrices representing a 3x3 rotation and 3x1 translation
-	SMatrix SMatrix::FastInverse() const
-	{
-		SMatrix rotation = Transpose(this->GetRotationMatrix());
-		SVector4 translation = SVector4(this->Translation(), 1.0f);
-		translation *= -1.0f;
-		translation.W *= -1.0f;
-		translation = translation * rotation;
-
-		SMatrix result;
-		result.SetRotation(rotation);
-		result.Translation(translation);
-		return result;
 	}
 
 	SMatrix SMatrix::GetRotationMatrix() const
@@ -331,35 +319,6 @@ namespace Havtorn
 		result.W = vector.Dot(temp4);
 		return result;
 	}
-
-	SVector4 operator*(SMatrix matrix, SVector4 vector)
-	{
-		SVector4 result;
-		SVector4 temp1 = SVector4(matrix(0, 0), matrix(1, 0), matrix(2, 0), matrix(3, 0));
-		SVector4 temp2 = SVector4(matrix(0, 1), matrix(1, 1), matrix(2, 1), matrix(3, 1));
-		SVector4 temp3 = SVector4(matrix(0, 2), matrix(1, 2), matrix(2, 2), matrix(3, 2));
-		SVector4 temp4 = SVector4(matrix(0, 3), matrix(1, 3), matrix(2, 3), matrix(3, 3));
-		result.X = vector.Dot(temp1);
-		result.Y = vector.Dot(temp2);
-		result.Z = vector.Dot(temp3);
-		result.W = vector.Dot(temp4);
-		return result;
-	}
-
-	SVector4 operator*(SVector4 vector, SMatrix matrix)
-	{
-		SVector4 result;
-		SVector4 temp1 = SVector4(matrix(0, 0), matrix(1, 0), matrix(2, 0), matrix(3, 0));
-		SVector4 temp2 = SVector4(matrix(0, 1), matrix(1, 1), matrix(2, 1), matrix(3, 1));
-		SVector4 temp3 = SVector4(matrix(0, 2), matrix(1, 2), matrix(2, 2), matrix(3, 2));
-		SVector4 temp4 = SVector4(matrix(0, 3), matrix(1, 3), matrix(2, 3), matrix(3, 3));
-		result.X = vector.Dot(temp1);
-		result.Y = vector.Dot(temp2);
-		result.Z = vector.Dot(temp3);
-		result.W = vector.Dot(temp4);
-		return result;
-	}
-
 
 	SMatrix& SMatrix::operator=(const SMatrix& matrix)
 	{
@@ -550,6 +509,21 @@ namespace Havtorn
 			}
 		}
 		return matrix;
+	}
+
+	// Only use this on matrices representing a 3x3 rotation and 3x1 translation
+	inline SMatrix SMatrix::FastInverse() const
+	{
+		SMatrix rotation = Transpose(this->GetRotationMatrix());
+		SVector4 translation = SVector4(this->Translation(), 1.0f);
+		translation *= -1.0f;
+		translation.W *= -1.0f;
+		translation = translation * rotation;
+
+		SMatrix result;
+		result.SetRotation(rotation);
+		result.Translation(translation);
+		return result;
 	}
 
 	inline SMatrix SMatrix::Inverse() const

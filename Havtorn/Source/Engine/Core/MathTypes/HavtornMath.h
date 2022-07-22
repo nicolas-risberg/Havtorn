@@ -22,6 +22,34 @@ namespace Havtorn
 		return temp;
 	}
 
+	SVector4 operator*(SMatrix matrix, SVector4 vector)
+	{
+		SVector4 result;
+		SVector4 temp1 = SVector4(matrix(0, 0), matrix(1, 0), matrix(2, 0), matrix(3, 0));
+		SVector4 temp2 = SVector4(matrix(0, 1), matrix(1, 1), matrix(2, 1), matrix(3, 1));
+		SVector4 temp3 = SVector4(matrix(0, 2), matrix(1, 2), matrix(2, 2), matrix(3, 2));
+		SVector4 temp4 = SVector4(matrix(0, 3), matrix(1, 3), matrix(2, 3), matrix(3, 3));
+		result.X = vector.Dot(temp1);
+		result.Y = vector.Dot(temp2);
+		result.Z = vector.Dot(temp3);
+		result.W = vector.Dot(temp4);
+		return result;
+	}
+
+	SVector4 operator*(SVector4 vector, SMatrix matrix)
+	{
+		SVector4 result;
+		SVector4 temp1 = SVector4(matrix(0, 0), matrix(1, 0), matrix(2, 0), matrix(3, 0));
+		SVector4 temp2 = SVector4(matrix(0, 1), matrix(1, 1), matrix(2, 1), matrix(3, 1));
+		SVector4 temp3 = SVector4(matrix(0, 2), matrix(1, 2), matrix(2, 2), matrix(3, 2));
+		SVector4 temp4 = SVector4(matrix(0, 3), matrix(1, 3), matrix(2, 3), matrix(3, 3));
+		result.X = vector.Dot(temp1);
+		result.Y = vector.Dot(temp2);
+		result.Z = vector.Dot(temp3);
+		result.W = vector.Dot(temp4);
+		return result;
+	}
+
 	inline SMatrix SMatrix::CreateRotationFromEuler(F32 pitch, F32 yaw, F32 roll)
 	{
 		const auto quaternion = SQuaternion(pitch, yaw, roll);
