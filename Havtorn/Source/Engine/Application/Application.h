@@ -6,7 +6,6 @@
 
 #include "Event/Event.h"
 #include "Event/ApplicationEvent.h"
-#include "LayerStack.h"
 
 namespace Havtorn
 {
@@ -23,18 +22,9 @@ namespace Havtorn
 
 		void Run();
 
-		void OnEvent(CEvent& e);
-
-		void PushLayer(CLayer* layer);
-		void PushOverlay(CLayer* overlay);
-		
-	private:
-		bool OnWindowClose(CWindowCloseEvent& e);
-
 	private:
 		class CEngine* Engine;
 		bool IsRunning = true;
-		CLayerStack LayerStack;
 	};
 
 	// To be defined in Client

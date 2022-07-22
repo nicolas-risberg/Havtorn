@@ -22,6 +22,34 @@ namespace Havtorn
 		IsRunning = Engine->Init(windowData);
 	}
 
+	/*
+	CProcess
+		Init - Runs once
+		BeginFrame()
+		PreUpdate
+		Update
+		PostUpdate
+		EndFrame
+
+
+	Engine: CProcess
+
+	Application.Processes[]
+
+	Application.Run()
+		while(isRunning)
+			foreach Process
+				p.BeginFrame
+			foreach Process
+				p.PreUpdate
+			foreach Process
+				p.Update
+			...
+
+
+	
+	*/
+
 	void CApplication::Run()
 	{
 		MSG windowMessage = { 0 };
@@ -43,34 +71,4 @@ namespace Havtorn
 		}
 	}
 
-	void CApplication::OnEvent(CEvent& e)
-	{
-		CEventDispatcher dispatcher(e);
-		dispatcher.Dispatch<CWindowCloseEvent>(BIND_EVENT_FUNCTION(OnWindowClose));
-
-		//HV_LOG_TRACE("{0}", e);
-
-		for (auto it = LayerStack.end(); it != LayerStack.begin(); )
-		{
-			(*--it)->OnEvent(e);
-			if (e.IsHandled)
-				break;
-		}
-	}
-
-	void CApplication::PushLayer(CLayer* layer)
-	{
-		LayerStack.PushLayer(layer);
-	}
-
-	void CApplication::PushOverlay(CLayer* overlay)
-	{
-		LayerStack.PushOverlay(overlay);
-	}
-
-	bool CApplication::OnWindowClose(CWindowCloseEvent& /*e*/)
-	{
-		IsRunning = false;
-		return true;
-	} 
 }

@@ -5,7 +5,6 @@
 
 #include "Application/WindowHandler.h"
 #include "Graphics/GraphicsFramework.h"
-#include "Application/LayerStack.h"
 //#include "FullscreenRenderer.h"
 
 namespace Havtorn

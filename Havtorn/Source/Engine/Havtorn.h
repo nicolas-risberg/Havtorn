@@ -7,7 +7,6 @@
 #include "Core/WindowsInclude.h"
 #include "Core/Core.h"
 #include "Application/Application.h"
-#include "Application/Layer.h"
 #include "Core/EngineTypes.h"
 #include "Log.h"
 
